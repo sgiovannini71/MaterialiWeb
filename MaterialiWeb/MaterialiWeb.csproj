@@ -1,0 +1,285 @@
+﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{53C0C216-B3C1-4120-BCEF-D35B049ED35F}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MaterialiWeb</RootNamespace>
+    <AssemblyName>MaterialiWeb</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort>44327</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AssegnaBene.aspx" />
+    <Content Include="CambiaStato.aspx" />
+    <Content Include="CambiaUbicazione.aspx" />
+    <Content Include="Computer.aspx" />
+    <Content Include="ConfiguraComputer.aspx" />
+    <Content Include="Content\site.css" />
+    <Content Include="Default.aspx" />
+    <Content Include="DismettiBene.aspx" />
+    <Content Include="Domini.aspx" />
+    <Content Include="GestioneCrud.aspx" />
+    <Content Include="Global.asax" />
+    <Content Include="ImportaRete.aspx" />
+    <Content Include="html\guida_materiali_gestione.html" />
+    <Content Include="MaterialiGestioneWeb.csproj" />
+    <Content Include="NuovoBene.aspx" />
+    <Content Include="ProdottiAssegnati.aspx" />
+    <Content Include="Prodotti.aspx" />
+    <Content Include="ProdottoDettaglio.aspx" />
+    <Content Include="RientroRiassegnazione.aspx" />
+    <Content Include="Scripts\site.js" />
+    <Content Include="StoricoAssegnazioni.aspx" />
+    <Content Include="sql\cleanup_seed_demo_materiali.sql" />
+    <Content Include="sql\materiali_schema.sql" />
+    <Content Include="sql\reset_demo_materiali.sql" />
+    <Content Include="sql\seed_demo_materiali.sql" />
+    <Content Include="Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssegnaBene.aspx.cs">
+      <DependentUpon>AssegnaBene.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AssegnaBene.aspx.designer.cs">
+      <DependentUpon>AssegnaBene.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CambiaStato.aspx.cs">
+      <DependentUpon>CambiaStato.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CambiaStato.aspx.designer.cs">
+      <DependentUpon>CambiaStato.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CambiaUbicazione.aspx.cs">
+      <DependentUpon>CambiaUbicazione.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CambiaUbicazione.aspx.designer.cs">
+      <DependentUpon>CambiaUbicazione.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Computer.aspx.cs">
+      <DependentUpon>Computer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Computer.aspx.designer.cs">
+      <DependentUpon>Computer.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ConfiguraComputer.aspx.cs">
+      <DependentUpon>ConfiguraComputer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ConfiguraComputer.aspx.designer.cs">
+      <DependentUpon>ConfiguraComputer.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Data\DataReaderExtensions.cs" />
+    <Compile Include="Data\Db.cs" />
+    <Compile Include="Data\DipendentiDb.cs" />
+    <Compile Include="Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DismettiBene.aspx.cs">
+      <DependentUpon>DismettiBene.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DismettiBene.aspx.designer.cs">
+      <DependentUpon>DismettiBene.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Domini.aspx.cs">
+      <DependentUpon>Domini.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Domini.aspx.designer.cs">
+      <DependentUpon>Domini.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GestioneCrud.aspx.cs">
+      <DependentUpon>GestioneCrud.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GestioneCrud.aspx.designer.cs">
+      <DependentUpon>GestioneCrud.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="ImportaRete.aspx.cs">
+      <DependentUpon>ImportaRete.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ImportaRete.aspx.designer.cs">
+      <DependentUpon>ImportaRete.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Infrastructure\AppLogger.cs" />
+    <Compile Include="Models\AdminCrudModels.cs" />
+    <Compile Include="Models\ComputerCorrente.cs" />
+    <Compile Include="Models\DashboardStats.cs" />
+    <Compile Include="Models\DominioItem.cs" />
+    <Compile Include="Models\LookupItem.cs" />
+    <Compile Include="Models\ProcessModels.cs" />
+    <Compile Include="Models\ProdottoCorrente.cs" />
+    <Compile Include="Models\ProdottoDettaglio.cs" />
+    <Compile Include="NuovoBene.aspx.cs">
+      <DependentUpon>NuovoBene.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="NuovoBene.aspx.designer.cs">
+      <DependentUpon>NuovoBene.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ProdottiAssegnati.aspx.cs">
+      <DependentUpon>ProdottiAssegnati.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ProdottiAssegnati.aspx.designer.cs">
+      <DependentUpon>ProdottiAssegnati.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Prodotti.aspx.cs">
+      <DependentUpon>Prodotti.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Prodotti.aspx.designer.cs">
+      <DependentUpon>Prodotti.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ProdottoDettaglio.aspx.cs">
+      <DependentUpon>ProdottoDettaglio.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ProdottoDettaglio.aspx.designer.cs">
+      <DependentUpon>ProdottoDettaglio.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RientroRiassegnazione.aspx.cs">
+      <DependentUpon>RientroRiassegnazione.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="RientroRiassegnazione.aspx.designer.cs">
+      <DependentUpon>RientroRiassegnazione.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Services\InventarioRepository.cs" />
+    <Compile Include="Services\PersonaleRepository.cs" />
+    <Compile Include="Site.Master.cs">
+      <DependentUpon>Site.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Site.Master.designer.cs">
+      <DependentUpon>Site.Master</DependentUpon>
+    </Compile>
+    <Compile Include="StoricoAssegnazioni.aspx.cs">
+      <DependentUpon>StoricoAssegnazioni.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StoricoAssegnazioni.aspx.designer.cs">
+      <DependentUpon>StoricoAssegnazioni.aspx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <Content Include="README.md" />
+    <Content Include="Site.Master" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>56491</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>https://localhost:44327/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

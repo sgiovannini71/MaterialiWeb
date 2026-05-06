@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Guida Operativa - MaterialiGestioneWeb</title>
+    <style>
+        :root {
+            --bg: #f5f1e8;
+            --panel: #fffdf8;
+            --ink: #1f2a37;
+            --muted: #5f6b7a;
+            --line: #d7cfbf;
+            --accent: #0f4c5c;
+            --accent-2: #b85c38;
+            --soft: #eef3f4;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background:
+                radial-gradient(circle at top right, rgba(184, 92, 56, 0.12), transparent 28%),
+                linear-gradient(180deg, #f7f4ec 0%, var(--bg) 100%);
+            color: var(--ink);
+            font-family: Georgia, "Times New Roman", serif;
+            line-height: 1.58;
+        }
+
+        .shell {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 24px 56px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(15, 76, 92, 0.96), rgba(17, 53, 72, 0.96));
+            color: #f8fbfc;
+            border-radius: 18px;
+            padding: 32px 30px;
+            box-shadow: 0 18px 50px rgba(15, 37, 48, 0.15);
+        }
+
+        .hero h1 {
+            margin: 0 0 10px;
+            font-size: 2.2rem;
+            letter-spacing: 0.02em;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 820px;
+            color: rgba(248, 251, 252, 0.9);
+            font-size: 1.05rem;
+        }
+
+        .meta {
+            margin-top: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pill {
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            padding: 7px 12px;
+            font-size: 0.92rem;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .toc,
+        .section {
+            margin-top: 22px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 24px 24px 20px;
+            box-shadow: 0 8px 24px rgba(34, 44, 56, 0.05);
+        }
+
+        h2 {
+            margin: 0 0 14px;
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        h3 {
+            margin: 20px 0 10px;
+            color: var(--accent-2);
+            font-size: 1.08rem;
+        }
+
+        p { margin: 0 0 12px; }
+        ul, ol { margin: 0 0 14px 22px; padding: 0; }
+        li { margin: 0 0 8px; }
+
+        .toc ul {
+            columns: 2;
+            column-gap: 34px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 14px;
+            margin-top: 10px;
+        }
+
+        .diagram {
+            display: grid;
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .diagram-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            align-items: stretch;
+        }
+
+        .node {
+            position: relative;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: linear-gradient(180deg, #fffefb 0%, #f7f4ed 100%);
+            padding: 14px 14px 12px;
+            min-height: 110px;
+        }
+
+        .node strong {
+            display: block;
+            color: var(--accent);
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        .node small {
+            color: var(--muted);
+            display: block;
+            font-size: 0.88rem;
+        }
+
+        .connector {
+            text-align: center;
+            color: var(--accent-2);
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+            margin: -2px 0 2px;
+        }
+
+        .legend {
+            margin-top: 14px;
+            padding: 14px;
+            border: 1px dashed var(--line);
+            border-radius: 12px;
+            background: #fcfaf4;
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 16px;
+            background: #fffefb;
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0 8px;
+            font-size: 0.96rem;
+        }
+
+        th, td {
+            text-align: left;
+            vertical-align: top;
+            border-bottom: 1px solid var(--line);
+            padding: 10px 8px;
+        }
+
+        th {
+            color: var(--accent);
+            font-weight: bold;
+            background: var(--soft);
+        }
+
+        code {
+            font-family: Consolas, "Courier New", monospace;
+            background: #eef2f4;
+            border-radius: 4px;
+            padding: 0.1rem 0.35rem;
+            color: #163d4a;
+        }
+
+        .note, .warning {
+            border-left: 4px solid var(--accent);
+            background: #f4f9fa;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin: 12px 0;
+        }
+
+        .warning {
+            border-left-color: var(--accent-2);
+            background: #fff4ee;
+        }
+
+        .footer {
+            margin-top: 24px;
+            color: var(--muted);
+            font-size: 0.94rem;
+        }
+
+        @media (max-width: 760px) {
+            .shell { padding: 18px 14px 40px; }
+            .hero { padding: 24px 20px; }
+            .hero h1 { font-size: 1.8rem; }
+            .toc ul { columns: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <section class="hero">
+            <h1>Guida Operativa MaterialiGestioneWeb</h1>
+            <p>
+                Documento HTML di supporto per comprendere la logica del prodotto,
+                il modello dati sottostante e il flusso operativo dell'applicativo
+                ASP.NET Web Forms collegato al database <code>Materiali</code>.
+            </p>
+            <div class="meta">
+                <span class="pill">Applicazione: <code>MaterialiGestioneWeb</code></span>
+                <span class="pill">Tecnologia: ASP.NET Web Forms / C#</span>
+                <span class="pill">Database principale: <code>Materiali</code></span>
+                <span class="pill">Anagrafica personale: <code>DipendentiDB</code></span>
+                <span class="pill">Aggiornata: 6 maggio 2026</span>
+            </div>
+        </section>
+
+        <section class="toc">
+            <h2>Indice</h2>
+            <ul>
+                <li>1. Obiettivo del sistema</li>
+                <li>2. Logica generale del prodotto</li>
+                <li>3. Entita principali del database</li>
+                <li>4. Schema concettuale semplificato</li>
+                <li>5. Come si rappresenta un materiale</li>
+                <li>6. Gestione assegnazioni</li>
+                <li>7. Gestione rete e postazioni</li>
+                <li>8. Gestione stato e stanza</li>
+                <li>9. Integrazione con DipendentiDB</li>
+                <li>10. Pagine dell'applicativo</li>
+                <li>11. Gestione CRUD amministrativa</li>
+                <li>12. Flussi operativi consigliati</li>
+                <li>13. Regole di business</li>
+                <li>14. Query e viste logiche applicative</li>
+                <li>15. Note di esercizio</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>1. Obiettivo del sistema</h2>
+            <p>
+                L'applicativo gestisce il materiale informatico inventariato:
+                notebook, desktop, monitor, stampanti e altri beni collegati a
+                ordinativi, stanze, assegnatari, rete e postazioni.
+            </p>
+            <p>
+                Il sistema non ha una logica di inventario “astratta”, ma segue
+                il modello storico-amministrativo gia esistente nel database
+                <code>Materiali</code>. Per questo motivo salva i beni in
+                <code>Prodotti</code>, le assegnazioni correnti in
+                <code>ProdPers</code>, lo storico in
+                <code>ProdPersStorico</code>, e le informazioni di rete nelle
+                tabelle <code>NetworkData</code>, <code>Postazione</code> e
+                <code>NomeMacchina</code>.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>2. Logica generale del prodotto</h2>
+            <div class="grid">
+                <article class="card">
+                    <h3>Materiale fisico</h3>
+                    <p>
+                        Il bene reale e rappresentato da un record in
+                        <code>Prodotti</code>, identificato da
+                        <code>IdProdotto</code> e descritto anche tramite
+                        <code>Categorico</code>, <code>Matricola</code>,
+                        <code>IdEfficienza</code> e <code>idStanza</code>.
+                    </p>
+                    <p>
+                        In fase di creazione il <code>Categorico</code> viene
+                        proposto automaticamente dal sistema, prendendo il
+                        prossimo valore disponibile.
+                    </p>
+                </article>
+                <article class="card">
+                    <h3>Descrizione tecnico-amministrativa</h3>
+                    <p>
+                        Il profilo del bene non e memorizzato direttamente in
+                        <code>Prodotti</code>, ma passa attraverso
+                        <code>OggettoOrdinativo</code>, che contiene descrizione,
+                        modello, ditta costruttrice, NUC e categoria.
+                    </p>
+                </article>
+                <article class="card">
+                    <h3>Assegnazione corrente</h3>
+                    <p>
+                        Se un bene e assegnato, esiste un record attivo in
+                        <code>ProdPers</code>. Lo storico delle assegnazioni non
+                        viene ricostruito a posteriori: viene scritto in
+                        <code>ProdPersStorico</code> al momento dell'operazione.
+                    </p>
+                </article>
+                <article class="card">
+                    <h3>Rete e nome macchina</h3>
+                    <p>
+                        L'identita di rete e distribuita su due blocchi:
+                        <code>NetworkData</code> per il MAC address e
+                        <code>Postazione</code> + <code>NomeMacchina</code> per il
+                        nome macchina associato al bene.
+                    </p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>3. Entita principali del database</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tabella</th>
+                        <th>Ruolo</th>
+                        <th>Osservazioni applicative</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Prodotti</code></td>
+                        <td>bene fisico inventariato</td>
+                        <td>e il centro della gestione operativa</td>
+                    </tr>
+                    <tr>
+                        <td><code>OggettoOrdinativo</code></td>
+                        <td>descrizione tecnica e commerciale</td>
+                        <td>puo essere riusato da piu prodotti simili</td>
+                    </tr>
+                    <tr>
+                        <td><code>Ordinativo</code></td>
+                        <td>atto amministrativo / contratto</td>
+                        <td>usato per ricondurre il materiale alla fornitura</td>
+                    </tr>
+                    <tr>
+                        <td><code>CategoriaProdotti</code></td>
+                        <td>classificazione funzionale del bene</td>
+                        <td>nell'interfaccia si gestiscono nome e tipo oggetto; il flag ethernet non viene usato operativamente</td>
+                    </tr>
+                    <tr>
+                        <td><code>LivelliEfficenza</code></td>
+                        <td>stato corrente del bene</td>
+                        <td>stato corrente del bene</td>
+                    </tr>
+                    <tr>
+                        <td><code>Stanze</code></td>
+                        <td>collocazione corrente</td>
+                        <td>la stanza corrente vive in <code>Prodotti.idStanza</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>ProdPers</code></td>
+                        <td>assegnazione attiva</td>
+                        <td>al massimo una riga corrente per prodotto nel flusso applicativo</td>
+                    </tr>
+                    <tr>
+                        <td><code>ProdPersStorico</code></td>
+                        <td>storico assegnazioni</td>
+                        <td>salva anche snapshot di stanza, efficienza, macchina e seriale</td>
+                    </tr>
+                    <tr>
+                        <td><code>NetworkData</code></td>
+                        <td>MAC address</td>
+                        <td>gestione di rete a livello bene</td>
+                    </tr>
+                    <tr>
+                        <td><code>Postazione</code> + <code>NomeMacchina</code></td>
+                        <td>nome macchina</td>
+                        <td>il nome logico viene mantenuto separato e collegato al prodotto</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>4. Schema concettuale semplificato</h2>
+            <p>
+                Lo schema seguente mostra la logica funzionale del prodotto in forma
+                sintetica. Non sostituisce il DDL SQL, ma aiuta a capire come
+                l'applicativo ragiona sui dati.
+            </p>
+
+            <div class="diagram">
+                <div class="diagram-row">
+                    <div class="node">
+                        <strong>Ordinativo</strong>
+                        <span>atto amministrativo di fornitura</span>
+                        <small><code>Ordinativo</code></small>
+                    </div>
+                    <div class="node">
+                        <strong>Ditta</strong>
+                        <span>fornitore o costruttore</span>
+                        <small><code>Ditte</code></small>
+                    </div>
+                    <div class="node">
+                        <strong>Tipo Oggetto</strong>
+                        <span>macro classe del bene</span>
+                        <small><code>TipoOggettoOrdinativo</code></small>
+                    </div>
+                </div>
+
+                <div class="connector">Ordinativo + Ditta + Categoria descrivono l'oggetto di fornitura</div>
+
+                <div class="diagram-row">
+                    <div class="node">
+                        <strong>Categoria prodotto</strong>
+                        <span>classifica il bene e lo collega al tipo oggetto</span>
+                        <small><code>CategoriaProdotti</code></small>
+                    </div>
+                    <div class="node">
+                        <strong>Oggetto ordinativo</strong>
+                        <span>descrizione tecnica, modello, NUC e categoria</span>
+                        <small><code>OggettoOrdinativo</code></small>
+                    </div>
+                </div>
+
+                <div class="connector">L'oggetto ordinativo viene associato al bene fisico</div>
+
+                <div class="diagram-row">
+                    <div class="node">
+                        <strong>Prodotto</strong>
+                        <span>materiale fisico inventariato</span>
+                        <small><code>Prodotti</code></small>
+                    </div>
+                    <div class="node">
+                        <strong>Livello efficienza</strong>
+                        <span>stato operativo corrente</span>
+                        <small><code>LivelliEfficenza</code></small>
+                    </div>
+                    <div class="node">
+                        <strong>Stanza</strong>
+                        <span>collocazione corrente</span>
+                        <small><code>Stanze</code></small>
+                    </div>
+                </div>
+
+                <div class="connector">Dal prodotto si diramano assegnazione, rete e postazione</div>
+
+                <div class="diagram-row">
+                    <div class="node">
+                        <strong>Assegnazione corrente</strong>
+                        <span>chi ha oggi il materiale</span>
+                        <small><code>ProdPers</code></small>
+                    </div>
+                    <div class="node">
+                        <strong>Storico assegnazioni</strong>
+                        <span>snapshot di assegnazione, stanza, stato e macchina</span>
+                        <small><code>ProdPersStorico</code></small>
+                    </div>
+                    <div class="node">
+                        <strong>Rete</strong>
+                        <span>MAC address</span>
+                        <small><code>NetworkData</code></small>
+                    </div>
+                    <div class="node">
+                        <strong>Postazione</strong>
+                        <span>nome macchina collegato al bene</span>
+                        <small><code>Postazione</code> + <code>NomeMacchina</code></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <strong>Lettura del diagramma.</strong>
+                <p>
+                    Il materiale fisico vive in <code>Prodotti</code>. Tutto il resto
+                    sono anagrafiche o strutture di supporto che spiegano <em>cos'e</em>
+                    il bene, <em>dove si trova</em>, <em>chi lo usa</em> e
+                    <em>che identita tecnica</em> possiede.
+                </p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>5. Come si rappresenta un materiale</h2>
+            <p>Un bene completo e normalmente composto da questi elementi:</p>
+            <ol>
+                <li>un record in <code>Prodotti</code></li>
+                <li>un collegamento a <code>OggettoOrdinativo</code> tramite <code>idOggOrdinativo</code></li>
+                <li>un <code>Categorico</code> assegnato automaticamente dal prossimo disponibile</li>
+                <li>un livello di efficienza corrente tramite <code>IdEfficienza</code></li>
+                <li>una stanza corrente tramite <code>idStanza</code>, se nota</li>
+                <li>una assegnazione attiva in <code>ProdPers</code>, se il bene e affidato a qualcuno</li>
+                <li>una o piu tracce storiche in <code>ProdPersStorico</code></li>
+                <li>eventuale identita di rete in <code>NetworkData</code></li>
+                <li>eventuale nome macchina in <code>Postazione</code> / <code>NomeMacchina</code></li>
+            </ol>
+
+            <div class="note">
+                <strong>Osservazione importante:</strong> nel modello corrente lo storico
+                vero e proprio e disponibile soprattutto per le assegnazioni,
+                attraverso <code>ProdPersStorico</code>.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>6. Gestione assegnazioni</h2>
+            <h3>Assegnazione corrente</h3>
+            <p>
+                La riga attiva e registrata in <code>ProdPers</code> con:
+                <code>IdProdotto</code>, <code>IdPersonale</code> e
+                <code>DataAssegnazione</code>.
+            </p>
+            <p>
+                Nelle maschere operative e amministrative l'utente non deve cercare
+                manualmente questi identificativi. Il prodotto viene scelto tramite
+                una lista che mostra il <code>Categorico</code> insieme a descrizione
+                e matricola; il personale viene scelto tramite nominativo.
+            </p>
+
+            <h3>Storico</h3>
+            <p>
+                Ogni operazione di assegnazione o rientro deve produrre uno
+                snapshot in <code>ProdPersStorico</code>, che include:
+            </p>
+            <ul>
+                <li>assegnatario</li>
+                <li>date di assegnazione e restituzione</li>
+                <li>stanza</li>
+                <li>livello di efficienza</li>
+                <li>nome macchina</li>
+                <li>seriale / matricola</li>
+                <li>note prodotto al momento dell'operazione</li>
+            </ul>
+            <p>
+                Lo storico puo essere consultato in due modi: dal dettaglio del
+                singolo bene in <code>ProdottoDettaglio.aspx</code>, oppure dalla
+                pagina dedicata <code>StoricoAssegnazioni.aspx</code>, che consente
+                filtri trasversali per <code>Categorico</code>, prodotto e
+                assegnatario.
+            </p>
+
+            <h3>Rientro</h3>
+            <p>
+                Il rientro chiude l'assegnazione corrente rimuovendo il record da
+                <code>ProdPers</code> e aggiornando <code>dataRestituzione</code>
+                nello storico corrispondente.
+            </p>
+            <p>
+                La pagina <code>RientroRiassegnazione.aspx</code> e centrata sul
+                <code>Categorico</code>: l'operatore inserisce il numero nel campo
+                di filtro, seleziona il prodotto trovato e registra il rientro o la
+                riassegnazione. Questa scelta evita di cercare il bene partendo dalla
+                sola descrizione commerciale.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>7. Gestione rete e postazioni</h2>
+            <p>
+                L'applicativo tratta i dati di rete in maniera separata dal resto
+                dell'anagrafica del bene:
+            </p>
+            <ul>
+                <li><code>NetworkData</code> contiene il MAC address e una nota tecnica breve</li>
+                <li><code>NomeMacchina</code> contiene il nome logico</li>
+                <li><code>Postazione</code> collega il nome macchina al prodotto</li>
+            </ul>
+
+            <div class="warning">
+                Se il nome macchina cambia, il flusso applicativo corrente aggiorna
+                la postazione corrente. Non esiste una tabella storica dedicata agli
+                hostname come nel progetto precedente.
+            </div>
+            <h3>Import massivo da TXT</h3>
+            <p>
+                La pagina <code>ImportaRete.aspx</code> consente di caricare un file
+                <code>.txt</code> con due colonne: <code>nomemacchina</code> e
+                <code>macaddress</code>. Il sistema cerca il nome macchina in
+                <code>NomeMacchina/Postazione</code>; se trova il prodotto collegato,
+                aggiorna <code>NetworkData</code> con il MAC normalizzato.
+            </p>
+            <p>
+                Sono accettati separatori spazio, tab, punto e virgola o virgola. La
+                prima riga puo contenere l'intestazione. Ogni riga produce un esito:
+                aggiornata oppure scartata con motivazione.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>8. Gestione stato e stanza</h2>
+            <p>
+                Lo stato corrente del materiale e nel campo
+                <code>Prodotti.IdEfficienza</code>, che punta a
+                <code>LivelliEfficenza</code>.
+            </p>
+            <p>
+                La stanza corrente e nel campo <code>Prodotti.idStanza</code>, che
+                punta a <code>Stanze</code>.
+            </p>
+            <p>
+                Il flusso applicativo aggiorna questi campi direttamente e rinnova
+                anche <code>DataUltimaMov</code>, in modo da rendere visibile
+                l'ultima movimentazione del bene.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>9. Integrazione con DipendentiDB</h2>
+            <p>
+                Il database <code>Materiali</code> salva solo l'identificativo
+                numerico dell'assegnatario. I dati anagrafici vengono letti a
+                runtime da <code>DipendentiDB</code>.
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tipologia personale</th>
+                        <th>Tabella</th>
+                        <th>Chiave</th>
+                        <th>Filtro attivi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Interno</td>
+                        <td><code>dbo.elencopersonale</code></td>
+                        <td><code>idpersonale</code></td>
+                        <td><code>stato_servizio = 'attivo'</code></td>
+                    </tr>
+                    <tr>
+                        <td>Esterno</td>
+                        <td><code>dbo.pe_elencopersonaleesterno</code></td>
+                        <td><code>id_pe</code></td>
+                        <td><code>attivo = 1</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>Comportamento di default dell'interfaccia:</p>
+            <ul>
+                <li>radio button iniziale su <strong>Interno</strong></li>
+                <li>checkbox dei non attivi non selezionata</li>
+                <li>visualizzazione nominativi nel formato <code>Cognome Nome</code></li>
+                <li>possibilita di passare a personale esterno e di includere anche i non attivi quando necessario</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>10. Pagine dell'applicativo</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pagina</th>
+                        <th>Funzione</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>Default.aspx</code></td><td>dashboard sintetica</td></tr>
+                    <tr><td><code>Prodotti.aspx</code></td><td>elenco generale materiali</td></tr>
+                    <tr><td><code>ProdottiAssegnati.aspx</code></td><td>materiali attualmente assegnati a uno specifico utente</td></tr>
+                    <tr><td><code>Computer.aspx</code></td><td>vista materiali con rete o postazione</td></tr>
+                    <tr><td><code>ProdottoDettaglio.aspx</code></td><td>scheda completa del bene</td></tr>
+                    <tr><td><code>NuovoBene.aspx</code></td><td>creazione di un nuovo materiale</td></tr>
+                    <tr><td><code>AssegnaBene.aspx</code></td><td>assegnazione a interno o esterno</td></tr>
+                    <tr><td><code>RientroRiassegnazione.aspx</code></td><td>chiusura assegnazione o nuova assegnazione, con ricerca prodotto tramite categorico</td></tr>
+                    <tr><td><code>StoricoAssegnazioni.aspx</code></td><td>consultazione dello storico assegnazioni filtrabile per categorico, prodotto e assegnatario</td></tr>
+                    <tr><td><code>CambiaStato.aspx</code></td><td>aggiornamento livello di efficienza</td></tr>
+                    <tr><td><code>CambiaUbicazione.aspx</code></td><td>aggiornamento stanza</td></tr>
+                    <tr><td><code>ConfiguraComputer.aspx</code></td><td>aggiornamento MAC e nome macchina</td></tr>
+                    <tr><td><code>ImportaRete.aspx</code></td><td>import massivo TXT di nome macchina e MAC address</td></tr>
+                    <tr><td><code>DismettiBene.aspx</code></td><td>versamento o dismissione</td></tr>
+                    <tr><td><code>Domini.aspx</code></td><td>CRUD di categorie, livelli, stanze, ditte e tipi oggetto ordinativo</td></tr>
+                    <tr><td><code>GestioneCrud.aspx</code></td><td>CRUD amministrativi per prodotti, ordinativi, oggetti ordinativi, rete, postazioni, assegnazioni e storico</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>11. Gestione CRUD amministrativa</h2>
+            <p>
+                La pagina <code>GestioneCrud.aspx</code> espone le tabelle principali
+                per manutenzione diretta. Alla luce della nuova logica, le maschere
+                devono privilegiare campi leggibili e salvare gli ID solo dietro le
+                quinte.
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Area</th>
+                        <th>Come si lavora</th>
+                        <th>ID gestito internamente</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Prodotti</td>
+                        <td>stanza, oggetto ordinativo ed efficienza si scelgono da dropdown descrittive</td>
+                        <td><code>idStanza</code>, <code>idOggOrdinativo</code>, <code>IdEfficienza</code></td>
+                    </tr>
+                    <tr>
+                        <td>Oggetti ordinativo</td>
+                        <td>l'ordinativo viene selezionato tramite descrizione/codice; ditta e categoria sono dropdown; si gestisce anche <code>NUC</code></td>
+                        <td><code>idOrdinativo</code>, <code>idDittaCostruttrice</code>, <code>idCategProdotti</code>, <code>NUC</code></td>
+                    </tr>
+                    <tr>
+                        <td>NetworkData</td>
+                        <td>il prodotto si seleziona dal categorico; in questa area sono mostrati solo prodotti con profilo rete</td>
+                        <td><code>idProdotto</code></td>
+                    </tr>
+                    <tr>
+                        <td>Postazioni</td>
+                        <td>il prodotto si seleziona dal categorico; il nome macchina si sceglie da dropdown dei nomi macchina esistenti</td>
+                        <td><code>idProdotto</code> e collegamento a <code>NomeMacchina</code></td>
+                    </tr>
+                    <tr>
+                        <td>Ordinativi</td>
+                        <td>si gestiscono solo codice e denominazione; il codice in inserimento e generato come <code>yyyy/progressivo</code></td>
+                        <td><code>idOrdinativo</code>, <code>CodiceOrdinativo</code>, <code>denominazioneOrdinativo</code></td>
+                    </tr>
+                    <tr>
+                        <td>ProdPers</td>
+                        <td>prodotto da categorico; personale da nominativo, filtrando interni/esterni e attivi/non attivi</td>
+                        <td><code>IdProdotto</code>, <code>IdPersonale</code></td>
+                    </tr>
+                    <tr>
+                        <td>ProdPersStorico</td>
+                        <td>stessa logica di <code>ProdPers</code>, con in piu le informazioni storiche di assegnazione e restituzione</td>
+                        <td><code>idProdotto</code>, <code>idPersonale</code>, <code>idProdPers</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="warning">
+                Gli ID rimangono importanti per il database, ma non devono essere il
+                modo ordinario con cui l'utente sceglie prodotti, ordinativi,
+                personale o nomi macchina.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>12. Flussi operativi consigliati</h2>
+            <h3>Nuovo materiale</h3>
+            <ol>
+                <li>aprire <code>NuovoBene.aspx</code></li>
+                <li>verificare il categorico proposto automaticamente dal sistema</li>
+                <li>inserire descrizione, matricola, categoria, efficienza e stanza</li>
+                <li>collegare un <code>OggettoOrdinativo</code> esistente oppure fornire i dati minimi per crearne uno</li>
+                <li>salvare il prodotto</li>
+            </ol>
+
+            <h3>Assegnazione</h3>
+            <ol>
+                <li>selezionare il materiale dal categorico, verificando descrizione e matricola</li>
+                <li>scegliere personale interno o esterno</li>
+                <li>di default vedere solo gli attivi</li>
+                <li>salvare l'assegnazione corrente</li>
+                <li>registrare lo snapshot in storico</li>
+            </ol>
+
+            <h3>Consultazione per assegnatario</h3>
+            <ol>
+                <li>aprire <code>ProdottiAssegnati.aspx</code></li>
+                <li>scegliere personale interno o esterno</li>
+                <li>decidere se includere personale non attivo</li>
+                <li>selezionare il nominativo e visualizzare i beni assegnati</li>
+            </ol>
+
+            <h3>Rientro o riassegnazione</h3>
+            <ol>
+                <li>inserire il categorico nel campo di filtro</li>
+                <li>selezionare il prodotto tra i risultati filtrati</li>
+                <li>chiudere l'assegnazione attiva</li>
+                <li>impostare la data di restituzione nello storico</li>
+                <li>se necessario, creare subito la nuova assegnazione</li>
+            </ol>
+
+            <h3>Consultazione storico assegnazioni</h3>
+            <ol>
+                <li>aprire <code>StoricoAssegnazioni.aspx</code></li>
+                <li>filtrare per <code>Categorico</code> e, se serve, selezionare il prodotto</li>
+                <li>opzionalmente selezionare un assegnatario con filtro interno/esterno e attivi/non attivi</li>
+                <li>visualizzare date, stanza, stato, macchina, seriale e note storiche</li>
+            </ol>
+
+            <h3>Configurazione rete/postazione</h3>
+            <ol>
+                <li>aprire <code>ConfiguraComputer.aspx</code></li>
+                <li>scegliere il prodotto usando il categorico</li>
+                <li>aggiornare MAC address</li>
+                <li>aggiornare nome macchina come testo, senza gestire manualmente l'ID</li>
+                <li>salvare e aggiornare <code>DataUltimaMov</code></li>
+            </ol>
+
+            <h3>Import rete da file TXT</h3>
+            <ol>
+                <li>preparare un file con colonne <code>nomemacchina</code> e <code>macaddress</code></li>
+                <li>aprire <code>ImportaRete.aspx</code></li>
+                <li>caricare il file e avviare l'import</li>
+                <li>controllare la griglia esito per righe aggiornate e scartate</li>
+            </ol>
+        </section>
+
+        <section class="section">
+            <h2>13. Regole di business</h2>
+            <ul>
+                <li>nel database <code>Materiali</code> si salva solo l'ID dell'assegnatario</li>
+                <li>l'interfaccia deve preferire il personale interno e attivo come default</li>
+                <li>quando si sceglie un prodotto, l'interfaccia deve mostrare il <code>Categorico</code> e non richiedere <code>IdProdotto</code> a mano</li>
+                <li>quando si sceglie personale, l'interfaccia deve mostrare <code>Cognome Nome</code> e non richiedere <code>IdPersonale</code> a mano</li>
+                <li>quando si gestisce un oggetto ordinativo, l'ordinativo va selezionato tramite descrizione/codice e non tramite ID digitato</li>
+                <li>il rientro e la riassegnazione devono partire dal <code>Categorico</code>, usando la descrizione solo come conferma visiva</li>
+                <li>lo storico assegnazioni deve essere consultabile senza entrare necessariamente nel dettaglio del singolo prodotto</li>
+                <li>le assegnazioni correnti devono vivere in <code>ProdPers</code></li>
+                <li>ogni operazione di assegnazione o rientro deve aggiornare <code>ProdPersStorico</code></li>
+                <li>il MAC address va normalizzato nel formato con separatore <code>:</code> se possibile</li>
+                <li>il <code>Categorico</code> di un nuovo bene deve essere proposto automaticamente dal prossimo valore disponibile</li>
+                <li>il cambio stanza e il cambio stato aggiornano il record corrente in <code>Prodotti</code></li>
+                <li>la dismissione puo chiudere l'assegnazione attiva e valorizzare <code>Versamento</code></li>
+                <li>l'import rete aggiorna solo prodotti gia collegati a un nome macchina esistente</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>14. Query e viste logiche applicative</h2>
+            <p>
+                L'applicativo non si appoggia a viste SQL dedicate, ma costruisce
+                query applicative che combinano:
+            </p>
+            <ul>
+                <li><code>Prodotti</code> come tabella base</li>
+                <li><code>OggettoOrdinativo</code> per descrizione e modello</li>
+                <li><code>CategoriaProdotti</code> e <code>TipoOggettoOrdinativo</code> per classificazione</li>
+                <li><code>ProdPers</code> per assegnazione attiva</li>
+                <li><code>ProdPersStorico</code> per la consultazione storica filtrata per categorico, prodotto e assegnatario</li>
+                <li><code>Stanze</code> per la collocazione</li>
+                <li><code>LivelliEfficenza</code> per lo stato</li>
+                <li><code>NetworkData</code> e <code>Postazione/NomeMacchina</code> per la rete</li>
+            </ul>
+            <p>
+                Questo approccio rende il progetto piu aderente al database reale,
+                evitando di introdurre strutture non esistenti nel modello
+                <code>Materiali</code>.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>15. Note di esercizio</h2>
+            <div class="note">
+                Il progetto include script demo nella cartella <code>sql</code> per
+                popolare il database con dati di esempio e ripulirli in seguito.
+            </div>
+            <div class="warning">
+                La build non e stata compilata direttamente in questo ambiente
+                locale, perche qui non sono presenti <code>msbuild</code> o
+                <code>dotnet</code>. La verifica finale va fatta in Visual Studio
+                2019 sulla macchina Windows di sviluppo.
+            </div>
+            <p class="footer">
+                Documento generato come guida in linea del progetto
+                <code>MaterialiGestioneWeb</code>.
+            </p>
+        </section>
+    </div>
+</body>
+</html>

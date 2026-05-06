@@ -1,0 +1,42 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.Master.cs" Inherits="MaterialiGestioneWeb.SiteMaster" %>
+<!DOCTYPE html>
+<html lang="it">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><asp:ContentPlaceHolder ID="TitleContent" runat="server" /> - Gestione Materiali</title>
+    <link href="Content/site.css" rel="stylesheet" />
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+</head>
+<body>
+    <form id="form1" runat="server">
+        <header class="app-header">
+            <div>
+                <a class="brand" href="Default.aspx">Gestione Materiali</a>
+                <p class="tagline">Materiale informatico, assegnazioni, rete e postazioni</p>
+            </div>
+            <nav class="main-nav" aria-label="Navigazione principale">
+                <a href="Default.aspx">Dashboard</a>
+                <a href="Prodotti.aspx">Prodotti</a>
+                <a href="ProdottiAssegnati.aspx">Per assegnatario</a>
+                <a href="Computer.aspx">Rete e postazioni</a>
+                <a href="NuovoBene.aspx">Nuovo bene</a>
+                <a href="AssegnaBene.aspx">Assegna</a>
+                <a href="RientroRiassegnazione.aspx">Rientro</a>
+                <a href="StoricoAssegnazioni.aspx">Storico</a>
+                <a href="ConfiguraComputer.aspx">Configura</a>
+                <a href="ImportaRete.aspx">Import rete</a>
+                <a href="Domini.aspx">Domini</a>
+                <a href="GestioneCrud.aspx">CRUD Admin</a>
+            </nav>
+        </header>
+        <main class="page-shell">
+            <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+        </main>
+        <footer class="app-footer">
+            <span>Materiali - ASP.NET Web Forms</span>
+        </footer>
+    </form>
+    <script src="Scripts/site.js"></script>
+</body>
+</html>

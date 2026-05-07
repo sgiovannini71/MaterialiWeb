@@ -25,6 +25,7 @@ namespace MaterialiGestioneWeb
         protected global::System.Web.UI.WebControls.DropDownList OggettoDittaDropDown;
         protected global::System.Web.UI.WebControls.TextBox OggettoModelloText;
         protected global::System.Web.UI.WebControls.TextBox OggettoNucText;
+        protected global::System.Web.UI.WebControls.TextBox OggettoQuantitaText;
         protected global::System.Web.UI.WebControls.DropDownList OggettoCategoriaDropDown;
         protected global::System.Web.UI.WebControls.Button AddOggettoButton;
         protected global::System.Web.UI.WebControls.GridView OggettiGrid;

@@ -85,6 +85,7 @@
             <label>Ditta costruttrice<asp:DropDownList ID="OggettoDittaDropDown" runat="server" CssClass="input" /></label>
             <label>Modello<asp:TextBox ID="OggettoModelloText" runat="server" CssClass="input" /></label>
             <label>NUC<asp:TextBox ID="OggettoNucText" runat="server" CssClass="input" /></label>
+            <label>Quantita<asp:TextBox ID="OggettoQuantitaText" runat="server" CssClass="input" TextMode="Number" /></label>
             <label>Categoria<asp:DropDownList ID="OggettoCategoriaDropDown" runat="server" CssClass="input" /></label>
         </div>
         <div class="page-actions"><asp:Button ID="AddOggettoButton" runat="server" Text="Aggiungi oggetto ordinativo" CssClass="button primary" OnClick="AddOggettoButton_Click" /></div>
@@ -97,6 +98,7 @@
                 <asp:TemplateField HeaderText="Ditta"><ItemTemplate><%# Eval("DittaDescrizione") %></ItemTemplate><EditItemTemplate><asp:DropDownList ID="EditOggettoDittaDropDown" runat="server" CssClass="input" /></EditItemTemplate></asp:TemplateField>
                 <asp:TemplateField HeaderText="Modello"><ItemTemplate><%# Eval("Modello") %></ItemTemplate><EditItemTemplate><asp:TextBox ID="EditOggettoModelloText" runat="server" CssClass="input" Text='<%# Bind("Modello") %>' /></EditItemTemplate></asp:TemplateField>
                 <asp:TemplateField HeaderText="NUC"><ItemTemplate><%# Eval("NUC") %></ItemTemplate><EditItemTemplate><asp:TextBox ID="EditOggettoNucText" runat="server" CssClass="input" Text='<%# Bind("NUC") %>' /></EditItemTemplate></asp:TemplateField>
+                <asp:BoundField DataField="Quantita" HeaderText="Quantita" ReadOnly="True" />
                 <asp:TemplateField HeaderText="Categoria"><ItemTemplate><%# Eval("CategoriaDescrizione") %></ItemTemplate><EditItemTemplate><asp:DropDownList ID="EditOggettoCategoriaDropDown" runat="server" CssClass="input" /></EditItemTemplate></asp:TemplateField>
                 <asp:CommandField ShowEditButton="True" ShowDeleteButton="True" />
             </Columns>

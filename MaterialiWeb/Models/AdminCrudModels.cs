@@ -41,6 +41,7 @@ namespace MaterialiGestioneWeb.Models
         public int? IdDittaCostruttrice { get; set; }
         public string Modello { get; set; }
         public string NUC { get; set; }
+        public int Quantita { get; set; }
         public decimal PrezzoUnitarioNetto { get; set; }
         public decimal PrezzoInventario { get; set; }
         public int? IdCategProdotti { get; set; }

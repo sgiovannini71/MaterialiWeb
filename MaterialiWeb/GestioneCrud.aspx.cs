@@ -117,13 +117,14 @@ namespace MaterialiGestioneWeb
                     IdDittaCostruttrice = ParseOptionalInt(OggettoDittaDropDown.SelectedValue),
                     Modello = OggettoModelloText.Text,
                     NUC = OggettoNucText.Text,
+                    Quantita = ParseRequiredInt(OggettoQuantitaText.Text, "Quantita"),
                     IdCategProdotti = ParseOptionalInt(OggettoCategoriaDropDown.SelectedValue)
                 });
-                ClearText(OggettoDescrizioneText, OggettoModelloText, OggettoNucText);
+                ClearText(OggettoDescrizioneText, OggettoModelloText, OggettoNucText, OggettoQuantitaText);
                 ResetDropDown(OggettoOrdinativoDropDown);
                 ResetDropDown(OggettoDittaDropDown);
                 ResetDropDown(OggettoCategoriaDropDown);
-            }, "Oggetto ordinativo inserito.");
+            }, "Oggetto ordinativo inserito e prodotti generati.");
         }
 
         protected void AddNetworkButton_Click(object sender, EventArgs e)

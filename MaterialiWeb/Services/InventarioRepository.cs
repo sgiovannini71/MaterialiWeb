@@ -618,6 +618,7 @@ SELECT
     oo.idDittaCostruttrice,
     oo.modello,
     oo.NUC,
+    oo.quantita,
     oo.prezzoUnitarioNetto,
     oo.prezzoInventario,
     oo.idCategProdotti,
@@ -642,6 +643,7 @@ ORDER BY oo.idOggOrdinativo DESC;", connection))
                         IdDittaCostruttrice = reader["idDittaCostruttrice"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["idDittaCostruttrice"], CultureInfo.InvariantCulture),
                         Modello = reader.GetStringOrEmpty("modello"),
                         NUC = reader.GetStringOrEmpty("NUC"),
+                        Quantita = reader["quantita"] == DBNull.Value ? 0 : Convert.ToInt32(reader["quantita"], CultureInfo.InvariantCulture),
                         PrezzoUnitarioNetto = reader["prezzoUnitarioNetto"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["prezzoUnitarioNetto"], CultureInfo.InvariantCulture),
                         PrezzoInventario = reader["prezzoInventario"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["prezzoInventario"], CultureInfo.InvariantCulture),
                         IdCategProdotti = reader["idCategProdotti"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["idCategProdotti"], CultureInfo.InvariantCulture),
@@ -946,20 +948,41 @@ WHERE idOrdinativo = @Id;", command =>
 
         public int CreateOggettoOrdinativoAdmin(OggettoOrdinativoAdminItem item)
         {
-            return ExecuteInsertScalar("InventarioRepository.CreateOggettoOrdinativoAdmin", @"
-INSERT INTO dbo.OggettoOrdinativo (idOrdinativo, descrizioneProdotto, idDittaCostruttrice, modello, NUC, prezzoUnitarioNetto, prezzoInventario, idCategProdotti)
-VALUES (@IdOrdinativo, @Descrizione, @IdDitta, @Modello, @NUC, @PrezzoUnitario, @PrezzoInventario, @IdCategoria);
-SELECT CAST(SCOPE_IDENTITY() AS int);", command =>
+            if (item.Quantita <= 0)
             {
-                command.Parameters.Add("@IdOrdinativo", SqlDbType.Int).Value = NullableDb(item.IdOrdinativo);
-                command.Parameters.Add("@Descrizione", SqlDbType.VarChar, 256).Value = item.DescrizioneProdotto.Trim();
-                command.Parameters.Add("@IdDitta", SqlDbType.Int).Value = NullableDb(item.IdDittaCostruttrice);
-                command.Parameters.Add("@Modello", SqlDbType.VarChar, 64).Value = NullableDb(item.Modello);
-                command.Parameters.Add("@NUC", SqlDbType.VarChar, 50).Value = NullableDb(item.NUC);
-                command.Parameters.Add("@PrezzoUnitario", SqlDbType.Money).Value = 0m;
-                command.Parameters.Add("@PrezzoInventario", SqlDbType.Money).Value = 0m;
-                command.Parameters.Add("@IdCategoria", SqlDbType.Int).Value = NullableDb(item.IdCategProdotti);
-            });
+                throw new InvalidOperationException("Quantita oggetto ordinativo non valida.");
+            }
+
+            AppLogger.Info("InventarioRepository.CreateOggettoOrdinativoAdmin", "Creazione oggetto ordinativo con generazione prodotti.");
+            using (var connection = Db.OpenConnection())
+            using (var transaction = connection.BeginTransaction())
+            using (var command = new SqlCommand(@"
+INSERT INTO dbo.OggettoOrdinativo (idOrdinativo, descrizioneProdotto, idDittaCostruttrice, modello, NUC, quantita, prezzoUnitarioNetto, prezzoInventario, idCategProdotti)
+VALUES (@IdOrdinativo, @Descrizione, @IdDitta, @Modello, @NUC, @Quantita, @PrezzoUnitario, @PrezzoInventario, @IdCategoria);
+SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
+            {
+                try
+                {
+                    command.Parameters.Add("@IdOrdinativo", SqlDbType.Int).Value = NullableDb(item.IdOrdinativo);
+                    command.Parameters.Add("@Descrizione", SqlDbType.VarChar, 256).Value = item.DescrizioneProdotto.Trim();
+                    command.Parameters.Add("@IdDitta", SqlDbType.Int).Value = NullableDb(item.IdDittaCostruttrice);
+                    command.Parameters.Add("@Modello", SqlDbType.VarChar, 64).Value = NullableDb(item.Modello);
+                    command.Parameters.Add("@NUC", SqlDbType.VarChar, 50).Value = NullableDb(item.NUC);
+                    command.Parameters.Add("@Quantita", SqlDbType.Int).Value = item.Quantita;
+                    command.Parameters.Add("@PrezzoUnitario", SqlDbType.Money).Value = 0m;
+                    command.Parameters.Add("@PrezzoInventario", SqlDbType.Money).Value = 0m;
+                    command.Parameters.Add("@IdCategoria", SqlDbType.Int).Value = NullableDb(item.IdCategProdotti);
+                    var idOggetto = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
+                    CreateProdottiForOggettoOrdinativo(connection, transaction, idOggetto, item.Quantita);
+                    transaction.Commit();
+                    return idOggetto;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
         }
 
         public void UpdateOggettoOrdinativoAdmin(OggettoOrdinativoAdminItem item)
@@ -1785,6 +1808,22 @@ WHERE p.IdProdotto = @IdProdotto;";
             using (var command = new SqlCommand("SELECT ISNULL(MAX(Categorico), 0) + 1 FROM dbo.Prodotti WITH (UPDLOCK, HOLDLOCK);", connection, transaction))
             {
                 return Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
+            }
+        }
+
+        private static void CreateProdottiForOggettoOrdinativo(SqlConnection connection, SqlTransaction transaction, int idOggettoOrdinativo, int quantita)
+        {
+            var nextCategorico = GetNextCategorico(connection, transaction);
+            for (var index = 0; index < quantita; index++)
+            {
+                using (var command = new SqlCommand(@"
+INSERT INTO dbo.Prodotti (idStanza, idOggOrdinativo, Categorico, Matricola, IdEfficienza, DataUltimaMov, Note, Versamento)
+VALUES (NULL, @IdOggOrdinativo, @Categorico, NULL, NULL, GETDATE(), NULL, NULL);", connection, transaction))
+                {
+                    command.Parameters.Add("@IdOggOrdinativo", SqlDbType.Int).Value = idOggettoOrdinativo;
+                    command.Parameters.Add("@Categorico", SqlDbType.Int).Value = nextCategorico + index;
+                    command.ExecuteNonQuery();
+                }
             }
         }
 

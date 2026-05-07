@@ -3,26 +3,40 @@
 <asp:Content ID="Title" ContentPlaceHolderID="TitleContent" runat="server">Nuovo bene</asp:Content>
 <asp:Content ID="Main" ContentPlaceHolderID="MainContent" runat="server">
     <section class="page-title">
-        <h1>Nuovo bene</h1>
-        <p>Registrazione del materiale su `Prodotti` con eventuale legame a un oggetto ordinativo esistente o con dati minimi per crearne uno nuovo.</p>
-        <p>Il categorico viene proposto automaticamente prendendo il prossimo valore disponibile.</p>
+        <h1>Completa bene generato</h1>
+        <p>Questa pagina non crea nuovi categorici. Serve a completare un prodotto gia generato da un oggetto ordinativo con quantita. Criterio attuale: in NuovoBene vengono proposti i prodotti "da completare", cioè quelli che hanno almeno una di queste condizioni:
+Matricola vuota,stato Efficienza non definito, Stanza non definita</p>
     </section>
 
     <asp:Panel ID="ErrorPanel" runat="server" CssClass="alert error" Visible="false"><asp:Literal ID="ErrorMessage" runat="server" /></asp:Panel>
     <asp:Panel ID="SuccessPanel" runat="server" CssClass="alert success" Visible="false"><asp:Literal ID="SuccessMessage" runat="server" /></asp:Panel>
 
+    <section class="form-card">
+        <h2>Selezione prodotto</h2>
+        <div class="field-grid">
+            <label class="field-span-2">Prodotto da completare<asp:DropDownList ID="ProdottoDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="ProdottoDropDown_SelectedIndexChanged" /></label>
+        </div>
+    </section>
+
+    <asp:Panel ID="DetailPanel" runat="server" Visible="false">
     <div class="form-grid">
         <section class="form-card">
-            <h2>Dati generali del materiale</h2>
+            <h2>Dati derivati dall'ordinativo</h2>
             <div class="field-grid">
-                <label>Categorico assegnato automaticamente<asp:TextBox ID="CategoricoText" runat="server" CssClass="input" /></label>
-                <label>Descrizione prodotto<asp:TextBox ID="NomeText" runat="server" CssClass="input" /></label>
+                <label>Categorico<asp:TextBox ID="CategoricoText" runat="server" CssClass="input" ReadOnly="true" /></label>
+                <label>Descrizione prodotto<asp:TextBox ID="NomeText" runat="server" CssClass="input" ReadOnly="true" /></label>
+                <label>Categoria<asp:TextBox ID="TipologiaText" runat="server" CssClass="input" ReadOnly="true" /></label>
+                <label>Oggetto ordinativo<asp:TextBox ID="ModelloHardwareText" runat="server" CssClass="input" ReadOnly="true" /></label>
+                <label>Modello<asp:TextBox ID="MarcaNuovoModelloText" runat="server" CssClass="input" ReadOnly="true" /></label>
+                <label>Ditta costruttrice<asp:TextBox ID="ImpiegoText" runat="server" CssClass="input" ReadOnly="true" /></label>
+                <label>Ordinativo<asp:TextBox ID="OrdinativoText" runat="server" CssClass="input" ReadOnly="true" /></label>
+            </div>
+        </section>
+
+        <section class="form-card">
+            <h2>Completamento anagrafica</h2>
+            <div class="field-grid">
                 <label>Matricola<asp:TextBox ID="SerialeText" runat="server" CssClass="input" /></label>
-                <label>Categoria<asp:DropDownList ID="TipologiaDropDown" runat="server" CssClass="input" /></label>
-                <label>Oggetto ordinativo esistente<asp:DropDownList ID="ModelloHardwareDropDown" runat="server" CssClass="input" /></label>
-                <label>Modello<asp:TextBox ID="MarcaNuovoModelloText" runat="server" CssClass="input" /></label>
-                <label>Ditta costruttrice<asp:DropDownList ID="ImpiegoDropDown" runat="server" CssClass="input" /></label>
-                <label>Prezzo inventario<asp:TextBox ID="ValoreAcquistoText" runat="server" CssClass="input" /></label>
                 <label>Versamento / riferimento<asp:TextBox ID="NumeroFatturaText" runat="server" CssClass="input" /></label>
                 <label class="field-span-2">Note<asp:TextBox ID="NoteText" runat="server" CssClass="input" TextMode="MultiLine" Rows="3" /></label>
             </div>
@@ -33,12 +47,13 @@
             <div class="field-grid">
                 <label>Livello efficienza<asp:DropDownList ID="StatoDropDown" runat="server" CssClass="input" /></label>
                 <label>Stanza<asp:DropDownList ID="UbicazioneDropDown" runat="server" CssClass="input" /></label>
-                <label class="field-span-2">Note aggiuntive<asp:TextBox ID="NoteStatoText" runat="server" CssClass="input" TextMode="MultiLine" Rows="2" /></label>
+                <label class="field-span-2">Note operative<asp:TextBox ID="NoteStatoText" runat="server" CssClass="input" TextMode="MultiLine" Rows="2" /></label>
             </div>
         </section>
     </div>
 
     <div class="page-actions">
-        <asp:Button ID="SaveButton" runat="server" Text="Registra bene" CssClass="button primary" OnClick="SaveButton_Click" />
+        <asp:Button ID="SaveButton" runat="server" Text="Completa bene" CssClass="button primary" OnClick="SaveButton_Click" />
     </div>
+    </asp:Panel>
 </asp:Content>

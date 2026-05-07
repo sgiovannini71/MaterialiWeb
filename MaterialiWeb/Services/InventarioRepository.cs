@@ -300,6 +300,28 @@ ORDER BY p.Categorico, oo.descrizioneProdotto, p.Matricola;";
             });
         }
 
+        public IList<LookupItem> GetProdottiDaCompletareLookup()
+        {
+            return ReadLookup(@"
+SELECT p.IdProdotto, p.Categorico, oo.descrizioneProdotto, p.Matricola
+FROM dbo.Prodotti p
+LEFT JOIN dbo.OggettoOrdinativo oo ON p.idOggOrdinativo = oo.idOggOrdinativo
+WHERE
+    (p.Matricola IS NULL OR LTRIM(RTRIM(p.Matricola)) = '')
+    OR p.IdEfficienza IS NULL
+    OR p.idStanza IS NULL
+ORDER BY p.Categorico, oo.descrizioneProdotto, p.Matricola;", reader => new LookupItem
+            {
+                Id = reader.GetInt32Value("IdProdotto"),
+                Nome = string.Join(" - ", new[]
+                {
+                    reader["Categorico"] == DBNull.Value ? string.Empty : Convert.ToString(reader["Categorico"], CultureInfo.InvariantCulture),
+                    reader.GetStringOrEmpty("descrizioneProdotto"),
+                    reader.GetStringOrEmpty("Matricola")
+                }).Trim(' ', '-')
+            });
+        }
+
         public IList<LookupItem> GetProdottiLookupByCategorico(string categoricoFilter)
         {
             const string sql = @"
@@ -1847,6 +1869,27 @@ WHERE p.IdProdotto = @IdProdotto;";
             {
                 return Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
             }
+        }
+
+        public void CompletaProdottoGenerato(int idProdotto, string matricola, int? idStanza, int? idEfficienza, string versamento, string note)
+        {
+            AppLogger.Info("InventarioRepository.CompletaProdottoGenerato", "Completamento materiale " + idProdotto.ToString(CultureInfo.InvariantCulture) + ".");
+            ExecuteProdottoUpdateWithTransaction(@"
+UPDATE dbo.Prodotti
+SET Matricola = @Matricola,
+    idStanza = @IdStanza,
+    IdEfficienza = @IdEfficienza,
+    Versamento = @Versamento,
+    DataUltimaMov = GETDATE(),
+    Note = @Note
+WHERE IdProdotto = @IdProdotto;", idProdotto, (connection, transaction, command) =>
+            {
+                command.Parameters.Add("@Matricola", SqlDbType.NVarChar, 50).Value = NullableDb(matricola);
+                command.Parameters.Add("@IdStanza", SqlDbType.Int).Value = NullableDb(idStanza);
+                command.Parameters.Add("@IdEfficienza", SqlDbType.Int).Value = NullableDb(idEfficienza);
+                command.Parameters.Add("@Versamento", SqlDbType.NVarChar, 256).Value = NullableDb(versamento);
+                command.Parameters.Add("@Note", SqlDbType.NVarChar, -1).Value = NullableDb(note);
+            }, "InventarioRepository.CompletaProdottoGenerato");
         }
 
         private static void CreateProdottiForOggettoOrdinativo(SqlConnection connection, SqlTransaction transaction, int idOggettoOrdinativo, int quantita)

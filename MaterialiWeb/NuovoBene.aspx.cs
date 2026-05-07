@@ -1,8 +1,7 @@
 using System;
-using System.Globalization;
+using System.Linq;
 using System.Web.UI.WebControls;
 using MaterialiGestioneWeb.Infrastructure;
-using MaterialiGestioneWeb.Models;
 using MaterialiGestioneWeb.Services;
 
 namespace MaterialiGestioneWeb
@@ -16,9 +15,13 @@ namespace MaterialiGestioneWeb
             if (!IsPostBack)
             {
                 BindLookups();
-                CategoricoText.Text = _repository.GetNextCategorico().ToString(CultureInfo.InvariantCulture);
-                CategoricoText.Attributes["readonly"] = "readonly";
+                LoadProductFromQueryString();
             }
+        }
+
+        protected void ProdottoDropDown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadSelectedProduct();
         }
 
         protected void SaveButton_Click(object sender, EventArgs e)
@@ -28,32 +31,26 @@ namespace MaterialiGestioneWeb
                 ErrorPanel.Visible = false;
                 SuccessPanel.Visible = false;
 
-                AppLogger.Info("NuovoBenePage.SaveButton_Click", "Richiesta registrazione nuovo materiale.");
-                var input = new NuovoProdottoInput
-                {
-                    Categorico = null,
-                    Matricola = SerialeText.Text,
-                    IdStanza = ParseOptionalInt(UbicazioneDropDown.SelectedValue),
-                    IdOggettoOrdinativo = ParseOptionalInt(ModelloHardwareDropDown.SelectedValue),
-                    IdEfficienza = ParseOptionalInt(StatoDropDown.SelectedValue),
-                    Note = NoteText.Text,
-                    Versamento = NumeroFatturaText.Text,
-                    DescrizioneProdotto = NomeText.Text,
-                    Modello = MarcaNuovoModelloText.Text,
-                    IdCategoria = ParseOptionalInt(TipologiaDropDown.SelectedValue),
-                    IdDittaCostruttrice = ParseOptionalInt(ImpiegoDropDown.SelectedValue),
-                    PrezzoInventario = ParseOptionalDecimal(ValoreAcquistoText.Text),
-                    PrezzoUnitarioNetto = ParseOptionalDecimal(ValoreAcquistoText.Text)
-                };
+                var idProdotto = ParseRequiredInt(ProdottoDropDown.SelectedValue, "Prodotto");
+                AppLogger.Info("NuovoBenePage.SaveButton_Click", "Richiesta completamento materiale " + idProdotto + ".");
 
-                var newId = _repository.CreateProdotto(input);
+                var note = MergeNotes(NoteText.Text, NoteStatoText.Text);
+                _repository.CompletaProdottoGenerato(
+                    idProdotto,
+                    SerialeText.Text,
+                    ParseOptionalInt(UbicazioneDropDown.SelectedValue),
+                    ParseOptionalInt(StatoDropDown.SelectedValue),
+                    NumeroFatturaText.Text,
+                    note);
+
+                var detail = _repository.GetProdottoDettaglio(idProdotto);
                 SuccessPanel.Visible = true;
-                SuccessMessage.Text = "Materiale registrato con successo. <a href='ProdottoDettaglio.aspx?id=" + newId.ToString(CultureInfo.InvariantCulture) + "'>Apri il dettaglio</a>.";
-                CategoricoText.Text = _repository.GetNextCategorico().ToString(CultureInfo.InvariantCulture);
+                SuccessMessage.Text = "Materiale completato con successo. <a href='ProdottoDettaglio.aspx?id=" + idProdotto + "'>Apri il dettaglio</a>.";
+                BindCurrentSelections(detail);
             }
             catch (Exception ex)
             {
-                AppLogger.Error("NuovoBenePage.SaveButton_Click", "Errore durante la registrazione del nuovo materiale.", ex);
+                AppLogger.Error("NuovoBenePage.SaveButton_Click", "Errore durante il completamento del materiale.", ex);
                 ErrorPanel.Visible = true;
                 ErrorMessage.Text = Server.HtmlEncode(ex.Message);
             }
@@ -61,33 +58,131 @@ namespace MaterialiGestioneWeb
 
         private void BindLookups()
         {
-            BindDropDown(TipologiaDropDown, _repository.GetCategorieLookup(), "-- nessuna --");
-            BindDropDown(StatoDropDown, _repository.GetLivelliEfficienzaLookup(), "-- nessuno --");
-            BindDropDown(UbicazioneDropDown, _repository.GetStanzeLookup(), "-- nessuna --");
-            BindDropDown(ModelloHardwareDropDown, _repository.GetOggettiOrdinativoLookup(), "-- nessuno --");
-            BindDropDown(ImpiegoDropDown, _repository.GetDitteLookup(), "-- nessuna --");
+            BindDropDown(StatoDropDown, _repository.GetLivelliEfficienzaLookup(), "-- seleziona stato --");
+            BindDropDown(UbicazioneDropDown, _repository.GetStanzeLookup(), "-- seleziona stanza --");
+            BindDropDown(ProdottoDropDown, _repository.GetProdottiDaCompletareLookup(), "-- seleziona prodotto generato --");
+        }
+
+        private void LoadProductFromQueryString()
+        {
+            int idProdotto;
+            if (!int.TryParse(Request.QueryString["id"], out idProdotto))
+            {
+                DetailPanel.Visible = false;
+                return;
+            }
+
+            SelectProduct(idProdotto);
+            LoadSelectedProduct();
+        }
+
+        private void LoadSelectedProduct()
+        {
+            SuccessPanel.Visible = false;
+
+            var idProdotto = ParseOptionalInt(ProdottoDropDown.SelectedValue);
+            if (!idProdotto.HasValue)
+            {
+                DetailPanel.Visible = false;
+                return;
+            }
+
+            var detail = _repository.GetProdottoDettaglio(idProdotto.Value);
+            if (detail == null || detail.Prodotto == null)
+            {
+                throw new InvalidOperationException("Prodotto non trovato.");
+            }
+
+            DetailPanel.Visible = true;
+            CategoricoText.Text = detail.Prodotto.Categorico.HasValue ? detail.Prodotto.Categorico.Value.ToString() : string.Empty;
+            NomeText.Text = detail.Prodotto.DescrizioneProdotto;
+            TipologiaText.Text = detail.Prodotto.Categoria;
+            ModelloHardwareText.Text = detail.Prodotto.TipoOggetto;
+            MarcaNuovoModelloText.Text = detail.Prodotto.Modello;
+            ImpiegoText.Text = detail.Prodotto.DittaCostruttrice;
+            OrdinativoText.Text = detail.Ordinativo == null ? string.Empty : string.Join(" - ", new[]
+            {
+                detail.Ordinativo.DenominazioneOrdinativo,
+                detail.Ordinativo.CodiceOrdinativo
+            }.Where(value => !string.IsNullOrWhiteSpace(value)));
+            BindCurrentSelections(detail);
+        }
+
+        private void BindCurrentSelections(Models.ProdottoDettaglio detail)
+        {
+            SerialeText.Text = detail.Prodotto.Matricola;
+            NumeroFatturaText.Text = detail.Prodotto.Versamento;
+            NoteText.Text = detail.Prodotto.Note;
+            NoteStatoText.Text = string.Empty;
+            SelectByText(StatoDropDown, detail.Prodotto.LivelloEfficienza);
+            SelectByText(UbicazioneDropDown, detail.Prodotto.NumeroStanza);
+        }
+
+        private static void SelectByText(ListControl control, string text)
+        {
+            control.ClearSelection();
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return;
+            }
+
+            var item = control.Items.Cast<ListItem>().FirstOrDefault(entry => string.Equals(entry.Text, text, StringComparison.OrdinalIgnoreCase));
+            if (item != null)
+            {
+                item.Selected = true;
+            }
+        }
+
+        private void SelectProduct(int idProdotto)
+        {
+            var item = ProdottoDropDown.Items.FindByValue(idProdotto.ToString());
+            if (item != null)
+            {
+                ProdottoDropDown.ClearSelection();
+                item.Selected = true;
+            }
         }
 
         private static void BindDropDown(ListControl control, object dataSource, string emptyText)
         {
             control.Items.Clear();
-            control.Items.Add(new ListItem(emptyText, string.Empty));
             control.DataSource = dataSource;
-            control.DataTextField = "DisplayName";
+            control.DataTextField = "Nome";
             control.DataValueField = "Id";
             control.DataBind();
+            control.Items.Insert(0, new ListItem(emptyText, string.Empty));
+        }
+
+        private static int ParseRequiredInt(string value, string fieldName)
+        {
+            int parsed;
+            if (int.TryParse(value, out parsed))
+            {
+                return parsed;
+            }
+
+            throw new InvalidOperationException(fieldName + " obbligatorio.");
+        }
+
+        private static string MergeNotes(string noteGenerali, string noteOperative)
+        {
+            if (string.IsNullOrWhiteSpace(noteGenerali))
+            {
+                return noteOperative;
+            }
+
+            if (string.IsNullOrWhiteSpace(noteOperative))
+            {
+                return noteGenerali;
+            }
+
+            return noteGenerali.Trim() + " | " + noteOperative.Trim();
         }
 
         private static int? ParseOptionalInt(string value)
         {
             int parsed;
-            return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed) ? (int?)parsed : null;
-        }
-
-        private static decimal? ParseOptionalDecimal(string value)
-        {
-            decimal parsed;
-            return decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out parsed) ? (decimal?)parsed : null;
+            return int.TryParse(value, out parsed) ? (int?)parsed : null;
         }
     }
 }

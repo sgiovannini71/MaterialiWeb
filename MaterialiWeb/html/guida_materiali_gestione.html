@@ -180,6 +180,23 @@
             color: #163d4a;
         }
 
+        pre {
+            margin: 12px 0;
+            padding: 14px;
+            overflow-x: auto;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #f6f8f9;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            display: block;
+            white-space: pre;
+        }
+
         .note, .warning {
             border-left: 4px solid var(--accent);
             background: #f4f9fa;
@@ -236,11 +253,12 @@
                 <li>5. Nuova regola: quantita e generazione prodotti</li>
                 <li>6. Regola del categorico</li>
                 <li>7. Vista dettaglio ordinativi</li>
-                <li>8. Pagine operative</li>
-                <li>9. Refresh automatico del contesto prodotto</li>
-                <li>10. CRUD amministrativa</li>
-                <li>11. Integrazione con personale e rete</li>
-                <li>12. Logging e note di deploy</li>
+                <li>8. Diagrammi di flusso Mermaid</li>
+                <li>9. Pagine operative</li>
+                <li>10. Refresh automatico del contesto prodotto</li>
+                <li>11. CRUD amministrativa</li>
+                <li>12. Integrazione con personale e rete</li>
+                <li>13. Logging e note di deploy</li>
             </ul>
         </section>
 
@@ -425,7 +443,62 @@
         </section>
 
         <section class="section">
-            <h2>8. Pagine operative</h2>
+            <h2>8. Diagrammi di flusso Mermaid</h2>
+            <p>
+                Di seguito sono riportati due diagrammi esemplificativi in formato Mermaid:
+                uno orientato al processo gestionale e uno orientato alla logica tecnica dei dati.
+            </p>
+            <h3>Diagramma manageriale  <img src="./Diagramma manageriale.png"  width="25%" height="25%" /></h3>
+            <pre><code>flowchart TD
+    A[Fabbisogno o acquisto] --&gt; B[Ordinativo]
+    B --&gt; C[Righe dell'ordinativo]
+    C --&gt; D[Quantita per ciascuna riga]
+    D --&gt; E[Generazione automatica dei beni]
+    E --&gt; F[Inventario disponibile]
+
+    F --&gt; G[Assegnazione al personale]
+    F --&gt; H[Spostamento o rientro]
+    F --&gt; I[Aggiornamento stato]
+    F --&gt; J[Configurazione tecnica]
+    F --&gt; K[Dismissione o versamento]
+
+    G --&gt; L[Tracciabilita]
+    H --&gt; L
+    I --&gt; L
+    J --&gt; L
+    K --&gt; L</code></pre>
+            <h3>Diagramma tecnico / database <img src="./Diagramma tecnico database.png"  width="25%" height="25%" /></h3>
+            <pre><code>flowchart TD
+    A[Tabella Ordinativo] --&gt; B[Tabella OggettoOrdinativo]
+    B --&gt; C[Campo Quantita]
+    B --&gt; D[Descrizione / Modello / NUC / Categoria]
+
+    C --&gt; E[Loop di generazione]
+    E --&gt; F[Insert in Prodotti]
+    F --&gt; G[Assegna Categorico progressivo]
+
+    G --&gt; H[Prodotto registrato]
+
+    H --&gt; I[ProdPers]
+    H --&gt; J[ProdPersStorico]
+    H --&gt; K[NetworkData]
+    H --&gt; L[Postazione]
+    H --&gt; M[Stanze]
+    H --&gt; N[LivelliEfficenza]
+
+    I --&gt; O[Assegnazione corrente]
+    J --&gt; P[Storico movimentazioni]
+    K --&gt; Q[Dati rete]
+    L --&gt; R[Nome macchina]
+    M --&gt; S[Ubicazione]
+    N --&gt; T[Stato del bene]
+
+    B --&gt; U[DettaglioOrdinativo.aspx]
+    F --&gt; V[ProdottoDettaglio.aspx]</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>9. Pagine operative</h2>
             <table>
                 <thead>
                     <tr>
@@ -475,7 +548,7 @@
         </section>
 
         <section class="section">
-            <h2>9. Refresh automatico del contesto prodotto</h2>
+            <h2>10. Refresh automatico del contesto prodotto</h2>
             <p>
                 Nelle principali pagine operative il controllo di selezione prodotto usa <code>AutoPostBack</code>.
                 Questo evita operazioni su un bene diverso da quello mostrato nel contesto di dettaglio.
@@ -491,7 +564,7 @@
         </section>
 
         <section class="section">
-            <h2>10. CRUD amministrativa</h2>
+            <h2>11. CRUD amministrativa</h2>
             <h3>Visualizzazione descrittiva in update</h3>
             <p>
                 In modalita di modifica, dove possibile, i riferimenti esterni non vengono piu mostrati come semplici id.
@@ -511,7 +584,7 @@
         </section>
 
         <section class="section">
-            <h2>11. Integrazione con personale e rete</h2>
+            <h2>12. Integrazione con personale e rete</h2>
             <h3>Personale</h3>
             <p>
                 L'applicativo interroga <code>DipendentiDB</code> per recuperare nominativi e anagrafiche usate nelle assegnazioni,
@@ -525,7 +598,7 @@
         </section>
 
         <section class="section">
-            <h2>12. Logging e note di deploy</h2>
+            <h2>13. Logging e note di deploy</h2>
             <p>
                 Il logging applicativo scrive nella cartella relativa <code>App_Data\Logs</code>.
                 In ambiente IIS il percorso reale corrisponde a <code>&lt;root sito&gt;\App_Data\Logs</code>.

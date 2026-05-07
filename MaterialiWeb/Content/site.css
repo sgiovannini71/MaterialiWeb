@@ -299,6 +299,26 @@ input[type="submit"].button.danger {
     margin-top: 1.25rem;
 }
 
+.dashboard-section {
+    margin-top: 1.4rem;
+}
+
+.section-heading {
+    align-items: end;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.section-heading h2 {
+    margin-bottom: 0.2rem;
+}
+
+.section-heading p {
+    color: var(--muted);
+    margin: 0;
+}
+
 .domain-jump-nav {
     align-items: center;
     background: rgba(255, 250, 240, 0.92);

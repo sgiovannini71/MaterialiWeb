@@ -213,8 +213,8 @@
             <h1>Guida Operativa MaterialiWeb</h1>
             <p>
                 Documento operativo aggiornato per l'applicativo ASP.NET Web Forms usato
-                per gestire materiali, assegnazioni, ubicazioni, configurazioni di rete e
-                anagrafiche tecniche collegate al database <code>Materiale</code>.
+                per gestire materiali, ordinativi, prodotti inventariali, assegnazioni,
+                ubicazioni e configurazioni di rete collegate al database <code>Materiale</code>.
             </p>
             <div class="meta">
                 <span class="pill">Applicazione: <code>MaterialiWeb</code></span>
@@ -235,11 +235,12 @@
                 <li>4. Entita fondamentali</li>
                 <li>5. Nuova regola: quantita e generazione prodotti</li>
                 <li>6. Regola del categorico</li>
-                <li>7. Pagine operative</li>
-                <li>8. Refresh automatico del contesto prodotto</li>
-                <li>9. CRUD amministrativa</li>
-                <li>10. Integrazione con personale e rete</li>
-                <li>11. Logging e note di deploy</li>
+                <li>7. Vista dettaglio ordinativi</li>
+                <li>8. Pagine operative</li>
+                <li>9. Refresh automatico del contesto prodotto</li>
+                <li>10. CRUD amministrativa</li>
+                <li>11. Integrazione con personale e rete</li>
+                <li>12. Logging e note di deploy</li>
             </ul>
         </section>
 
@@ -251,8 +252,7 @@
                 rientro, riassegnazione, cambio stanza, cambio stato, configurazione di rete e dismissione.
             </p>
             <p>
-                Il sistema distingue in modo netto il livello amministrativo del dato
-                dall'operativita quotidiana sulle singole unita inventariali.
+                Il sistema separa il livello amministrativo del dato dal livello operativo sulle singole unita inventariali.
             </p>
         </section>
 
@@ -261,11 +261,11 @@
             <div class="grid">
                 <div class="card">
                     <h3>Ordinativo</h3>
-                    <p>Contiene i dati generali dell'acquisto o approvvigionamento.</p>
+                    <p>Testata amministrativa dell'acquisto o approvvigionamento.</p>
                 </div>
                 <div class="card">
                     <h3>Oggetto ordinativo</h3>
-                    <p>Descrive una tipologia di bene ordinata all'interno di un ordinativo.</p>
+                    <p>Riga dell'ordinativo che descrive la tipologia di bene acquistata.</p>
                 </div>
                 <div class="card">
                     <h3>Prodotto</h3>
@@ -277,11 +277,11 @@
                 </div>
                 <div class="card">
                     <h3>Storico assegnazioni</h3>
-                    <p>Traccia le movimentazioni nel tempo per audit e ricostruzione storica.</p>
+                    <p>Traccia le movimentazioni e i contesti nel tempo.</p>
                 </div>
                 <div class="card">
-                    <h3>Postazione / rete</h3>
-                    <p>Associa il prodotto a nome macchina, MAC address e dati di configurazione.</p>
+                    <h3>Postazione e rete</h3>
+                    <p>Associa il prodotto a nome macchina, MAC address e dati tecnici.</p>
                 </div>
             </div>
         </section>
@@ -292,7 +292,7 @@
                 <div class="diagram-row">
                     <div class="node">
                         <strong>Ordinativo</strong>
-                        Definisce contesto amministrativo, fornitore, riferimenti economici e temporali.
+                        Definisce il contenitore amministrativo: codice, denominazione, ditta, ente, estremi.
                     </div>
                     <div class="node">
                         <strong>Oggetto ordinativo</strong>
@@ -300,7 +300,7 @@
                     </div>
                     <div class="node">
                         <strong>Prodotti generati</strong>
-                        Il sistema crea automaticamente tante righe in <code>Prodotti</code> quante previste dalla quantita.
+                        Il sistema crea in automatico le righe in <code>Prodotti</code> in base alla quantita.
                     </div>
                 </div>
                 <div class="connector">Ordinativo -> Oggetto ordinativo -> Prodotti</div>
@@ -311,11 +311,11 @@
                     </div>
                     <div class="node">
                         <strong>Contesto tecnico</strong>
-                        Stanza, nome macchina, MAC address, note, versamento, livello di efficienza.
+                        Stanza, assegnatario, nome macchina, MAC address, note, versamento.
                     </div>
                     <div class="node">
                         <strong>Storico</strong>
-                        Le operazioni aggiornano lo stato corrente e alimentano la tracciabilita.
+                        Le operazioni aggiornano il corrente e conservano la tracciabilita.
                     </div>
                 </div>
             </div>
@@ -334,12 +334,12 @@
                 <tbody>
                     <tr>
                         <td>Ordinativo</td>
-                        <td>Contenitore amministrativo dell'acquisto</td>
-                        <td>Numero, data, ditta, note</td>
+                        <td>Testata amministrativa</td>
+                        <td>Codice, denominazione, EF, tipo, ditta, ente, estremi</td>
                     </tr>
                     <tr>
                         <td>OggettoOrdinativo</td>
-                        <td>Tipologia di bene acquistato</td>
+                        <td>Riga di acquisto</td>
                         <td>Descrizione, modello, NUC, quantita, prezzi, categoria</td>
                     </tr>
                     <tr>
@@ -349,13 +349,13 @@
                     </tr>
                     <tr>
                         <td>ProdPers</td>
-                        <td>Assegnazione corrente a una persona</td>
+                        <td>Assegnazione corrente</td>
                         <td>IdProdotto, IdPersonale, data assegnazione</td>
                     </tr>
                     <tr>
                         <td>NetworkData / Postazioni</td>
-                        <td>Dati macchina e rete</td>
-                        <td>Nome macchina, MAC address, dominio, legame con prodotto</td>
+                        <td>Configurazione tecnica</td>
+                        <td>Nome macchina, MAC address, dominio, legame col prodotto</td>
                     </tr>
                 </tbody>
             </table>
@@ -364,41 +364,68 @@
         <section class="section">
             <h2>5. Nuova regola: quantita e generazione prodotti</h2>
             <p>
-                La creazione di un <strong>oggetto ordinativo</strong> non rappresenta piu un dato puramente descrittivo.
-                Ora determina anche la produzione dei singoli beni inventariali.
+                La creazione di un <strong>oggetto ordinativo</strong> non e piu solo descrittiva.
+                Ora determina la nascita dei singoli beni inventariali.
             </p>
-            <h3>Regola operativa</h3>
             <ol>
-                <li>L'utente amministrativo crea un oggetto ordinativo e inserisce anche la <code>Quantita</code>.</li>
-                <li>Il sistema salva l'oggetto ordinativo nella tabella dedicata.</li>
-                <li>Subito dopo genera automaticamente in <code>Prodotti</code> tante righe quante previste dalla quantita.</li>
-                <li>Ogni prodotto creato riceve un valore <code>Categorico</code> gia valorizzato.</li>
+                <li>L'utente crea l'oggetto ordinativo e inserisce la <code>Quantita</code>.</li>
+                <li>Il sistema salva la riga in <code>OggettoOrdinativo</code>.</li>
+                <li>Subito dopo genera in <code>Prodotti</code> tante righe quante previste dalla quantita.</li>
+                <li>Ogni prodotto generato riceve un <code>Categorico</code> valorizzato.</li>
             </ol>
             <div class="note">
-                Questa logica sposta la nascita del bene inventariale sul momento di creazione dell'oggetto ordinativo.
-                Di conseguenza il categorico viene deciso a monte e non deve piu essere considerato un dato occasionale.
+                La nascita del bene inventariale e quindi agganciata alla riga dell'ordinativo, non a una creazione manuale successiva.
             </div>
             <div class="warning">
-                La quantita dell'oggetto ordinativo e mostrata nella griglia CRUD come dato informativo.
-                Non e prevista la modifica diretta dalla griglia, per evitare incongruenze tra quantita dichiarata e prodotti gia generati.
+                La quantita e mostrata nella griglia CRUD come dato di controllo. Non e prevista la modifica libera dalla griglia, per evitare disallineamenti con i prodotti gia generati.
             </div>
         </section>
 
         <section class="section">
             <h2>6. Regola del categorico</h2>
             <p>
-                Il <code>Categorico</code> identifica il singolo bene. Con la logica attuale viene assegnato
-                automaticamente in sequenza al momento della generazione dei prodotti derivati da un oggetto ordinativo.
+                Il <code>Categorico</code> identifica il singolo bene. Viene assegnato automaticamente in sequenza
+                al momento della generazione dei prodotti derivati da un oggetto ordinativo.
             </p>
             <ul>
-                <li>Il prossimo categorico disponibile viene calcolato sul massimo esistente in <code>Prodotti</code>.</li>
-                <li>La generazione multipla assegna valori consecutivi per tutti i beni creati nello stesso inserimento.</li>
-                <li>Il categorico e quindi noto fin dall'origine del bene e non solo nelle fasi operative successive.</li>
+                <li>Il prossimo categorico disponibile e calcolato sul massimo esistente in <code>Prodotti</code>.</li>
+                <li>La generazione multipla assegna valori consecutivi per lo stesso oggetto ordinativo.</li>
+                <li>Il categorico e definito a priori, cioe gia al momento di creazione del bene.</li>
             </ul>
         </section>
 
         <section class="section">
-            <h2>7. Pagine operative</h2>
+            <h2>7. Vista dettaglio ordinativi</h2>
+            <p>
+                E stata introdotta la pagina <code>DettaglioOrdinativo.aspx</code>, che rappresenta il punto corretto
+                per leggere la composizione di un ordinativo secondo la nuova logica.
+            </p>
+            <h3>Struttura della vista</h3>
+            <ul>
+                <li>In alto mostra la testata dell'ordinativo selezionato.</li>
+                <li>Sotto espone indicatori sintetici: numero oggetti, quantita totale, prodotti generati, valore inventario.</li>
+                <li>La griglia centrale mostra gli <code>OggettiOrdinativo</code> collegati all'ordinativo.</li>
+                <li>Per ogni oggetto e visibile anche l'elenco dei <code>Prodotti</code> generati.</li>
+            </ul>
+            <h3>Ricerca e navigazione</h3>
+            <ul>
+                <li>La pagina contiene una ricerca per codice, denominazione, ditta, ente o estremi.</li>
+                <li>E disponibile anche un menu a tendina per selezionare rapidamente un ordinativo.</li>
+                <li>Dalla dashboard, dal menu principale e dal CRUD amministrativo si puo aprire direttamente il dettaglio.</li>
+            </ul>
+            <h3>Riepilogo categorici</h3>
+            <p>
+                Ogni riga oggetto mostra un riepilogo rapido dei <code>Categorici</code> generati.
+                Questo aiuta a capire subito quali unita inventariali sono nate da quella riga senza aprire tutti i dettagli.
+            </p>
+            <div class="note">
+                La relazione da leggere sempre e questa:
+                <code>Ordinativo 1 -> N OggettiOrdinativo 1 -> N Prodotti</code>.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>8. Pagine operative</h2>
             <table>
                 <thead>
                     <tr>
@@ -408,6 +435,11 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td>Dettaglio ordinativi</td>
+                        <td>Lettura gerarchica degli ordinativi</td>
+                        <td>Mostra testata, oggetti ordinativo, prodotti generati e riepilogo categorici</td>
+                    </tr>
                     <tr>
                         <td>Assegna bene</td>
                         <td>Associa un bene a una persona</td>
@@ -443,75 +475,64 @@
         </section>
 
         <section class="section">
-            <h2>8. Refresh automatico del contesto prodotto</h2>
+            <h2>9. Refresh automatico del contesto prodotto</h2>
             <p>
-                Nelle principali pagine operative il controllo di selezione prodotto usa ora
-                <code>AutoPostBack</code>. Questo evita che l'utente operi su un bene diverso da quello visualizzato nei dettagli.
+                Nelle principali pagine operative il controllo di selezione prodotto usa <code>AutoPostBack</code>.
+                Questo evita operazioni su un bene diverso da quello mostrato nel contesto di dettaglio.
             </p>
-            <h3>Cosa si aggiorna</h3>
             <ul>
-                <li>Descrizione del prodotto.</li>
-                <li>Stato corrente.</li>
-                <li>Assegnatario corrente, se presente.</li>
-                <li>Stanza corrente.</li>
-                <li>Nome macchina e MAC address, dove applicabili.</li>
-                <li>Note e dati di supporto specifici della pagina.</li>
+                <li>Descrizione del prodotto</li>
+                <li>Stato corrente</li>
+                <li>Assegnatario corrente</li>
+                <li>Stanza corrente</li>
+                <li>Nome macchina e MAC address, dove applicabili</li>
+                <li>Note e dati tecnici pertinenti alla pagina</li>
             </ul>
-            <div class="note">
-                Questo comportamento e stato uniformato per ridurre errori di imputazione dovuti al cambio di prodotto
-                senza aggiornamento del resto della form.
-            </div>
         </section>
 
         <section class="section">
-            <h2>9. CRUD amministrativa</h2>
+            <h2>10. CRUD amministrativa</h2>
             <h3>Visualizzazione descrittiva in update</h3>
             <p>
-                In modalita di modifica, dove possibile, i riferimenti esterni non vengono piu mostrati come soli identificativi numerici.
+                In modalita di modifica, dove possibile, i riferimenti esterni non vengono piu mostrati come semplici id.
                 L'interfaccia usa valori descrittivi o dropdown di lookup.
             </p>
             <ul>
-                <li>Per esempio, la stanza viene mostrata con il numero stanza invece del solo id.</li>
+                <li>Per esempio, la stanza viene mostrata con il numero stanza invece del solo identificativo.</li>
                 <li>Lo stesso criterio e stato esteso alle principali relazioni usate nelle schermate CRUD.</li>
             </ul>
-
-            <h3>Oggetti ordinativo</h3>
+            <h3>Ordinativi e oggetti ordinativo</h3>
             <ul>
-                <li>La form di creazione richiede ora la <code>Quantita</code>.</li>
+                <li>Gli ordinativi hanno ora un link diretto <code>Composizione</code> verso la vista di dettaglio.</li>
+                <li>La form di creazione oggetto ordinativo richiede la <code>Quantita</code>.</li>
                 <li>L'inserimento genera automaticamente i record in <code>Prodotti</code>.</li>
                 <li>La griglia mostra la quantita come informazione di controllo.</li>
             </ul>
-
-            <h3>Prodotti</h3>
-            <p>
-                La creazione manuale del prodotto resta tecnicamente disponibile nel codice attuale,
-                ma il modello di business aggiornato considera l'oggetto ordinativo come sorgente primaria della generazione inventariale.
-            </p>
         </section>
 
         <section class="section">
-            <h2>10. Integrazione con personale e rete</h2>
+            <h2>11. Integrazione con personale e rete</h2>
             <h3>Personale</h3>
             <p>
-                L'applicativo interroga <code>DipendentiDB</code> per recuperare nominativi e anagrafiche da usare nelle assegnazioni.
-                In alcune maschere e presente anche la distinzione fra personale interno ed esterno.
+                L'applicativo interroga <code>DipendentiDB</code> per recuperare nominativi e anagrafiche usate nelle assegnazioni,
+                con distinzione tra personale interno ed esterno nelle maschere che la prevedono.
             </p>
             <h3>Rete e postazioni</h3>
             <p>
                 Le informazioni tecniche del bene possono includere nome macchina, dominio e MAC address.
-                Questi dati vengono mostrati nel contesto prodotto e aggiornati nelle pagine di configurazione.
+                Questi dati sono esposti nel contesto prodotto e aggiornati nelle pagine di configurazione.
             </p>
         </section>
 
         <section class="section">
-            <h2>11. Logging e note di deploy</h2>
+            <h2>12. Logging e note di deploy</h2>
             <p>
                 Il logging applicativo scrive nella cartella relativa <code>App_Data\Logs</code>.
                 In ambiente IIS il percorso reale corrisponde a <code>&lt;root sito&gt;\App_Data\Logs</code>.
             </p>
             <ul>
                 <li>Verificare i permessi di scrittura dell'identity dell'Application Pool.</li>
-                <li>Controllare che in deploy sia presente un solo assembly dell'applicazione nel <code>bin</code>.</li>
+                <li>Controllare che in deploy sia presente un solo assembly applicativo nel <code>bin</code>.</li>
                 <li>Il database corretto del sito e <code>Materiale</code>, non <code>Materiali</code>.</li>
             </ul>
             <div class="warning">
@@ -521,8 +542,8 @@
         </section>
 
         <p class="footer">
-            Guida rigenerata per allineamento alle modifiche funzionali introdotte nel repository
-            <code>MaterialiDB/MaterialiWeb</code>.
+            Guida rigenerata per allineamento agli sviluppi piu recenti del repository
+            <code>MaterialiDB/MaterialiWeb</code>, inclusa la nuova vista gerarchica degli ordinativi.
         </p>
     </div>
 </body>

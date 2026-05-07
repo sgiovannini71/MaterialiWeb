@@ -657,6 +657,44 @@ ORDER BY oo.idOggOrdinativo DESC;", connection))
             }
         }
 
+        public OrdinativoDettaglio GetOrdinativoDettaglio(int idOrdinativo)
+        {
+            using (var connection = Db.OpenConnection())
+            {
+                var ordinativo = GetOrdinativoDettaglioHeader(connection, idOrdinativo);
+                if (ordinativo == null)
+                {
+                    return null;
+                }
+
+                var detail = new OrdinativoDettaglio
+                {
+                    Ordinativo = ordinativo
+                };
+
+                var oggetti = GetOggettiOrdinativoDettaglio(connection, idOrdinativo);
+                var prodotti = GetProdottiPerOrdinativo(connection, idOrdinativo);
+                var prodottiByOggetto = prodotti.GroupBy(item => item.IdOggOrdinativo).ToDictionary(group => group.Key, group => (IList<ProdottoOrdinativoItem>)group.ToList());
+
+                foreach (var oggetto in oggetti)
+                {
+                    IList<ProdottoOrdinativoItem> prodottiOggetto;
+                    if (prodottiByOggetto.TryGetValue(oggetto.IdOggOrdinativo, out prodottiOggetto))
+                    {
+                        oggetto.Prodotti = prodottiOggetto;
+                        oggetto.CategoriciRiepilogo = BuildCategoriciSummary(prodottiOggetto);
+                    }
+                    else
+                    {
+                        oggetto.CategoriciRiepilogo = string.Empty;
+                    }
+                }
+
+                detail.Oggetti = oggetti;
+                return detail;
+            }
+        }
+
         public IList<NetworkDataAdminItem> GetNetworkDataAdmin()
         {
             using (var connection = Db.OpenConnection())
@@ -1825,6 +1863,159 @@ VALUES (NULL, @IdOggOrdinativo, @Categorico, NULL, NULL, GETDATE(), NULL, NULL);
                     command.ExecuteNonQuery();
                 }
             }
+        }
+
+        private static OrdinativoAdminItem GetOrdinativoDettaglioHeader(SqlConnection connection, int idOrdinativo)
+        {
+            using (var command = new SqlCommand(@"
+SELECT
+    o.idOrdinativo,
+    o.CodiceOrdinativo,
+    o.denominazioneOrdinativo,
+    o.EF,
+    o.tipoOrdinativo,
+    o.idDittaOrdinativo,
+    o.enteStipulante,
+    o.estremiOrdinativo,
+    d.Nome AS DittaDescrizione
+FROM dbo.Ordinativo o
+LEFT JOIN dbo.Ditte d ON o.idDittaOrdinativo = d.IdDitta
+WHERE o.idOrdinativo = @Id;", connection))
+            {
+                command.Parameters.Add("@Id", SqlDbType.Int).Value = idOrdinativo;
+                using (var reader = command.ExecuteReader())
+                {
+                    if (!reader.Read())
+                    {
+                        return null;
+                    }
+
+                    return new OrdinativoAdminItem
+                    {
+                        IdOrdinativo = reader.GetInt32Value("idOrdinativo"),
+                        CodiceOrdinativo = reader.GetStringOrEmpty("CodiceOrdinativo"),
+                        DenominazioneOrdinativo = reader.GetStringOrEmpty("denominazioneOrdinativo"),
+                        EF = reader.GetStringOrEmpty("EF"),
+                        TipoOrdinativo = reader.GetStringOrEmpty("tipoOrdinativo"),
+                        IdDittaOrdinativo = reader["idDittaOrdinativo"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["idDittaOrdinativo"], CultureInfo.InvariantCulture),
+                        EnteStipulante = reader.GetStringOrEmpty("enteStipulante"),
+                        EstremiOrdinativo = reader.GetStringOrEmpty("estremiOrdinativo"),
+                        DittaDescrizione = reader.GetStringOrEmpty("DittaDescrizione")
+                    };
+                }
+            }
+        }
+
+        private static IList<OggettoOrdinativoDettaglioItem> GetOggettiOrdinativoDettaglio(SqlConnection connection, int idOrdinativo)
+        {
+            using (var command = new SqlCommand(@"
+SELECT
+    oo.idOggOrdinativo,
+    oo.idOrdinativo,
+    oo.descrizioneProdotto,
+    oo.modello,
+    oo.NUC,
+    oo.quantita,
+    oo.prezzoUnitarioNetto,
+    oo.prezzoInventario,
+    d.Nome AS DittaDescrizione,
+    c.Descrizione AS CategoriaDescrizione,
+    (SELECT COUNT(*) FROM dbo.Prodotti p WHERE p.idOggOrdinativo = oo.idOggOrdinativo) AS ProdottiGenerati
+FROM dbo.OggettoOrdinativo oo
+LEFT JOIN dbo.Ditte d ON oo.idDittaCostruttrice = d.IdDitta
+LEFT JOIN dbo.CategoriaProdotti c ON oo.idCategProdotti = c.IdCategoria
+WHERE oo.idOrdinativo = @Id
+ORDER BY oo.idOggOrdinativo;", connection))
+            {
+                command.Parameters.Add("@Id", SqlDbType.Int).Value = idOrdinativo;
+                using (var reader = command.ExecuteReader())
+                {
+                    var results = new List<OggettoOrdinativoDettaglioItem>();
+                    while (reader.Read())
+                    {
+                        results.Add(new OggettoOrdinativoDettaglioItem
+                        {
+                            IdOggOrdinativo = reader.GetInt32Value("idOggOrdinativo"),
+                            IdOrdinativo = reader.GetNullableInt32("idOrdinativo"),
+                            DescrizioneProdotto = reader.GetStringOrEmpty("descrizioneProdotto"),
+                            Modello = reader.GetStringOrEmpty("modello"),
+                            NUC = reader.GetStringOrEmpty("NUC"),
+                            Quantita = reader["quantita"] == DBNull.Value ? 0 : Convert.ToInt32(reader["quantita"], CultureInfo.InvariantCulture),
+                            PrezzoUnitarioNetto = reader["prezzoUnitarioNetto"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["prezzoUnitarioNetto"], CultureInfo.InvariantCulture),
+                            PrezzoInventario = reader["prezzoInventario"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["prezzoInventario"], CultureInfo.InvariantCulture),
+                            DittaDescrizione = reader.GetStringOrEmpty("DittaDescrizione"),
+                            CategoriaDescrizione = reader.GetStringOrEmpty("CategoriaDescrizione"),
+                            ProdottiGenerati = reader["ProdottiGenerati"] == DBNull.Value ? 0 : Convert.ToInt32(reader["ProdottiGenerati"], CultureInfo.InvariantCulture)
+                        });
+                    }
+
+                    return results;
+                }
+            }
+        }
+
+        private static IList<ProdottoOrdinativoItem> GetProdottiPerOrdinativo(SqlConnection connection, int idOrdinativo)
+        {
+            using (var command = new SqlCommand(@"
+SELECT
+    p.IdProdotto,
+    p.idOggOrdinativo,
+    p.Categorico,
+    p.Matricola,
+    le.Livello_efficienza AS LivelloEfficienza,
+    s.numero AS NumeroStanza,
+    p.Versamento
+FROM dbo.Prodotti p
+LEFT JOIN dbo.LivelliEfficenza le ON p.IdEfficienza = le.IdEfficienza
+LEFT JOIN dbo.Stanze s ON p.idStanza = s.idstanza
+WHERE p.idOggOrdinativo IN (
+    SELECT oo.idOggOrdinativo
+    FROM dbo.OggettoOrdinativo oo
+    WHERE oo.idOrdinativo = @Id
+)
+ORDER BY p.idOggOrdinativo, p.Categorico, p.IdProdotto;", connection))
+            {
+                command.Parameters.Add("@Id", SqlDbType.Int).Value = idOrdinativo;
+                using (var reader = command.ExecuteReader())
+                {
+                    var results = new List<ProdottoOrdinativoItem>();
+                    while (reader.Read())
+                    {
+                        results.Add(new ProdottoOrdinativoItem
+                        {
+                            IdProdotto = reader.GetInt32Value("IdProdotto"),
+                            IdOggOrdinativo = reader["idOggOrdinativo"] == DBNull.Value ? 0 : Convert.ToInt32(reader["idOggOrdinativo"], CultureInfo.InvariantCulture),
+                            Categorico = reader.GetNullableInt32("Categorico"),
+                            Matricola = reader.GetStringOrEmpty("Matricola"),
+                            LivelloEfficienza = reader.GetStringOrEmpty("LivelloEfficienza"),
+                            NumeroStanza = reader.GetStringOrEmpty("NumeroStanza"),
+                            Versamento = reader.GetStringOrEmpty("Versamento")
+                        });
+                    }
+
+                    return results;
+                }
+            }
+        }
+
+        private static string BuildCategoriciSummary(IEnumerable<ProdottoOrdinativoItem> prodotti)
+        {
+            var categorici = prodotti
+                .Where(item => item.Categorico.HasValue)
+                .Select(item => item.Categorico.Value.ToString(CultureInfo.InvariantCulture))
+                .ToList();
+
+            if (categorici.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            if (categorici.Count <= 6)
+            {
+                return string.Join(", ", categorici);
+            }
+
+            return string.Join(", ", categorici.Take(6)) + " ...";
         }
 
         private int? EnsureOggettoOrdinativo(SqlConnection connection, SqlTransaction transaction, NuovoProdottoInput input)

@@ -69,6 +69,7 @@
                 <asp:BoundField DataField="IdOrdinativo" HeaderText="Id" ReadOnly="True" />
                 <asp:TemplateField HeaderText="Codice"><ItemTemplate><%# Eval("CodiceOrdinativo") %></ItemTemplate><EditItemTemplate><asp:TextBox ID="EditOrdinativoCodiceText" runat="server" CssClass="input" Text='<%# Bind("CodiceOrdinativo") %>' /></EditItemTemplate></asp:TemplateField>
                 <asp:TemplateField HeaderText="Denominazione"><ItemTemplate><%# Eval("DenominazioneOrdinativo") %></ItemTemplate><EditItemTemplate><asp:TextBox ID="EditOrdinativoDenominazioneText" runat="server" CssClass="input" Text='<%# Bind("DenominazioneOrdinativo") %>' /></EditItemTemplate></asp:TemplateField>
+                <asp:HyperLinkField Text="Composizione" DataNavigateUrlFields="IdOrdinativo" DataNavigateUrlFormatString="DettaglioOrdinativo.aspx?id={0}" />
                 <asp:CommandField ShowEditButton="True" ShowDeleteButton="True" />
             </Columns>
         </asp:GridView>

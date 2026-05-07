@@ -18,6 +18,7 @@
             <nav class="main-nav" aria-label="Navigazione principale">
                 <a href="Default.aspx">Dashboard</a>
                 <a href="Prodotti.aspx">Prodotti</a>
+                <a href="DettaglioOrdinativo.aspx">Ordinativi</a>
                 <a href="ProdottiAssegnati.aspx">Per assegnatario</a>
                 <a href="Computer.aspx">Rete e postazioni</a>
                 <a href="NuovoBene.aspx">Nuovo bene</a>

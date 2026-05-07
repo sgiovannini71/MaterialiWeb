@@ -74,13 +74,13 @@
     <Content Include="ConfiguraComputer.aspx" />
     <Content Include="Content\site.css" />
     <Content Include="Default.aspx" />
+    <Content Include="DettaglioOrdinativo.aspx" />
     <Content Include="DismettiBene.aspx" />
     <Content Include="Domini.aspx" />
     <Content Include="GestioneCrud.aspx" />
     <Content Include="Global.asax" />
     <Content Include="ImportaRete.aspx" />
     <Content Include="html\guida_materiali_gestione.html" />
-    <Content Include="MaterialiGestioneWeb.csproj" />
     <Content Include="NuovoBene.aspx" />
     <Content Include="ProdottiAssegnati.aspx" />
     <Content Include="Prodotti.aspx" />
@@ -140,6 +140,13 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="DettaglioOrdinativo.aspx.cs">
+      <DependentUpon>DettaglioOrdinativo.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DettaglioOrdinativo.aspx.designer.cs">
+      <DependentUpon>DettaglioOrdinativo.aspx</DependentUpon>
+    </Compile>
     <Compile Include="DismettiBene.aspx.cs">
       <DependentUpon>DismettiBene.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -177,6 +184,7 @@
     <Compile Include="Models\DashboardStats.cs" />
     <Compile Include="Models\DominioItem.cs" />
     <Compile Include="Models\LookupItem.cs" />
+    <Compile Include="Models\OrdinativoDettaglio.cs" />
     <Compile Include="Models\ProcessModels.cs" />
     <Compile Include="Models\ProdottoCorrente.cs" />
     <Compile Include="Models\ProdottoDettaglio.cs" />

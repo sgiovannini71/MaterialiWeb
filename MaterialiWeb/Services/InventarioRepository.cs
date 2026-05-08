@@ -46,11 +46,17 @@ SELECT
 
         public IList<ProdottoCorrente> GetProdotti(string search)
         {
+            return GetProdotti(search, null);
+        }
+
+        public IList<ProdottoCorrente> GetProdotti(string search, int? idEfficienza)
+        {
             var results = new List<ProdottoCorrente>();
             using (var connection = Db.OpenConnection())
             using (var command = new SqlCommand(BuildProdottiQuery(includeOnlyNetworkItems: false), connection))
             {
                 command.Parameters.Add("@Search", SqlDbType.NVarChar, 200).Value = string.IsNullOrWhiteSpace(search) ? (object)DBNull.Value : search.Trim();
+                command.Parameters.Add("@IdEfficienza", SqlDbType.Int).Value = NullableDb(idEfficienza);
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -72,6 +78,7 @@ SELECT
             {
                 command.Parameters.Add("@Search", SqlDbType.NVarChar, 200).Value = DBNull.Value;
                 command.Parameters.Add("@IdPersonale", SqlDbType.Int).Value = idPersonale;
+                command.Parameters.Add("@IdEfficienza", SqlDbType.Int).Value = DBNull.Value;
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -159,6 +166,7 @@ ORDER BY s.dataAssegnazione DESC, s.id DESC;", connection))
             using (var command = new SqlCommand(BuildProdottiQuery(includeOnlyNetworkItems: true), connection))
             {
                 command.Parameters.Add("@Search", SqlDbType.NVarChar, 200).Value = string.IsNullOrWhiteSpace(search) ? (object)DBNull.Value : search.Trim();
+                command.Parameters.Add("@IdEfficienza", SqlDbType.Int).Value = DBNull.Value;
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -302,24 +310,40 @@ ORDER BY p.Categorico, oo.descrizioneProdotto, p.Matricola;";
 
         public IList<LookupItem> GetProdottiDaCompletareLookup()
         {
-            return ReadLookup(@"
+            return GetProdottiDaCompletareLookup(null);
+        }
+
+        public IList<LookupItem> GetProdottiDaCompletareLookup(int? idEfficienza)
+        {
+            var results = new List<LookupItem>();
+            using (var connection = Db.OpenConnection())
+            using (var command = new SqlCommand(@"
 SELECT p.IdProdotto, p.Categorico, oo.descrizioneProdotto, p.Matricola
 FROM dbo.Prodotti p
 LEFT JOIN dbo.OggettoOrdinativo oo ON p.idOggOrdinativo = oo.idOggOrdinativo
-WHERE
-    (p.Matricola IS NULL OR LTRIM(RTRIM(p.Matricola)) = '')
-    OR p.IdEfficienza IS NULL
-    OR p.idStanza IS NULL
-ORDER BY p.Categorico, oo.descrizioneProdotto, p.Matricola;", reader => new LookupItem
+WHERE @IdEfficienza IS NULL OR p.IdEfficienza = @IdEfficienza
+ORDER BY p.Categorico, oo.descrizioneProdotto, p.Matricola;", connection))
             {
-                Id = reader.GetInt32Value("IdProdotto"),
-                Nome = string.Join(" - ", new[]
+                command.Parameters.Add("@IdEfficienza", SqlDbType.Int).Value = NullableDb(idEfficienza);
+                using (var reader = command.ExecuteReader())
                 {
-                    reader["Categorico"] == DBNull.Value ? string.Empty : Convert.ToString(reader["Categorico"], CultureInfo.InvariantCulture),
-                    reader.GetStringOrEmpty("descrizioneProdotto"),
-                    reader.GetStringOrEmpty("Matricola")
-                }).Trim(' ', '-')
-            });
+                    while (reader.Read())
+                    {
+                        results.Add(new LookupItem
+                        {
+                            Id = reader.GetInt32Value("IdProdotto"),
+                            Nome = string.Join(" - ", new[]
+                            {
+                                reader["Categorico"] == DBNull.Value ? string.Empty : Convert.ToString(reader["Categorico"], CultureInfo.InvariantCulture),
+                                reader.GetStringOrEmpty("descrizioneProdotto"),
+                                reader.GetStringOrEmpty("Matricola")
+                            }).Trim(' ', '-')
+                        });
+                    }
+                }
+            }
+
+            return results;
         }
 
         public IList<LookupItem> GetProdottiLookupByCategorico(string categoricoFilter)
@@ -1751,6 +1775,9 @@ WHERE
     )
     AND (
         " + (filterByPersonale ? "pp.IdPersonale = @IdPersonale" : "1 = 1") + @"
+    )
+    AND (
+        @IdEfficienza IS NULL OR p.IdEfficienza = @IdEfficienza
     )
 ORDER BY p.Categorico, oo.descrizioneProdotto, p.Matricola;";
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Web.UI.WebControls;
 using MaterialiGestioneWeb.Infrastructure;
@@ -83,6 +84,23 @@ namespace MaterialiGestioneWeb
             BindPersonale();
         }
 
+        protected void ExportCsvButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ErrorPanel.Visible = false;
+                var idProdotto = ParseOptionalInt(ProdottoDropDown.SelectedValue);
+                var idPersonale = ParseOptionalInt(PersonaleDropDown.SelectedValue);
+                ExportCsv(_repository.GetStoricoAssegnazioni(CategoricoText.Text, idProdotto, idPersonale));
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("StoricoAssegnazioniPage.ExportCsvButton_Click", "Errore durante export storico assegnazioni.", ex);
+                ErrorPanel.Visible = true;
+                ErrorMessage.Text = Server.HtmlEncode(ex.Message);
+            }
+        }
+
         private void FilterProducts()
         {
             ErrorPanel.Visible = false;
@@ -161,6 +179,45 @@ namespace MaterialiGestioneWeb
         {
             int parsed;
             return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed) ? (int?)parsed : null;
+        }
+
+        private void ExportCsv(IList<StoricoAssegnazioneConsultazioneItem> storico)
+        {
+            CsvExport.Write(this, "StoricoAssegnazioni", new[]
+            {
+                "Categorico",
+                "Descrizione",
+                "Matricola",
+                "Assegnatario",
+                "Data assegnazione",
+                "Data restituzione",
+                "Stanza",
+                "Stato",
+                "Nome macchina",
+                "Seriale",
+                "Note"
+            }, BuildCsvRows(storico));
+        }
+
+        private static IEnumerable<IEnumerable<string>> BuildCsvRows(IEnumerable<StoricoAssegnazioneConsultazioneItem> storico)
+        {
+            foreach (var item in storico)
+            {
+                yield return new[]
+                {
+                    item.Categorico.HasValue ? item.Categorico.Value.ToString(CultureInfo.InvariantCulture) : string.Empty,
+                    item.DescrizioneProdotto,
+                    item.Matricola,
+                    item.AssegnatarioDisplay,
+                    item.DataAssegnazione.HasValue ? item.DataAssegnazione.Value.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) : string.Empty,
+                    item.DataRestituzione.HasValue ? item.DataRestituzione.Value.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) : string.Empty,
+                    item.NumeroStanza,
+                    item.LivelloEfficienza,
+                    item.NomeMacchina,
+                    item.SerialNumber,
+                    item.NoteProdotto
+                };
+            }
         }
     }
 }

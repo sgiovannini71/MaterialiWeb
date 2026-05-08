@@ -8,6 +8,7 @@ namespace MaterialiGestioneWeb
 {
     public partial class NuovoBenePage : System.Web.UI.Page
     {
+        private const int DefaultFiltroEfficienza = 1;
         private readonly InventarioRepository _repository = new InventarioRepository();
 
         protected void Page_Load(object sender, EventArgs e)
@@ -22,6 +23,14 @@ namespace MaterialiGestioneWeb
         protected void ProdottoDropDown_SelectedIndexChanged(object sender, EventArgs e)
         {
             LoadSelectedProduct();
+        }
+
+        protected void FiltroEfficienzaDropDown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ErrorPanel.Visible = false;
+            SuccessPanel.Visible = false;
+            DetailPanel.Visible = false;
+            BindProdottiDaCompletare();
         }
 
         protected void SaveButton_Click(object sender, EventArgs e)
@@ -60,7 +69,9 @@ namespace MaterialiGestioneWeb
         {
             BindDropDown(StatoDropDown, _repository.GetLivelliEfficienzaLookup(), "-- seleziona stato --");
             BindDropDown(UbicazioneDropDown, _repository.GetStanzeLookup(), "-- seleziona stanza --");
-            BindDropDown(ProdottoDropDown, _repository.GetProdottiDaCompletareLookup(), "-- seleziona prodotto generato --");
+            BindDropDown(FiltroEfficienzaDropDown, _repository.GetLivelliEfficienzaLookup(), "-- tutti gli stati --");
+            SelectDropDownValue(FiltroEfficienzaDropDown, DefaultFiltroEfficienza);
+            BindProdottiDaCompletare();
         }
 
         private void LoadProductFromQueryString()
@@ -73,7 +84,22 @@ namespace MaterialiGestioneWeb
             }
 
             SelectProduct(idProdotto);
+            if (ProdottoDropDown.SelectedIndex <= 0)
+            {
+                FiltroEfficienzaDropDown.ClearSelection();
+                BindProdottiDaCompletare();
+                SelectProduct(idProdotto);
+            }
+
             LoadSelectedProduct();
+        }
+
+        private void BindProdottiDaCompletare()
+        {
+            BindDropDown(
+                ProdottoDropDown,
+                _repository.GetProdottiDaCompletareLookup(ParseOptionalInt(FiltroEfficienzaDropDown.SelectedValue)),
+                "-- seleziona prodotto generato --");
         }
 
         private void LoadSelectedProduct()
@@ -129,6 +155,16 @@ namespace MaterialiGestioneWeb
             var item = control.Items.Cast<ListItem>().FirstOrDefault(entry => string.Equals(entry.Text, text, StringComparison.OrdinalIgnoreCase));
             if (item != null)
             {
+                item.Selected = true;
+            }
+        }
+
+        private static void SelectDropDownValue(ListControl control, int value)
+        {
+            var item = control.Items.FindByValue(value.ToString());
+            if (item != null)
+            {
+                control.ClearSelection();
                 item.Selected = true;
             }
         }

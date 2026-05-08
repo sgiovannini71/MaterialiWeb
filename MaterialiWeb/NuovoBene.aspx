@@ -4,8 +4,7 @@
 <asp:Content ID="Main" ContentPlaceHolderID="MainContent" runat="server">
     <section class="page-title">
         <h1>Completa bene generato</h1>
-        <p>Questa pagina non crea nuovi categorici. Serve a completare un prodotto gia generato da un oggetto ordinativo con quantita. Criterio attuale: in NuovoBene vengono proposti i prodotti "da completare", cioè quelli che hanno almeno una di queste condizioni:
-Matricola vuota,stato Efficienza non definito, Stanza non definita</p>
+        <p>Questa pagina non crea nuovi categorici. Serve a completare un prodotto gia generato da un oggetto ordinativo con quantita. La lista dei prodotti viene filtrata per livello di efficienza; il valore iniziale e IdEfficienza=1, "Efficiente in Uso".</p>
     </section>
 
     <asp:Panel ID="ErrorPanel" runat="server" CssClass="alert error" Visible="false"><asp:Literal ID="ErrorMessage" runat="server" /></asp:Panel>
@@ -14,7 +13,8 @@ Matricola vuota,stato Efficienza non definito, Stanza non definita</p>
     <section class="form-card">
         <h2>Selezione prodotto</h2>
         <div class="field-grid">
-            <label class="field-span-2">Prodotto da completare<asp:DropDownList ID="ProdottoDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="ProdottoDropDown_SelectedIndexChanged" /></label>
+            <label>Filtro efficienza<asp:DropDownList ID="FiltroEfficienzaDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="FiltroEfficienzaDropDown_SelectedIndexChanged" /></label>
+            <label class="field-span-2">Prodotto<asp:DropDownList ID="ProdottoDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="ProdottoDropDown_SelectedIndexChanged" /></label>
         </div>
     </section>
 

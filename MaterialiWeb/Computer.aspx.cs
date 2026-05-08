@@ -1,4 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using MaterialiGestioneWeb.Infrastructure;
+using MaterialiGestioneWeb.Models;
 using MaterialiGestioneWeb.Services;
 
 namespace MaterialiGestioneWeb
@@ -26,6 +30,20 @@ namespace MaterialiGestioneWeb
             BindGrid(null);
         }
 
+        protected void ExportCsvButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ErrorPanel.Visible = false;
+                ExportCsv(_repository.GetComputer(SearchText.Text));
+            }
+            catch (Exception ex)
+            {
+                ErrorPanel.Visible = true;
+                ErrorMessage.Text = Server.HtmlEncode(ex.Message);
+            }
+        }
+
         private void BindGrid(string search)
         {
             try
@@ -38,6 +56,43 @@ namespace MaterialiGestioneWeb
             {
                 ErrorPanel.Visible = true;
                 ErrorMessage.Text = Server.HtmlEncode(ex.Message);
+            }
+        }
+
+        private void ExportCsv(IList<ComputerCorrente> computers)
+        {
+            CsvExport.Write(this, "RetePostazioni", new[]
+            {
+                "Categorico",
+                "Nome macchina",
+                "Descrizione",
+                "Matricola",
+                "Categoria",
+                "Modello",
+                "MAC",
+                "Stanza",
+                "Stato",
+                "Assegnatario"
+            }, BuildCsvRows(computers));
+        }
+
+        private static IEnumerable<IEnumerable<string>> BuildCsvRows(IEnumerable<ComputerCorrente> computers)
+        {
+            foreach (var item in computers)
+            {
+                yield return new[]
+                {
+                    item.Categorico.HasValue ? item.Categorico.Value.ToString(CultureInfo.InvariantCulture) : string.Empty,
+                    item.NomeMacchina,
+                    item.DescrizioneProdotto,
+                    item.Matricola,
+                    item.Categoria,
+                    item.Modello,
+                    item.MacAddress,
+                    item.NumeroStanza,
+                    item.LivelloEfficienza,
+                    item.AssegnatarioDisplay
+                };
             }
         }
     }

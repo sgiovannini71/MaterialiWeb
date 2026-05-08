@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Web.UI.WebControls;
 using MaterialiGestioneWeb.Infrastructure;
+using MaterialiGestioneWeb.Models;
 using MaterialiGestioneWeb.Services;
 
 namespace MaterialiGestioneWeb
@@ -68,6 +70,22 @@ namespace MaterialiGestioneWeb
             BindPersonale();
         }
 
+        protected void ExportCsvButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ErrorPanel.Visible = false;
+                var idPersonale = ParseRequiredInt(PersonaleDropDown.SelectedValue, "Personale");
+                ExportCsv(_repository.GetProdottiAssegnati(idPersonale), PersonaleDropDown.SelectedItem.Text);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("ProdottiAssegnatiPage.ExportCsvButton_Click", "Errore durante export prodotti assegnati.", ex);
+                ErrorPanel.Visible = true;
+                ErrorMessage.Text = Server.HtmlEncode(ex.Message);
+            }
+        }
+
         private void BindPersonale()
         {
             BindPersonale(IsPersonaleEsternoSelected(), MostraNonAttiviCheck.Checked);
@@ -98,6 +116,43 @@ namespace MaterialiGestioneWeb
         private bool GetPostedIncludeNonAttivi()
         {
             return !string.IsNullOrEmpty(Request.Form[MostraNonAttiviCheck.UniqueID]);
+        }
+
+        private void ExportCsv(IList<ProdottoCorrente> prodotti, string personale)
+        {
+            CsvExport.Write(this, "ProdottiAssegnati", new[]
+            {
+                "Personale",
+                "Categorico",
+                "Descrizione",
+                "Matricola",
+                "Categoria",
+                "Modello",
+                "Stato",
+                "Stanza",
+                "Nome macchina",
+                "MAC"
+            }, BuildCsvRows(prodotti, personale));
+        }
+
+        private static IEnumerable<IEnumerable<string>> BuildCsvRows(IEnumerable<ProdottoCorrente> prodotti, string personale)
+        {
+            foreach (var prodotto in prodotti)
+            {
+                yield return new[]
+                {
+                    personale,
+                    prodotto.Categorico.HasValue ? prodotto.Categorico.Value.ToString(CultureInfo.InvariantCulture) : string.Empty,
+                    prodotto.DescrizioneProdotto,
+                    prodotto.Matricola,
+                    prodotto.Categoria,
+                    prodotto.Modello,
+                    prodotto.LivelloEfficienza,
+                    prodotto.NumeroStanza,
+                    prodotto.NomeMacchina,
+                    prodotto.MacAddress
+                };
+            }
         }
 
         private static int ParseRequiredInt(string value, string fieldName)

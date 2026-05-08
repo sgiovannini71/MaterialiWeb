@@ -25,6 +25,7 @@
         <div class="page-actions">
             <asp:Button ID="SearchButton" runat="server" Text="Visualizza prodotti" CssClass="button primary" OnClick="SearchButton_Click" />
             <asp:Button ID="ResetButton" runat="server" Text="Reset" CssClass="button" OnClick="ResetButton_Click" />
+            <asp:Button ID="ExportCsvButton" runat="server" Text="Esporta CSV" CssClass="button" OnClick="ExportCsvButton_Click" />
         </div>
     </section>
 

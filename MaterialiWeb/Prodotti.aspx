@@ -12,9 +12,11 @@
     </asp:Panel>
 
     <div class="toolbar">
+        <asp:DropDownList ID="EfficienzaDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="EfficienzaDropDown_SelectedIndexChanged" />
         <asp:TextBox ID="SearchText" runat="server" CssClass="input" placeholder="Cerca per categorico, matricola, descrizione, modello, macchina o MAC..." />
         <asp:Button ID="SearchButton" runat="server" Text="Cerca" CssClass="button primary" OnClick="SearchButton_Click" />
         <asp:Button ID="ResetButton" runat="server" Text="Reset" CssClass="button" OnClick="ResetButton_Click" />
+        <asp:Button ID="ExportCsvButton" runat="server" Text="Esporta CSV" CssClass="button" OnClick="ExportCsvButton_Click" />
     </div>
 
     <asp:GridView ID="ProdottiGrid" runat="server"

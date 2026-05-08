@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <setParameter name="IIS Web Application Name" value="Default Web Site/MaterialiWeb_deploy" />
+  <setParameter name="MaterialiDb-Web.config Connection String" value="Data Source=DAAT1PD01\DAAA_SQL,1433;&#xD;&#xA;                           Initial Catalog=Materiale;&#xD;&#xA;                           User ID=sa;&#xD;&#xA;                           Password=Pa$$w0rd;&#xD;&#xA;                           Max Pool Size=75;&#xD;&#xA;                           Min Pool Size=5;&#xD;&#xA;                           MultipleActiveResultSets=True" />
+  <setParameter name="DipendentiDBConnectionString-Web.config Connection String" value="Data Source=DAAT1PD01\DAAA_SQL,1433;&#xD;&#xA;                           Initial Catalog=DipendentiDB;&#xD;&#xA;                           User ID=utente_dbpers;&#xD;&#xA;                           Password=Password.2026;&#xD;&#xA;                           Max Pool Size=75;&#xD;&#xA;                           Min Pool Size=5;&#xD;&#xA;                           MultipleActiveResultSets=True" />
+</parameters>

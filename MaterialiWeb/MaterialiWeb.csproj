@@ -179,6 +179,7 @@
       <DependentUpon>ImportaRete.aspx</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\AppLogger.cs" />
+    <Compile Include="Infrastructure\CsvExport.cs" />
     <Compile Include="Models\AdminCrudModels.cs" />
     <Compile Include="Models\ComputerCorrente.cs" />
     <Compile Include="Models\DashboardStats.cs" />
@@ -245,6 +246,7 @@
     <None Include="packages.config" />
     <Content Include="README.md" />
     <Content Include="Site.Master" />
+    <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

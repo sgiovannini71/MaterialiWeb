@@ -6,6 +6,9 @@ namespace MaterialiGestioneWeb
         protected global::System.Web.UI.WebControls.Literal ErrorMessage;
         protected global::System.Web.UI.WebControls.Panel SuccessPanel;
         protected global::System.Web.UI.WebControls.Literal SuccessMessage;
+        protected global::System.Web.UI.WebControls.TextBox CategoricoFiltroText;
+        protected global::System.Web.UI.WebControls.TextBox RicercaProdottoText;
+        protected global::System.Web.UI.WebControls.Button FiltraProdottoButton;
         protected global::System.Web.UI.WebControls.DropDownList ProdottoDropDown;
         protected global::System.Web.UI.WebControls.Panel ProdottoContextPanel;
         protected global::System.Web.UI.WebControls.Literal ProdottoDescrizione;
@@ -25,5 +28,6 @@ namespace MaterialiGestioneWeb
         protected global::System.Web.UI.WebControls.TextBox DocumentoNomeFileText;
         protected global::System.Web.UI.WebControls.TextBox DocumentoPercorsoText;
         protected global::System.Web.UI.WebControls.Button SaveButton;
+        protected global::System.Web.UI.WebControls.Button PrintAssignmentSheetButton;
     }
 }

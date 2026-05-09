@@ -180,7 +180,12 @@
                 <section class="card">
                     <h3>Assegnazione</h3>
                     <p><code>AssegnaBene.aspx</code> mostra solo beni non assegnati.</p>
-                    <p>L'assegnazione aggiorna il legame con il personale e lo storico, non il categorico.</p>
+                    <p>La pagina blocca lato server qualsiasi tentativo di assegnare un bene gia' occupato e rimanda al flusso di rientro o riassegnazione.</p>
+                </section>
+                <section class="card">
+                    <h3>Rientro e riassegnazione</h3>
+                    <p><code>RientroRiassegnazione.aspx</code> opera solo su beni con assegnazione attiva.</p>
+                    <p>L'utente deve scegliere in modo esplicito se registrare un rientro o una riassegnazione.</p>
                 </section>
             </div>
 
@@ -214,8 +219,12 @@
                         <td>Prodotti correnti di un assegnatario con export CSV, anteprima A4 e scheda PDF.</td>
                     </tr>
                     <tr>
+                        <td><code>RientroRiassegnazione.aspx</code></td>
+                        <td>Chiusura dell'assegnazione corrente oppure trasferimento a un nuovo assegnatario.</td>
+                    </tr>
+                    <tr>
                         <td><code>StoricoAssegnazioni.aspx</code></td>
-                        <td>Consultazione storica con esportazione CSV.</td>
+                        <td>Consultazione storica con report PDF.</td>
                     </tr>
                     <tr>
                         <td><code>Computer.aspx</code></td>
@@ -241,7 +250,7 @@
               -> Assegnazione Categorico</code></pre>
 
             <h2>4. Scheda assegnatario</h2>
-            <p>La pagina <code>ProdottiAssegnati.aspx</code> gestisce tre uscite diverse, tutte basate sugli stessi dati caricati:</p>
+            <p>La pagina <code>ProdottiAssegnati.aspx</code> gestisce tre uscite diverse, tutte basate sugli stessi dati caricati e con data scheda impostata automaticamente al giorno corrente:</p>
             <ul>
                 <li>visualizzazione in griglia</li>
                 <li>anteprima A4 HTML</li>
@@ -300,7 +309,7 @@
                     </tr>
                     <tr>
                         <td><code>StoricoAssegnazioni.aspx</code></td>
-                        <td><code>Esporta CSV</code></td>
+                        <td><code>Esporta report PDF</code></td>
                         <td>Attivo solo dopo una ricerca storica con risultati.</td>
                     </tr>
                     <tr>
@@ -311,7 +320,77 @@
                 </tbody>
             </table>
 
-            <h2>6. Note operative</h2>
+            <h2>6. Logica aggiornata di rientro e riassegnazione</h2>
+            <div class="callout">
+                La pagina <code>RientroRiassegnazione.aspx</code> non e' piu' un contenitore generico: gestisce solo beni attualmente assegnati e forza l'operatore a dichiarare il tipo di movimento.
+            </div>
+
+            <ol>
+                <li>Si filtra il bene per <code>Categorico</code>.</li>
+                <li>La dropdown mostra solo prodotti che hanno un assegnatario corrente.</li>
+                <li>Si sceglie il tipo operazione:
+                    <ul>
+                        <li><code>Rientro</code>: chiude l'assegnazione attiva.</li>
+                        <li><code>Riassegnazione</code>: chiude l'assegnazione attiva e ne apre una nuova.</li>
+                    </ul>
+                </li>
+                <li>In caso di riassegnazione il nuovo assegnatario e' obbligatorio.</li>
+                <li>Il sistema blocca la riassegnazione se il nuovo assegnatario coincide con quello corrente.</li>
+            </ol>
+
+            <p>La UI riflette questa logica:</p>
+            <ul>
+                <li>in modalita' <code>Rientro</code> i controlli del nuovo assegnatario restano disabilitati</li>
+                <li>in modalita' <code>Riassegnazione</code> si abilitano il tipo personale, il filtro non attivi e la dropdown assegnatario</li>
+                <li>il messaggio finale distingue tra rientro e riassegnazione</li>
+            </ul>
+
+            <h2>7. Logica aggiornata di assegnazione</h2>
+            <div class="callout">
+                La pagina <code>AssegnaBene.aspx</code> e' riservata ai soli beni disponibili. Se un bene risulta gia' assegnato, il flusso corretto e' <code>RientroRiassegnazione.aspx</code>.
+            </div>
+
+            <ol>
+                <li>La selezione del bene e' assistita da due filtri: <code>Categorico</code> e ricerca testuale su descrizione o matricola.</li>
+                <li>La dropdown prodotto viene ristretta in base ai filtri applicati, cosi' l'operatore non deve scorrere l'intero elenco.</li>
+                <li>Il contesto prodotto consente di verificare stato, stanza e dati tecnici prima dell'assegnazione.</li>
+                <li>L'assegnatario viene scelto tra personale interno o esterno.</li>
+                <li>Il salvataggio viene bloccato lato server se il bene risulta gia' assegnato.</li>
+                <li>La stampa della scheda di assegnazione singola si abilita solo quando il materiale e' stato individuato e caricato nel contesto; la stampa richiede comunque anche la scelta dell'assegnatario.</li>
+            </ol>
+
+            <h2>8. Report storico assegnazioni</h2>
+            <div class="callout">
+                Il vecchio export CSV dello storico e' stato sostituito da un report PDF A4, costruito con la stessa impostazione della scheda assegnatario.
+            </div>
+
+            <ul>
+                <li>header e logo sono letti da configurazione</li>
+                <li>il template di riferimento e' <code>html/StoricoAssegnazioniTemplate.html</code></li>
+                <li>il report riporta i filtri applicati: categorico, prodotto, assegnatario, tipo personale e inclusione non attivi</li>
+                <li>la tabella contiene i movimenti storici con data assegnazione e restituzione</li>
+            </ul>
+
+            <h2>9. Stampe singole di movimentazione</h2>
+            <div class="callout">
+                Le pagine operative di assegnazione e rientro consentono ora la stampa immediata di una scheda singola in PDF, con la stessa logica di configurazione gia' usata per gli altri report.
+            </div>
+
+            <ul>
+                <li><code>AssegnaBene.aspx</code>: stampa <code>Scheda assegnazione bene</code></li>
+                <li><code>RientroRiassegnazione.aspx</code>: stampa <code>Scheda restituzione bene</code></li>
+                <li>template condiviso: <code>html/SchedaMovimentazioneTemplate.html</code></li>
+                <li>configurazione template: <code>MovementSheetTemplatePath</code> in <code>Web.config</code></li>
+                <li>header e logo restano governati da <code>AssignmentSheetHeaderText</code> e <code>AssignmentSheetLogoPath</code></li>
+            </ul>
+
+            <p>Regola di abilitazione:</p>
+            <ul>
+                <li>il pulsante di stampa si abilita solo quando il materiale e' stato identificato e il contesto prodotto e' stato caricato</li>
+                <li>la scheda di assegnazione richiede inoltre che sia stato scelto l'assegnatario</li>
+            </ul>
+
+            <h2>10. Note operative</h2>
             <ul>
                 <li>Il database applicativo corretto e' <code>Materiale</code>, non <code>Materiali</code>.</li>
                 <li>I log vengono scritti in <code>App_Data/Logs</code>.</li>

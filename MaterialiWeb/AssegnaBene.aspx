@@ -2,11 +2,14 @@
 
 <asp:Content ID="Title2" ContentPlaceHolderID="TitleContent" runat="server">Assegna bene</asp:Content>
 <asp:Content ID="Main2" ContentPlaceHolderID="MainContent" runat="server">
-    <section class="page-title"><h1>Assegna bene</h1><p>Crea l'assegnazione corrente in `ProdPers` e registra lo snapshot iniziale in `ProdPersStorico`.</p></section>
+    <section class="page-title"><h1>Assegna bene</h1><p>Assegna un bene disponibile, crea l'assegnazione corrente in `ProdPers` e registra lo snapshot iniziale in `ProdPersStorico`.</p></section>
     <asp:Panel ID="ErrorPanel" runat="server" CssClass="alert error" Visible="false"><asp:Literal ID="ErrorMessage" runat="server" /></asp:Panel>
     <asp:Panel ID="SuccessPanel" runat="server" CssClass="alert success" Visible="false"><asp:Literal ID="SuccessMessage" runat="server" /></asp:Panel>
     <section class="form-card">
         <div class="field-grid">
+            <label>Categorico<asp:TextBox ID="CategoricoFiltroText" runat="server" CssClass="input" AutoPostBack="true" OnTextChanged="CategoricoFiltroText_TextChanged" placeholder="Inserisci categorico..." /></label>
+            <label>Descrizione o matricola<asp:TextBox ID="RicercaProdottoText" runat="server" CssClass="input" AutoPostBack="true" OnTextChanged="RicercaProdottoText_TextChanged" placeholder="Filtra descrizione o matricola..." /></label>
+            <label>Filtro<asp:Button ID="FiltraProdottoButton" runat="server" Text="Filtra" CssClass="button" OnClick="FiltraProdottoButton_Click" /></label>
             <label class="field-span-2">Prodotto<asp:DropDownList ID="ProdottoDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="ProdottoDropDown_SelectedIndexChanged" /></label>
             <label>Tipo personale
                 <asp:RadioButtonList ID="TipoPersonaleRadio" runat="server" CssClass="radio-list" RepeatDirection="Horizontal" AutoPostBack="true" OnSelectedIndexChanged="TipoPersonaleRadio_SelectedIndexChanged">
@@ -31,5 +34,8 @@
             </dl>
         </asp:Panel>
     </section>
-    <div class="page-actions"><asp:Button ID="SaveButton" runat="server" Text="Conferma assegnazione" CssClass="button primary" OnClick="SaveButton_Click" /></div>
+    <div class="page-actions">
+        <asp:Button ID="SaveButton" runat="server" Text="Conferma assegnazione" CssClass="button primary" OnClick="SaveButton_Click" />
+        <asp:Button ID="PrintAssignmentSheetButton" runat="server" Text="Stampa scheda assegnazione" CssClass="button" OnClick="PrintAssignmentSheetButton_Click" Enabled="false" />
+    </div>
 </asp:Content>

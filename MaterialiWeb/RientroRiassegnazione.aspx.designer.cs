@@ -17,7 +17,7 @@ namespace MaterialiGestioneWeb
         protected global::System.Web.UI.WebControls.Literal ProdottoNomeMacchina;
         protected global::System.Web.UI.WebControls.Literal ProdottoMacAddress;
         protected global::System.Web.UI.WebControls.TextBox DataOperazioneText;
-        protected global::System.Web.UI.WebControls.CheckBox NuovaAssegnazioneCheck;
+        protected global::System.Web.UI.WebControls.RadioButtonList TipoOperazioneRadio;
         protected global::System.Web.UI.WebControls.RadioButtonList TipoPersonaleRadio;
         protected global::System.Web.UI.WebControls.CheckBox MostraNonAttiviCheck;
         protected global::System.Web.UI.WebControls.DropDownList PersonaleDropDown;
@@ -28,5 +28,6 @@ namespace MaterialiGestioneWeb
         protected global::System.Web.UI.WebControls.TextBox DocumentoNomeFileText;
         protected global::System.Web.UI.WebControls.TextBox DocumentoPercorsoText;
         protected global::System.Web.UI.WebControls.Button SaveButton;
+        protected global::System.Web.UI.WebControls.Button PrintReturnSheetButton;
     }
 }

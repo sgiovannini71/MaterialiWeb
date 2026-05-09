@@ -32,7 +32,6 @@ namespace MaterialiGestioneWeb
             if (!IsPostBack)
             {
                 BindPersonale();
-                DataSchedaText.Text = DateTime.Today.ToString("yyyy-MM-dd");
                 SetOutputAvailability(false);
             }
         }
@@ -122,7 +121,7 @@ namespace MaterialiGestioneWeb
                 var idPersonale = ParseRequiredInt(PersonaleDropDown.SelectedValue, "Personale");
                 var prodotti = _repository.GetProdottiAssegnati(idPersonale);
                 var personale = GetSelectedPersonale(idPersonale);
-                var dataScheda = ParseRequiredDate(DataSchedaText.Text, "Data scheda");
+                var dataScheda = DateTime.Today;
                 var model = BuildAssignmentSheetModel(prodotti, personale, dataScheda);
 
                 PreviewHtmlLiteral.Text = RenderAssignmentSheetTemplate(model);
@@ -150,7 +149,7 @@ namespace MaterialiGestioneWeb
                 var idPersonale = ParseRequiredInt(PersonaleDropDown.SelectedValue, "Personale");
                 var prodotti = _repository.GetProdottiAssegnati(idPersonale);
                 var personale = GetSelectedPersonale(idPersonale);
-                var dataScheda = ParseRequiredDate(DataSchedaText.Text, "Data scheda");
+                var dataScheda = DateTime.Today;
                 ExportPdf(prodotti, personale, dataScheda);
             }
             catch (Exception ex)
@@ -296,17 +295,6 @@ namespace MaterialiGestioneWeb
             if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed))
             {
                 throw new InvalidOperationException(fieldName + " non valido.");
-            }
-
-            return parsed;
-        }
-
-        private static DateTime ParseRequiredDate(string value, string fieldName)
-        {
-            DateTime parsed;
-            if (!DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsed))
-            {
-                throw new InvalidOperationException(fieldName + " non valida.");
             }
 
             return parsed;

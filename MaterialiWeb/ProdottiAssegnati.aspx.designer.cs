@@ -7,7 +7,6 @@ namespace MaterialiGestioneWeb
         protected global::System.Web.UI.WebControls.RadioButtonList TipoPersonaleRadio;
         protected global::System.Web.UI.WebControls.CheckBox MostraNonAttiviCheck;
         protected global::System.Web.UI.WebControls.DropDownList PersonaleDropDown;
-        protected global::System.Web.UI.WebControls.TextBox DataSchedaText;
         protected global::System.Web.UI.WebControls.Button SearchButton;
         protected global::System.Web.UI.WebControls.Button ResetButton;
         protected global::System.Web.UI.WebControls.Button PreviewSheetButton;

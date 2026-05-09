@@ -1,0 +1,162 @@
+<style>
+    .movement-sheet-preview {
+        margin-top: 1rem;
+        overflow-x: auto;
+    }
+
+    .movement-sheet-page {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0 auto;
+        padding: 16mm 14mm 18mm;
+        box-sizing: border-box;
+        background: #ffffff;
+        color: #1c2430;
+        box-shadow: 0 10px 28px rgba(28, 36, 48, 0.14);
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        line-height: 1.4;
+    }
+
+    .movement-sheet-header {
+        display: table;
+        width: 100%;
+        margin-bottom: 10mm;
+    }
+
+    .movement-sheet-logo-cell,
+    .movement-sheet-header-cell {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    .movement-sheet-logo-cell {
+        width: 32mm;
+    }
+
+    .movement-sheet-logo {
+        max-width: 28mm;
+        max-height: 18mm;
+    }
+
+    .movement-sheet-header-cell {
+        text-align: center;
+        font-size: 18pt;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .movement-sheet-title {
+        margin: 0 0 8mm;
+        text-align: center;
+        font-size: 15pt;
+        font-weight: 700;
+    }
+
+    .movement-sheet-meta {
+        display: table;
+        width: 100%;
+        margin-bottom: 8mm;
+        border-collapse: collapse;
+    }
+
+    .movement-sheet-meta-row {
+        display: table-row;
+    }
+
+    .movement-sheet-meta-label,
+    .movement-sheet-meta-value {
+        display: table-cell;
+        padding: 2mm 0;
+        border-bottom: 1px solid #c8d0da;
+    }
+
+    .movement-sheet-meta-label {
+        width: 28mm;
+        font-weight: 700;
+    }
+
+    .movement-sheet-meta-value {
+        width: 67mm;
+        padding-right: 8mm;
+    }
+
+    .movement-sheet-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 10pt;
+    }
+
+    .movement-sheet-table th,
+    .movement-sheet-table td {
+        border: 1px solid #9ca9b8;
+        padding: 2.4mm 2.2mm;
+        vertical-align: top;
+        word-wrap: break-word;
+    }
+
+    .movement-sheet-table th {
+        background: #edf2f7;
+        font-size: 9.5pt;
+        font-weight: 700;
+        text-align: left;
+    }
+
+    .movement-sheet-signature {
+        margin-top: 18mm;
+        width: 70mm;
+        margin-left: auto;
+        text-align: center;
+    }
+
+    .movement-sheet-signature-label {
+        margin-bottom: 10mm;
+        font-weight: 700;
+    }
+
+    .movement-sheet-signature-line {
+        border-top: 1px solid #1c2430;
+        height: 0;
+    }
+</style>
+
+<div class="movement-sheet-preview">
+    <article class="movement-sheet-page">
+        <header class="movement-sheet-header">
+            <div class="movement-sheet-logo-cell">{{LOGO_HTML}}</div>
+            <div class="movement-sheet-header-cell">{{HEADER_TEXT}}</div>
+        </header>
+
+        <h1 class="movement-sheet-title">{{TITLE}}</h1>
+
+        <section class="movement-sheet-meta">
+            <div class="movement-sheet-meta-row">
+                <div class="movement-sheet-meta-label">Data</div>
+                <div class="movement-sheet-meta-value">{{DATA}}</div>
+                <div class="movement-sheet-meta-label">{{PERSON_LABEL}}</div>
+                <div class="movement-sheet-meta-value">{{PERSON_VALUE}}</div>
+            </div>
+        </section>
+
+        <table class="movement-sheet-table">
+            <thead>
+                <tr>
+                    <th style="width: 14%;">Categorico</th>
+                    <th style="width: 33%;">Descrizione</th>
+                    <th style="width: 16%;">Matricola</th>
+                    <th style="width: 17%;">Categoria</th>
+                    <th style="width: 20%;">Modello</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{PRODUCT_ROWS}}
+            </tbody>
+        </table>
+
+        <div class="movement-sheet-signature">
+            <div class="movement-sheet-signature-label">Firma</div>
+            <div class="movement-sheet-signature-line"></div>
+        </div>
+    </article>
+</div>

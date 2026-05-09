@@ -12,7 +12,7 @@ namespace MaterialiGestioneWeb
         protected global::System.Web.UI.WebControls.DropDownList PersonaleDropDown;
         protected global::System.Web.UI.WebControls.Button SearchButton;
         protected global::System.Web.UI.WebControls.Button ResetButton;
-        protected global::System.Web.UI.WebControls.Button ExportCsvButton;
+        protected global::System.Web.UI.WebControls.Button ExportPdfButton;
         protected global::System.Web.UI.WebControls.Panel ResultPanel;
         protected global::System.Web.UI.WebControls.Literal ResultTitle;
         protected global::System.Web.UI.WebControls.GridView StoricoGrid;

@@ -60,6 +60,8 @@
     <Content Include="Global.asax" />
     <Content Include="ImportaRete.aspx" />
     <Content Include="html\AssignmentSheetTemplate.html" />
+    <Content Include="html\SchedaMovimentazioneTemplate.html" />
+    <Content Include="html\StoricoAssegnazioniTemplate.html" />
     <Content Include="img\logo.png" />
     <Content Include="NuovoBene.aspx" />
     <Content Include="ProdottiAssegnati.aspx" />
@@ -169,6 +171,7 @@
     <Compile Include="Models\DashboardStats.cs" />
     <Compile Include="Models\DominioItem.cs" />
     <Compile Include="Models\LookupItem.cs" />
+    <Compile Include="MovementSheetSupport.cs" />
     <Compile Include="Models\OrdinativoDettaglio.cs" />
     <Compile Include="Models\ProcessModels.cs" />
     <Compile Include="Models\ProdottoCorrente.cs" />

@@ -21,7 +21,6 @@
             </label>
             <label class="checkbox-field"><asp:CheckBox ID="MostraNonAttiviCheck" runat="server" Text="Includi personale non attivo" AutoPostBack="true" EnableViewState="false" OnCheckedChanged="MostraNonAttiviCheck_CheckedChanged" /></label>
             <label class="field-span-2">Personale<asp:DropDownList ID="PersonaleDropDown" runat="server" CssClass="input" EnableViewState="false" /></label>
-            <label>Data scheda<asp:TextBox ID="DataSchedaText" runat="server" CssClass="input" TextMode="Date" /></label>
         </div>
         <div class="page-actions">
             <asp:Button ID="SearchButton" runat="server" Text="Visualizza prodotti" CssClass="button primary" OnClick="SearchButton_Click" />

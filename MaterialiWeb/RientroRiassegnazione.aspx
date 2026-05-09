@@ -2,16 +2,21 @@
 
 <asp:Content ID="Title3" ContentPlaceHolderID="TitleContent" runat="server">Rientro o riassegnazione</asp:Content>
 <asp:Content ID="Main3" ContentPlaceHolderID="MainContent" runat="server">
-    <section class="page-title"><h1>Rientro o riassegnazione</h1><p>Chiude l'assegnazione corrente, aggiorna `ProdPersStorico` e, se richiesto, apre la nuova assegnazione.</p></section>
+    <section class="page-title"><h1>Rientro o riassegnazione</h1><p>Opera solo su beni attualmente assegnati: puoi chiudere l'assegnazione corrente oppure trasferire il bene a un nuovo assegnatario.</p></section>
     <asp:Panel ID="ErrorPanel" runat="server" CssClass="alert error" Visible="false"><asp:Literal ID="ErrorMessage" runat="server" /></asp:Panel>
     <asp:Panel ID="SuccessPanel" runat="server" CssClass="alert success" Visible="false"><asp:Literal ID="SuccessMessage" runat="server" /></asp:Panel>
     <section class="form-card">
         <div class="field-grid">
             <label>Categorico<asp:TextBox ID="CategoricoText" runat="server" CssClass="input" AutoPostBack="true" OnTextChanged="CategoricoText_TextChanged" placeholder="Inserisci categorico..." /></label>
             <label>Filtro<asp:Button ID="FiltraProdottoButton" runat="server" Text="Filtra" CssClass="button" OnClick="FiltraProdottoButton_Click" /></label>
-            <label>Prodotto<asp:DropDownList ID="ProdottoDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="ProdottoDropDown_SelectedIndexChanged" /></label>
+            <label>Prodotto assegnato<asp:DropDownList ID="ProdottoDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="ProdottoDropDown_SelectedIndexChanged" /></label>
             <label>Data operazione<asp:TextBox ID="DataOperazioneText" runat="server" CssClass="input" TextMode="Date" /></label>
-            <label class="checkbox-field"><asp:CheckBox ID="NuovaAssegnazioneCheck" runat="server" Text="Crea nuova assegnazione" /></label>
+            <label>Operazione
+                <asp:RadioButtonList ID="TipoOperazioneRadio" runat="server" CssClass="radio-list" RepeatDirection="Horizontal" AutoPostBack="true" OnSelectedIndexChanged="TipoOperazioneRadio_SelectedIndexChanged">
+                    <asp:ListItem Value="R" Selected="True">Rientro</asp:ListItem>
+                    <asp:ListItem Value="T">Riassegnazione</asp:ListItem>
+                </asp:RadioButtonList>
+            </label>
             <label>Tipo personale
                 <asp:RadioButtonList ID="TipoPersonaleRadio" runat="server" CssClass="radio-list" RepeatDirection="Horizontal" AutoPostBack="true" EnableViewState="false" OnSelectedIndexChanged="TipoPersonaleRadio_SelectedIndexChanged">
                     <asp:ListItem Value="I" Selected="True">Interno</asp:ListItem>
@@ -34,5 +39,8 @@
             </dl>
         </asp:Panel>
     </section>
-    <div class="page-actions"><asp:Button ID="SaveButton" runat="server" Text="Registra operazione" CssClass="button primary" OnClick="SaveButton_Click" /></div>
+    <div class="page-actions">
+        <asp:Button ID="SaveButton" runat="server" Text="Registra operazione" CssClass="button primary" OnClick="SaveButton_Click" />
+        <asp:Button ID="PrintReturnSheetButton" runat="server" Text="Stampa scheda restituzione" CssClass="button" OnClick="PrintReturnSheetButton_Click" Enabled="false" />
+    </div>
 </asp:Content>

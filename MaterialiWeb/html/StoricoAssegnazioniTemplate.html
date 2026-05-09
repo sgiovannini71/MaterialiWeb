@@ -1,0 +1,175 @@
+<style>
+    .history-report-preview {
+        margin-top: 1rem;
+        overflow-x: auto;
+    }
+
+    .history-report-page {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0 auto;
+        padding: 16mm 12mm 18mm;
+        box-sizing: border-box;
+        background: #ffffff;
+        color: #1c2430;
+        box-shadow: 0 10px 28px rgba(28, 36, 48, 0.14);
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        line-height: 1.35;
+    }
+
+    .history-report-header {
+        display: table;
+        width: 100%;
+        margin-bottom: 8mm;
+    }
+
+    .history-report-logo-cell,
+    .history-report-header-cell {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    .history-report-logo-cell {
+        width: 32mm;
+    }
+
+    .history-report-logo {
+        max-width: 28mm;
+        max-height: 18mm;
+    }
+
+    .history-report-header-cell {
+        text-align: center;
+        font-size: 18pt;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .history-report-title {
+        margin: 0 0 6mm;
+        text-align: center;
+        font-size: 15pt;
+        font-weight: 700;
+    }
+
+    .history-report-meta {
+        display: table;
+        width: 100%;
+        margin-bottom: 6mm;
+        border-collapse: collapse;
+    }
+
+    .history-report-meta-row {
+        display: table-row;
+    }
+
+    .history-report-meta-label,
+    .history-report-meta-value {
+        display: table-cell;
+        padding: 2mm 0;
+        border-bottom: 1px solid #c8d0da;
+        font-size: 10pt;
+    }
+
+    .history-report-meta-label {
+        width: 22mm;
+        font-weight: 700;
+    }
+
+    .history-report-meta-value {
+        width: 48mm;
+        padding-right: 6mm;
+    }
+
+    .history-report-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 9.2pt;
+    }
+
+    .history-report-table th,
+    .history-report-table td {
+        border: 1px solid #9ca9b8;
+        padding: 2.2mm 2mm;
+        vertical-align: top;
+        word-wrap: break-word;
+    }
+
+    .history-report-table th {
+        background: #edf2f7;
+        font-size: 8.8pt;
+        font-weight: 700;
+        text-align: left;
+    }
+
+    .history-report-empty {
+        padding: 8mm 0;
+        text-align: center;
+        color: #5b6674;
+        font-style: italic;
+    }
+
+    @media print {
+        .history-report-preview {
+            margin: 0;
+            overflow: visible;
+        }
+
+        .history-report-page {
+            margin: 0;
+            box-shadow: none;
+        }
+    }
+</style>
+
+<div class="history-report-preview">
+    <article class="history-report-page">
+        <header class="history-report-header">
+            <div class="history-report-logo-cell">{{LOGO_HTML}}</div>
+            <div class="history-report-header-cell">{{HEADER_TEXT}}</div>
+        </header>
+
+        <h1 class="history-report-title">Report storico assegnazioni</h1>
+
+        <section class="history-report-meta">
+            <div class="history-report-meta-row">
+                <div class="history-report-meta-label">Data</div>
+                <div class="history-report-meta-value">{{DATA}}</div>
+                <div class="history-report-meta-label">Categorico</div>
+                <div class="history-report-meta-value">{{CATEGORICO}}</div>
+                <div class="history-report-meta-label">Prodotto</div>
+                <div class="history-report-meta-value">{{PRODOTTO}}</div>
+            </div>
+            <div class="history-report-meta-row">
+                <div class="history-report-meta-label">Assegnatario</div>
+                <div class="history-report-meta-value">{{ASSEGNATARIO}}</div>
+                <div class="history-report-meta-label">Tipo pers.</div>
+                <div class="history-report-meta-value">{{TIPO_PERSONALE}}</div>
+                <div class="history-report-meta-label">Non attivi</div>
+                <div class="history-report-meta-value">{{NON_ATTIVI}}</div>
+            </div>
+        </section>
+
+        <table class="history-report-table">
+            <thead>
+                <tr>
+                    <th style="width: 8%;">Cat.</th>
+                    <th style="width: 18%;">Descrizione</th>
+                    <th style="width: 12%;">Matricola</th>
+                    <th style="width: 14%;">Assegnatario</th>
+                    <th style="width: 9%;">Data ass.</th>
+                    <th style="width: 9%;">Data rest.</th>
+                    <th style="width: 8%;">Stanza</th>
+                    <th style="width: 8%;">Stato</th>
+                    <th style="width: 8%;">Macchina</th>
+                    <th style="width: 6%;">Seriale</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{HISTORY_ROWS}}
+            </tbody>
+        </table>
+    </article>
+</div>

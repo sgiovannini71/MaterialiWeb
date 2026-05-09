@@ -80,6 +80,8 @@
     <Content Include="GestioneCrud.aspx" />
     <Content Include="Global.asax" />
     <Content Include="ImportaRete.aspx" />
+    <Content Include="img\logo.png" />
+    <Content Include="html\AssignmentSheetTemplate.html" />
     <Content Include="html\guida_materiali_gestione.html" />
     <Content Include="NuovoBene.aspx" />
     <Content Include="ProdottiAssegnati.aspx" />

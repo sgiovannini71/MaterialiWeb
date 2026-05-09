@@ -43,6 +43,11 @@ namespace MaterialiGestioneWeb
             try
             {
                 ErrorPanel.Visible = false;
+                if (!ExportCsvButton.Enabled)
+                {
+                    throw new InvalidOperationException("Caricare prima dei dati da esportare.");
+                }
+
                 var prodotti = _repository.GetProdotti(SearchText.Text, ParseOptionalInt(EfficienzaDropDown.SelectedValue));
                 ExportCsv(prodotti);
             }
@@ -58,11 +63,14 @@ namespace MaterialiGestioneWeb
             try
             {
                 ErrorPanel.Visible = false;
-                ProdottiGrid.DataSource = _repository.GetProdotti(search, ParseOptionalInt(EfficienzaDropDown.SelectedValue));
+                var prodotti = _repository.GetProdotti(search, ParseOptionalInt(EfficienzaDropDown.SelectedValue));
+                ProdottiGrid.DataSource = prodotti;
                 ProdottiGrid.DataBind();
+                SetExportAvailability(prodotti != null && prodotti.Count > 0);
             }
             catch (Exception ex)
             {
+                SetExportAvailability(false);
                 ErrorPanel.Visible = true;
                 ErrorMessage.Text = Server.HtmlEncode(ex.Message);
             }
@@ -82,6 +90,11 @@ namespace MaterialiGestioneWeb
         {
             int parsed;
             return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed) ? (int?)parsed : null;
+        }
+
+        private void SetExportAvailability(bool enabled)
+        {
+            ExportCsvButton.Enabled = enabled;
         }
 
         private void ExportCsv(IList<ProdottoCorrente> prodotti)

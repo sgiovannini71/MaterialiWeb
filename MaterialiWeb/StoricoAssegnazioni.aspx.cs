@@ -27,6 +27,7 @@ namespace MaterialiGestioneWeb
             {
                 BindProdottiByCategorico(null, null);
                 BindPersonale();
+                SetExportAvailability(false);
             }
         }
 
@@ -43,12 +44,14 @@ namespace MaterialiGestioneWeb
         protected void TipoPersonaleRadio_SelectedIndexChanged(object sender, EventArgs e)
         {
             ResultPanel.Visible = false;
+            SetExportAvailability(false);
             BindPersonale();
         }
 
         protected void MostraNonAttiviCheck_CheckedChanged(object sender, EventArgs e)
         {
             ResultPanel.Visible = false;
+            SetExportAvailability(false);
             BindPersonale();
         }
 
@@ -59,15 +62,18 @@ namespace MaterialiGestioneWeb
                 ErrorPanel.Visible = false;
                 var idProdotto = ParseOptionalInt(ProdottoDropDown.SelectedValue);
                 var idPersonale = ParseOptionalInt(PersonaleDropDown.SelectedValue);
-                StoricoGrid.DataSource = _repository.GetStoricoAssegnazioni(CategoricoText.Text, idProdotto, idPersonale);
+                var storico = _repository.GetStoricoAssegnazioni(CategoricoText.Text, idProdotto, idPersonale);
+                StoricoGrid.DataSource = storico;
                 StoricoGrid.DataBind();
                 ResultTitle.Text = Server.HtmlEncode("Risultati storico assegnazioni");
                 ResultPanel.Visible = true;
+                SetExportAvailability(storico != null && storico.Count > 0);
             }
             catch (Exception ex)
             {
                 AppLogger.Error("StoricoAssegnazioniPage.SearchButton_Click", "Errore durante la ricerca storico assegnazioni.", ex);
                 ResultPanel.Visible = false;
+                SetExportAvailability(false);
                 ErrorPanel.Visible = true;
                 ErrorMessage.Text = Server.HtmlEncode(ex.Message);
             }
@@ -77,6 +83,7 @@ namespace MaterialiGestioneWeb
         {
             ErrorPanel.Visible = false;
             ResultPanel.Visible = false;
+            SetExportAvailability(false);
             CategoricoText.Text = string.Empty;
             TipoPersonaleRadio.SelectedValue = "I";
             MostraNonAttiviCheck.Checked = false;
@@ -89,6 +96,11 @@ namespace MaterialiGestioneWeb
             try
             {
                 ErrorPanel.Visible = false;
+                if (!ExportCsvButton.Enabled)
+                {
+                    throw new InvalidOperationException("Caricare prima dei dati da esportare.");
+                }
+
                 var idProdotto = ParseOptionalInt(ProdottoDropDown.SelectedValue);
                 var idPersonale = ParseOptionalInt(PersonaleDropDown.SelectedValue);
                 ExportCsv(_repository.GetStoricoAssegnazioni(CategoricoText.Text, idProdotto, idPersonale));
@@ -105,6 +117,7 @@ namespace MaterialiGestioneWeb
         {
             ErrorPanel.Visible = false;
             ResultPanel.Visible = false;
+            SetExportAvailability(false);
             BindProdottiByCategorico(CategoricoText.Text, null);
         }
 
@@ -179,6 +192,11 @@ namespace MaterialiGestioneWeb
         {
             int parsed;
             return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed) ? (int?)parsed : null;
+        }
+
+        private void SetExportAvailability(bool enabled)
+        {
+            ExportCsvButton.Enabled = enabled;
         }
 
         private void ExportCsv(IList<StoricoAssegnazioneConsultazioneItem> storico)

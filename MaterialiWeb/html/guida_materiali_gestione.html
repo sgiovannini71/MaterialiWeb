@@ -3,621 +3,324 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Guida Operativa - MaterialiWeb</title>
+    <title>Guida Materiali Gestione</title>
     <style>
         :root {
-            --bg: #f5f1e8;
-            --panel: #fffdf8;
-            --ink: #1f2a37;
-            --muted: #5f6b7a;
-            --line: #d7cfbf;
-            --accent: #0f4c5c;
-            --accent-2: #b85c38;
-            --soft: #eef3f4;
+            --bg: #f4f6f8;
+            --surface: #ffffff;
+            --ink: #1d2733;
+            --muted: #5a6775;
+            --accent: #0f5f8c;
+            --line: #d7dfe7;
+            --soft: #eef4f8;
         }
 
         * { box-sizing: border-box; }
 
         body {
             margin: 0;
-            background:
-                radial-gradient(circle at top right, rgba(184, 92, 56, 0.12), transparent 28%),
-                linear-gradient(180deg, #f7f4ec 0%, var(--bg) 100%);
+            padding: 32px 18px 48px;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: linear-gradient(180deg, #edf3f7 0%, var(--bg) 100%);
             color: var(--ink);
-            font-family: Georgia, "Times New Roman", serif;
-            line-height: 1.58;
+            line-height: 1.55;
         }
 
-        .shell {
+        .page {
             max-width: 1100px;
             margin: 0 auto;
-            padding: 32px 24px 56px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            box-shadow: 0 18px 45px rgba(29, 39, 51, 0.08);
         }
 
         .hero {
-            background: linear-gradient(135deg, rgba(15, 76, 92, 0.96), rgba(17, 53, 72, 0.96));
-            color: #f8fbfc;
-            border-radius: 18px;
-            padding: 32px 30px;
-            box-shadow: 0 18px 50px rgba(15, 37, 48, 0.15);
+            padding: 36px 40px 26px;
+            background: linear-gradient(135deg, #0f5f8c 0%, #174d6b 100%);
+            color: #fff;
         }
 
         .hero h1 {
-            margin: 0 0 10px;
-            font-size: 2.2rem;
-            letter-spacing: 0.02em;
+            margin: 0 0 8px;
+            font-size: 32px;
+            line-height: 1.15;
         }
 
         .hero p {
             margin: 0;
-            max-width: 860px;
-            color: rgba(248, 251, 252, 0.9);
-            font-size: 1.05rem;
+            max-width: 820px;
+            color: rgba(255,255,255,0.9);
         }
 
-        .meta {
-            margin-top: 18px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .pill {
-            display: inline-block;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 999px;
-            padding: 7px 12px;
-            font-size: 0.92rem;
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .toc,
-        .section {
-            margin-top: 22px;
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            padding: 24px 24px 20px;
-            box-shadow: 0 8px 24px rgba(34, 44, 56, 0.05);
+        .content {
+            padding: 32px 40px 40px;
         }
 
         h2 {
-            margin: 0 0 14px;
-            color: var(--accent);
-            font-size: 1.5rem;
+            margin: 28px 0 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--line);
+            font-size: 22px;
         }
 
         h3 {
-            margin: 20px 0 10px;
-            color: var(--accent-2);
-            font-size: 1.08rem;
+            margin: 22px 0 8px;
+            font-size: 17px;
         }
 
-        p { margin: 0 0 12px; }
-        ul, ol { margin: 0 0 14px 22px; padding: 0; }
-        li { margin: 0 0 8px; }
+        p, li {
+            font-size: 15px;
+        }
 
-        .toc ul {
-            columns: 2;
-            column-gap: 34px;
+        ul, ol {
+            margin: 10px 0 16px 20px;
+            padding: 0;
+        }
+
+        .callout {
+            margin: 18px 0;
+            padding: 14px 16px;
+            background: var(--soft);
+            border-left: 4px solid var(--accent);
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 14px;
-            margin-top: 10px;
+            gap: 16px;
+            margin: 18px 0 24px;
         }
 
         .card {
-            border: 1px solid var(--line);
-            border-radius: 14px;
             padding: 16px;
-            background: #fffefb;
+            border: 1px solid var(--line);
+            background: #fbfcfd;
         }
 
         .card h3 {
             margin-top: 0;
         }
 
-        .diagram {
-            display: grid;
-            gap: 12px;
-            margin-top: 14px;
+        code {
+            padding: 1px 5px;
+            background: #f1f4f7;
+            border: 1px solid #e1e7ee;
+            border-radius: 4px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.95em;
         }
 
-        .diagram-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-        }
-
-        .node {
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            background: linear-gradient(180deg, #fffefb 0%, #f7f4ed 100%);
+        pre {
+            overflow-x: auto;
             padding: 14px;
-            min-height: 104px;
-        }
-
-        .node strong {
-            display: block;
-            color: var(--accent);
-            margin-bottom: 6px;
-        }
-
-        .connector {
-            text-align: center;
-            color: var(--accent-2);
-            font-size: 0.95rem;
+            background: #12202c;
+            color: #eff7ff;
+            border-radius: 6px;
+            font-size: 14px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 12px 0 8px;
-            font-size: 0.96rem;
+            margin: 14px 0 20px;
         }
 
         th, td {
+            border: 1px solid var(--line);
+            padding: 10px 12px;
             text-align: left;
             vertical-align: top;
-            border-bottom: 1px solid var(--line);
-            padding: 10px 8px;
         }
 
         th {
-            color: var(--accent);
-            font-weight: bold;
-            background: var(--soft);
+            background: #f4f7fa;
         }
 
-        code {
-            font-family: Consolas, "Courier New", monospace;
-            background: #eef2f4;
-            border-radius: 4px;
-            padding: 0.1rem 0.35rem;
-            color: #163d4a;
-        }
-
-        pre {
-            margin: 12px 0;
-            padding: 14px;
-            overflow-x: auto;
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            background: #f6f8f9;
-        }
-
-        pre code {
-            background: transparent;
-            padding: 0;
-            border-radius: 0;
-            display: block;
-            white-space: pre;
-        }
-
-        .note, .warning {
-            border-left: 4px solid var(--accent);
-            background: #f4f9fa;
-            padding: 12px 14px;
-            border-radius: 10px;
-            margin: 12px 0;
-        }
-
-        .warning {
-            border-left-color: var(--accent-2);
-            background: #fff4ee;
-        }
-
-        .footer {
-            margin-top: 24px;
+        .muted {
             color: var(--muted);
-            font-size: 0.94rem;
         }
 
-        @media (max-width: 760px) {
-            .shell { padding: 18px 14px 40px; }
-            .hero { padding: 24px 20px; }
-            .hero h1 { font-size: 1.8rem; }
-            .toc ul { columns: 1; }
+        @media print {
+            body {
+                background: #fff;
+                padding: 0;
+            }
+
+            .page {
+                border: 0;
+                box-shadow: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="shell">
-        <section class="hero">
-            <h1>Guida Operativa MaterialiWeb</h1>
-            <p>
-                Documento operativo aggiornato per l'applicativo ASP.NET Web Forms usato
-                per gestire materiali, ordinativi, prodotti inventariali, assegnazioni,
-                ubicazioni e configurazioni di rete collegate al database <code>Materiale</code>.
-            </p>
-            <div class="meta">
-                <span class="pill">Applicazione: <code>MaterialiWeb</code></span>
-                <span class="pill">Namespace applicativo: <code>MaterialiGestioneWeb</code></span>
-                <span class="pill">Tecnologia: ASP.NET Web Forms / C#</span>
-                <span class="pill">Database principale: <code>Materiale</code></span>
-                <span class="pill">Anagrafica personale: <code>DipendentiDB</code></span>
-                <span class="pill">Aggiornata: 7 maggio 2026</span>
+    <div class="page">
+        <header class="hero">
+            <h1>Guida operativa MaterialiWeb</h1>
+            <p>Documento allineato alla logica attuale dell'applicazione: ordinativi come sorgente dei beni, completamento dei prodotti generati, export controllati solo dopo caricamento dati e scheda assegnatario basata su template HTML e PDF.</p>
+        </header>
+
+        <main class="content">
+            <h2>1. Logica generale</h2>
+            <div class="callout">
+                La catena corretta e' <strong>Ordinativo -&gt; OggettoOrdinativo -&gt; Prodotti</strong>. La quantita' definita sull'oggetto ordinativo genera i prodotti e assegna in quella fase il <code>Categorico</code>.
             </div>
-        </section>
 
-        <section class="toc">
-            <h2>Indice</h2>
-            <ul>
-                <li>1. Obiettivo del sistema</li>
-                <li>2. Concetti chiave</li>
-                <li>3. Flusso dati principale</li>
-                <li>4. Entita fondamentali</li>
-                <li>5. Nuova regola: quantita e generazione prodotti</li>
-                <li>6. Regola del categorico</li>
-                <li>7. Vista dettaglio ordinativi</li>
-                <li>8. Diagrammi di flusso Mermaid</li>
-                <li>9. Pagine operative</li>
-                <li>10. Refresh automatico del contesto prodotto</li>
-                <li>11. CRUD amministrativa</li>
-                <li>12. Integrazione con personale e rete</li>
-                <li>13. Logging e note di deploy</li>
-            </ul>
-        </section>
-
-        <section class="section">
-            <h2>1. Obiettivo del sistema</h2>
-            <p>
-                L'applicativo traccia il ciclo di vita dei beni materiali: acquisizione tramite
-                ordinativi, generazione dei singoli prodotti inventariali, assegnazione al personale,
-                rientro, riassegnazione, cambio stanza, cambio stato, configurazione di rete e dismissione.
-            </p>
-            <p>
-                Il sistema separa il livello amministrativo del dato dal livello operativo sulle singole unita inventariali.
-            </p>
-        </section>
-
-        <section class="section">
-            <h2>2. Concetti chiave</h2>
             <div class="grid">
-                <div class="card">
-                    <h3>Ordinativo</h3>
-                    <p>Testata amministrativa dell'acquisto o approvvigionamento.</p>
-                </div>
-                <div class="card">
-                    <h3>Oggetto ordinativo</h3>
-                    <p>Riga dell'ordinativo che descrive la tipologia di bene acquistata.</p>
-                </div>
-                <div class="card">
-                    <h3>Prodotto</h3>
-                    <p>Singola unita fisica inventariata, identificata dal <code>Categorico</code>.</p>
-                </div>
-                <div class="card">
-                    <h3>ProdPers</h3>
-                    <p>Relazione attiva fra prodotto e persona assegnataria.</p>
-                </div>
-                <div class="card">
-                    <h3>Storico assegnazioni</h3>
-                    <p>Traccia le movimentazioni e i contesti nel tempo.</p>
-                </div>
-                <div class="card">
-                    <h3>Postazione e rete</h3>
-                    <p>Associa il prodotto a nome macchina, MAC address e dati tecnici.</p>
-                </div>
+                <section class="card">
+                    <h3>Creazione beni</h3>
+                    <p>I beni non nascono piu' da una creazione libera con calcolo del primo categorico disponibile.</p>
+                    <p>La loro nascita avviene quando si inserisce un <code>OggettoOrdinativo</code> con una <code>Quantita</code> maggiore di zero.</p>
+                </section>
+                <section class="card">
+                    <h3>Completamento beni</h3>
+                    <p><code>NuovoBene.aspx</code> non crea nuovi record autonomi.</p>
+                    <p>Serve a completare i dati mancanti dei prodotti gia' generati.</p>
+                </section>
+                <section class="card">
+                    <h3>Assegnazione</h3>
+                    <p><code>AssegnaBene.aspx</code> mostra solo beni non assegnati.</p>
+                    <p>L'assegnazione aggiorna il legame con il personale e lo storico, non il categorico.</p>
+                </section>
             </div>
-        </section>
 
-        <section class="section">
-            <h2>3. Flusso dati principale</h2>
-            <div class="diagram">
-                <div class="diagram-row">
-                    <div class="node">
-                        <strong>Ordinativo</strong>
-                        Definisce il contenitore amministrativo: codice, denominazione, ditta, ente, estremi.
-                    </div>
-                    <div class="node">
-                        <strong>Oggetto ordinativo</strong>
-                        Definisce descrizione prodotto, modello, NUC, categoria e quantita richiesta.
-                    </div>
-                    <div class="node">
-                        <strong>Prodotti generati</strong>
-                        Il sistema crea in automatico le righe in <code>Prodotti</code> in base alla quantita.
-                    </div>
-                </div>
-                <div class="connector">Ordinativo -> Oggetto ordinativo -> Prodotti</div>
-                <div class="diagram-row">
-                    <div class="node">
-                        <strong>Movimentazione operativa</strong>
-                        Assegnazione, rientro, riassegnazione, cambio stato, cambio stanza, dismissione.
-                    </div>
-                    <div class="node">
-                        <strong>Contesto tecnico</strong>
-                        Stanza, assegnatario, nome macchina, MAC address, note, versamento.
-                    </div>
-                    <div class="node">
-                        <strong>Storico</strong>
-                        Le operazioni aggiornano il corrente e conservano la tracciabilita.
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section">
-            <h2>4. Entita fondamentali</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Entita</th>
-                        <th>Scopo</th>
-                        <th>Campi rilevanti</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Ordinativo</td>
-                        <td>Testata amministrativa</td>
-                        <td>Codice, denominazione, EF, tipo, ditta, ente, estremi</td>
-                    </tr>
-                    <tr>
-                        <td>OggettoOrdinativo</td>
-                        <td>Riga di acquisto</td>
-                        <td>Descrizione, modello, NUC, quantita, prezzi, categoria</td>
-                    </tr>
-                    <tr>
-                        <td>Prodotti</td>
-                        <td>Singolo bene inventariato</td>
-                        <td>Categorico, matricola, stanza, efficienza, note, versamento</td>
-                    </tr>
-                    <tr>
-                        <td>ProdPers</td>
-                        <td>Assegnazione corrente</td>
-                        <td>IdProdotto, IdPersonale, data assegnazione</td>
-                    </tr>
-                    <tr>
-                        <td>NetworkData / Postazioni</td>
-                        <td>Configurazione tecnica</td>
-                        <td>Nome macchina, MAC address, dominio, legame col prodotto</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <section class="section">
-            <h2>5. Nuova regola: quantita e generazione prodotti</h2>
-            <p>
-                La creazione di un <strong>oggetto ordinativo</strong> non e piu solo descrittiva.
-                Ora determina la nascita dei singoli beni inventariali.
-            </p>
-            <ol>
-                <li>L'utente crea l'oggetto ordinativo e inserisce la <code>Quantita</code>.</li>
-                <li>Il sistema salva la riga in <code>OggettoOrdinativo</code>.</li>
-                <li>Subito dopo genera in <code>Prodotti</code> tante righe quante previste dalla quantita.</li>
-                <li>Ogni prodotto generato riceve un <code>Categorico</code> valorizzato.</li>
-            </ol>
-            <div class="note">
-                La nascita del bene inventariale e quindi agganciata alla riga dell'ordinativo, non a una creazione manuale successiva.
-            </div>
-            <div class="warning">
-                La quantita e mostrata nella griglia CRUD come dato di controllo. Non e prevista la modifica libera dalla griglia, per evitare disallineamenti con i prodotti gia generati.
-            </div>
-        </section>
-
-        <section class="section">
-            <h2>6. Regola del categorico</h2>
-            <p>
-                Il <code>Categorico</code> identifica il singolo bene. Viene assegnato automaticamente in sequenza
-                al momento della generazione dei prodotti derivati da un oggetto ordinativo.
-            </p>
-            <ul>
-                <li>Il prossimo categorico disponibile e calcolato sul massimo esistente in <code>Prodotti</code>.</li>
-                <li>La generazione multipla assegna valori consecutivi per lo stesso oggetto ordinativo.</li>
-                <li>Il categorico e definito a priori, cioe gia al momento di creazione del bene.</li>
-            </ul>
-        </section>
-
-        <section class="section">
-            <h2>7. Vista dettaglio ordinativi</h2>
-            <p>
-                E stata introdotta la pagina <code>DettaglioOrdinativo.aspx</code>, che rappresenta il punto corretto
-                per leggere la composizione di un ordinativo secondo la nuova logica.
-            </p>
-            <h3>Struttura della vista</h3>
-            <ul>
-                <li>In alto mostra la testata dell'ordinativo selezionato.</li>
-                <li>Sotto espone indicatori sintetici: numero oggetti, quantita totale, prodotti generati, valore inventario.</li>
-                <li>La griglia centrale mostra gli <code>OggettiOrdinativo</code> collegati all'ordinativo.</li>
-                <li>Per ogni oggetto e visibile anche l'elenco dei <code>Prodotti</code> generati.</li>
-            </ul>
-            <h3>Ricerca e navigazione</h3>
-            <ul>
-                <li>La pagina contiene una ricerca per codice, denominazione, ditta, ente o estremi.</li>
-                <li>E disponibile anche un menu a tendina per selezionare rapidamente un ordinativo.</li>
-                <li>Dalla dashboard, dal menu principale e dal CRUD amministrativo si puo aprire direttamente il dettaglio.</li>
-            </ul>
-            <h3>Riepilogo categorici</h3>
-            <p>
-                Ogni riga oggetto mostra un riepilogo rapido dei <code>Categorici</code> generati.
-                Questo aiuta a capire subito quali unita inventariali sono nate da quella riga senza aprire tutti i dettagli.
-            </p>
-            <div class="note">
-                La relazione da leggere sempre e questa:
-                <code>Ordinativo 1 -> N OggettiOrdinativo 1 -> N Prodotti</code>.
-            </div>
-        </section>
-
-        <section class="section">
-            <h2>8. Diagrammi di flusso Mermaid</h2>
-            <p>
-                Di seguito sono riportati due diagrammi esemplificativi in formato Mermaid:
-                uno orientato al processo gestionale e uno orientato alla logica tecnica dei dati.
-            </p>
-            <h3>Diagramma manageriale  <img src="./Diagramma manageriale.png"  width="25%" height="25%" /></h3>
-            <pre><code>flowchart TD
-    A[Fabbisogno o acquisto] --&gt; B[Ordinativo]
-    B --&gt; C[Righe dell'ordinativo]
-    C --&gt; D[Quantita per ciascuna riga]
-    D --&gt; E[Generazione automatica dei beni]
-    E --&gt; F[Inventario disponibile]
-
-    F --&gt; G[Assegnazione al personale]
-    F --&gt; H[Spostamento o rientro]
-    F --&gt; I[Aggiornamento stato]
-    F --&gt; J[Configurazione tecnica]
-    F --&gt; K[Dismissione o versamento]
-
-    G --&gt; L[Tracciabilita]
-    H --&gt; L
-    I --&gt; L
-    J --&gt; L
-    K --&gt; L</code></pre>
-            <h3>Diagramma tecnico / database <img src="./Diagramma tecnico database.png"  width="25%" height="25%" /></h3>
-            <pre><code>flowchart TD
-    A[Tabella Ordinativo] --&gt; B[Tabella OggettoOrdinativo]
-    B --&gt; C[Campo Quantita]
-    B --&gt; D[Descrizione / Modello / NUC / Categoria]
-
-    C --&gt; E[Loop di generazione]
-    E --&gt; F[Insert in Prodotti]
-    F --&gt; G[Assegna Categorico progressivo]
-
-    G --&gt; H[Prodotto registrato]
-
-    H --&gt; I[ProdPers]
-    H --&gt; J[ProdPersStorico]
-    H --&gt; K[NetworkData]
-    H --&gt; L[Postazione]
-    H --&gt; M[Stanze]
-    H --&gt; N[LivelliEfficenza]
-
-    I --&gt; O[Assegnazione corrente]
-    J --&gt; P[Storico movimentazioni]
-    K --&gt; Q[Dati rete]
-    L --&gt; R[Nome macchina]
-    M --&gt; S[Ubicazione]
-    N --&gt; T[Stato del bene]
-
-    B --&gt; U[DettaglioOrdinativo.aspx]
-    F --&gt; V[ProdottoDettaglio.aspx]</code></pre>
-        </section>
-
-        <section class="section">
-            <h2>9. Pagine operative</h2>
+            <h2>2. Dashboard e pagine principali</h2>
             <table>
                 <thead>
                     <tr>
                         <th>Pagina</th>
-                        <th>Funzione</th>
-                        <th>Comportamento aggiornato</th>
+                        <th>Ruolo</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Dettaglio ordinativi</td>
-                        <td>Lettura gerarchica degli ordinativi</td>
-                        <td>Mostra testata, oggetti ordinativo, prodotti generati e riepilogo categorici</td>
+                        <td><code>Default.aspx</code></td>
+                        <td>Dashboard organizzata per aree operative.</td>
                     </tr>
                     <tr>
-                        <td>Assegna bene</td>
-                        <td>Associa un bene a una persona</td>
-                        <td>Al cambio prodotto aggiorna il contesto corrente prima della conferma</td>
+                        <td><code>DettaglioOrdinativo.aspx</code></td>
+                        <td>Vista gerarchica dell'ordinativo con righe e prodotti generati.</td>
                     </tr>
                     <tr>
-                        <td>Rientro o riassegnazione</td>
-                        <td>Chiude un'assegnazione o la sposta</td>
-                        <td>Filtro per categorico e refresh automatico del bene selezionato</td>
+                        <td><code>NuovoBene.aspx</code></td>
+                        <td>Completamento di un prodotto gia' generato.</td>
                     </tr>
                     <tr>
-                        <td>Cambia stato</td>
-                        <td>Aggiorna lo stato del bene</td>
-                        <td>Preseleziona lo stato corrente e mostra il contesto aggiornato</td>
+                        <td><code>Prodotti.aspx</code></td>
+                        <td>Elenco generale del materiale censito.</td>
                     </tr>
                     <tr>
-                        <td>Cambia ubicazione</td>
-                        <td>Sposta il bene fra le stanze</td>
-                        <td>Preseleziona la stanza corrente e ricarica il pannello informativo</td>
+                        <td><code>ProdottiAssegnati.aspx</code></td>
+                        <td>Prodotti correnti di un assegnatario con export CSV, anteprima A4 e scheda PDF.</td>
                     </tr>
                     <tr>
-                        <td>Configura computer</td>
-                        <td>Gestisce nome macchina, MAC e note tecniche</td>
-                        <td>Ricarica i campi correnti al cambio prodotto</td>
+                        <td><code>StoricoAssegnazioni.aspx</code></td>
+                        <td>Consultazione storica con esportazione CSV.</td>
                     </tr>
                     <tr>
-                        <td>Dismetti bene</td>
-                        <td>Registra dismissione o uscita dal ciclo attivo</td>
-                        <td>Ricarica versamento ed efficienza correnti</td>
+                        <td><code>Computer.aspx</code></td>
+                        <td>Vista dedicata a rete e postazioni con export CSV.</td>
                     </tr>
                 </tbody>
             </table>
-        </section>
 
-        <section class="section">
-            <h2>10. Refresh automatico del contesto prodotto</h2>
-            <p>
-                Nelle principali pagine operative il controllo di selezione prodotto usa <code>AutoPostBack</code>.
-                Questo evita operazioni su un bene diverso da quello mostrato nel contesto di dettaglio.
-            </p>
-            <ul>
-                <li>Descrizione del prodotto</li>
-                <li>Stato corrente</li>
-                <li>Assegnatario corrente</li>
-                <li>Stanza corrente</li>
-                <li>Nome macchina e MAC address, dove applicabili</li>
-                <li>Note e dati tecnici pertinenti alla pagina</li>
-            </ul>
-        </section>
+            <h2>3. Flusso ordinativi e generazione prodotti</h2>
+            <ol>
+                <li>Creare o selezionare un <code>Ordinativo</code>.</li>
+                <li>Inserire una riga <code>OggettoOrdinativo</code>.</li>
+                <li>Definire la <code>Quantita</code> della riga.</li>
+                <li>Il sistema genera tanti record in <code>Prodotti</code> quanti previsti dalla quantita'.</li>
+                <li>Ogni prodotto riceve il proprio <code>Categorico</code> in fase di generazione.</li>
+                <li>I beni generati possono poi essere completati, configurati e assegnati.</li>
+            </ol>
 
-        <section class="section">
-            <h2>11. CRUD amministrativa</h2>
-            <h3>Visualizzazione descrittiva in update</h3>
-            <p>
-                In modalita di modifica, dove possibile, i riferimenti esterni non vengono piu mostrati come semplici id.
-                L'interfaccia usa valori descrittivi o dropdown di lookup.
-            </p>
-            <ul>
-                <li>Per esempio, la stanza viene mostrata con il numero stanza invece del solo identificativo.</li>
-                <li>Lo stesso criterio e stato esteso alle principali relazioni usate nelle schermate CRUD.</li>
-            </ul>
-            <h3>Ordinativi e oggetti ordinativo</h3>
-            <ul>
-                <li>Gli ordinativi hanno ora un link diretto <code>Composizione</code> verso la vista di dettaglio.</li>
-                <li>La form di creazione oggetto ordinativo richiede la <code>Quantita</code>.</li>
-                <li>L'inserimento genera automaticamente i record in <code>Prodotti</code>.</li>
-                <li>La griglia mostra la quantita come informazione di controllo.</li>
-            </ul>
-        </section>
+            <pre><code>Ordinativo
+  -> OggettoOrdinativo
+      -> Quantita
+          -> Generazione Prodotti
+              -> Assegnazione Categorico</code></pre>
 
-        <section class="section">
-            <h2>12. Integrazione con personale e rete</h2>
-            <h3>Personale</h3>
-            <p>
-                L'applicativo interroga <code>DipendentiDB</code> per recuperare nominativi e anagrafiche usate nelle assegnazioni,
-                con distinzione tra personale interno ed esterno nelle maschere che la prevedono.
-            </p>
-            <h3>Rete e postazioni</h3>
-            <p>
-                Le informazioni tecniche del bene possono includere nome macchina, dominio e MAC address.
-                Questi dati sono esposti nel contesto prodotto e aggiornati nelle pagine di configurazione.
-            </p>
-        </section>
-
-        <section class="section">
-            <h2>13. Logging e note di deploy</h2>
-            <p>
-                Il logging applicativo scrive nella cartella relativa <code>App_Data\Logs</code>.
-                In ambiente IIS il percorso reale corrisponde a <code>&lt;root sito&gt;\App_Data\Logs</code>.
-            </p>
+            <h2>4. Scheda assegnatario</h2>
+            <p>La pagina <code>ProdottiAssegnati.aspx</code> gestisce tre uscite diverse, tutte basate sugli stessi dati caricati:</p>
             <ul>
-                <li>Verificare i permessi di scrittura dell'identity dell'Application Pool.</li>
-                <li>Controllare che in deploy sia presente un solo assembly applicativo nel <code>bin</code>.</li>
-                <li>Il database corretto del sito e <code>Materiale</code>, non <code>Materiali</code>.</li>
+                <li>visualizzazione in griglia</li>
+                <li>anteprima A4 HTML</li>
+                <li>scheda PDF</li>
             </ul>
-            <div class="warning">
-                Se nel <code>bin</code> rimangono sia <code>MaterialiWeb.dll</code> sia una vecchia <code>MaterialiGestioneWeb.dll</code>,
-                ASP.NET puo segnalare tipi ambigui, a partire da <code>Global.asax</code>.
+
+            <h3>Template</h3>
+            <p>La disposizione dei campi della scheda A4 e' definita dal template:</p>
+            <p><code>html/AssignmentSheetTemplate.html</code></p>
+            <p>Nel template sono presenti una sola volta:</p>
+            <ul>
+                <li>intestazione ente</li>
+                <li>nome</li>
+                <li>cognome</li>
+                <li>data</li>
+                <li>firma</li>
+            </ul>
+            <p>La sezione variabile contiene i prodotti assegnati con i campi:</p>
+            <ul>
+                <li><code>CATEGORICO</code></li>
+                <li><code>DESCRIZIONE</code></li>
+                <li><code>MATRICOLA</code></li>
+                <li><code>CATEGORIA</code></li>
+                <li><code>MODELLO</code></li>
+            </ul>
+
+            <h3>Configurazione</h3>
+            <p>I parametri principali della scheda si configurano in <code>Web.config</code>:</p>
+            <pre><code>&lt;add key="AssignmentSheetHeaderText" value="DNA - DAAAA" /&gt;
+&lt;add key="AssignmentSheetLogoPath" value="img\logo.png" /&gt;
+&lt;add key="AssignmentSheetTemplatePath" value="html\AssignmentSheetTemplate.html" /&gt;</code></pre>
+
+            <h2>5. Nuova logica dei pulsanti di export</h2>
+            <div class="callout">
+                I pulsanti di export e preview non sono piu' sempre attivi. Si abilitano solo dopo un caricamento dati valido e con almeno un risultato.
             </div>
-        </section>
 
-        <p class="footer">
-            Guida rigenerata per allineamento agli sviluppi piu recenti del repository
-            <code>MaterialiDB/MaterialiWeb</code>, inclusa la nuova vista gerarchica degli ordinativi.
-        </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pagina</th>
+                        <th>Pulsanti controllati</th>
+                        <th>Regola</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Prodotti.aspx</code></td>
+                        <td><code>Esporta CSV</code></td>
+                        <td>Attivo solo dopo popolamento della griglia con almeno una riga.</td>
+                    </tr>
+                    <tr>
+                        <td><code>Computer.aspx</code></td>
+                        <td><code>Esporta CSV</code></td>
+                        <td>Attivo solo dopo popolamento della griglia con almeno una riga.</td>
+                    </tr>
+                    <tr>
+                        <td><code>StoricoAssegnazioni.aspx</code></td>
+                        <td><code>Esporta CSV</code></td>
+                        <td>Attivo solo dopo una ricerca storica con risultati.</td>
+                    </tr>
+                    <tr>
+                        <td><code>ProdottiAssegnati.aspx</code></td>
+                        <td><code>Anteprima scheda</code>, <code>Esporta CSV</code>, <code>Esporta scheda PDF</code></td>
+                        <td>Attivi solo dopo il caricamento dei prodotti assegnati per l'utente selezionato.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>6. Note operative</h2>
+            <ul>
+                <li>Il database applicativo corretto e' <code>Materiale</code>, non <code>Materiali</code>.</li>
+                <li>I log vengono scritti in <code>App_Data/Logs</code>.</li>
+                <li>Nel deploy non devono coesistere due assembly con gli stessi tipi applicativi, ad esempio <code>MaterialiWeb.dll</code> e <code>MaterialiGestioneWeb.dll</code>.</li>
+                <li>La cartella <code>img</code> contiene il logo usato nella scheda assegnatario.</li>
+            </ul>
+
+            <p class="muted">Documento aggiornato alla logica corrente del progetto MaterialiWeb.</p>
+        </main>
     </div>
 </body>
 </html>

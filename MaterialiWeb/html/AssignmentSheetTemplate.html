@@ -1,0 +1,187 @@
+<style>
+    .assignment-sheet-preview {
+        margin-top: 1rem;
+        overflow-x: auto;
+    }
+
+    .assignment-sheet-page {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0 auto;
+        padding: 16mm 14mm 18mm;
+        box-sizing: border-box;
+        background: #ffffff;
+        color: #1c2430;
+        box-shadow: 0 10px 28px rgba(28, 36, 48, 0.14);
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        line-height: 1.4;
+    }
+
+    .assignment-sheet-header {
+        display: table;
+        width: 100%;
+        margin-bottom: 10mm;
+    }
+
+    .assignment-sheet-logo-cell,
+    .assignment-sheet-header-cell {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    .assignment-sheet-logo-cell {
+        width: 32mm;
+    }
+
+    .assignment-sheet-logo {
+        max-width: 28mm;
+        max-height: 18mm;
+    }
+
+    .assignment-sheet-header-cell {
+        text-align: center;
+        font-size: 18pt;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .assignment-sheet-title {
+        margin: 0 0 8mm;
+        text-align: center;
+        font-size: 15pt;
+        font-weight: 700;
+    }
+
+    .assignment-sheet-meta {
+        display: table;
+        width: 100%;
+        margin-bottom: 8mm;
+        border-collapse: collapse;
+    }
+
+    .assignment-sheet-meta-row {
+        display: table-row;
+    }
+
+    .assignment-sheet-meta-label,
+    .assignment-sheet-meta-value {
+        display: table-cell;
+        padding: 2mm 0;
+        border-bottom: 1px solid #c8d0da;
+    }
+
+    .assignment-sheet-meta-label {
+        width: 28mm;
+        font-weight: 700;
+    }
+
+    .assignment-sheet-meta-value {
+        width: 67mm;
+        padding-right: 8mm;
+    }
+
+    .assignment-sheet-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 10pt;
+    }
+
+    .assignment-sheet-table th,
+    .assignment-sheet-table td {
+        border: 1px solid #9ca9b8;
+        padding: 2.4mm 2.2mm;
+        vertical-align: top;
+        word-wrap: break-word;
+    }
+
+    .assignment-sheet-table th {
+        background: #edf2f7;
+        font-size: 9.5pt;
+        font-weight: 700;
+        text-align: left;
+    }
+
+    .assignment-sheet-empty {
+        padding: 8mm 0;
+        text-align: center;
+        color: #5b6674;
+        font-style: italic;
+    }
+
+    .assignment-sheet-signature {
+        margin-top: 16mm;
+        width: 70mm;
+        margin-left: auto;
+        text-align: center;
+    }
+
+    .assignment-sheet-signature-label {
+        margin-bottom: 10mm;
+        font-weight: 700;
+    }
+
+    .assignment-sheet-signature-line {
+        border-top: 1px solid #1c2430;
+        height: 0;
+    }
+
+    @media print {
+        .assignment-sheet-preview {
+            margin: 0;
+            overflow: visible;
+        }
+
+        .assignment-sheet-page {
+            margin: 0;
+            box-shadow: none;
+        }
+    }
+</style>
+
+<div class="assignment-sheet-preview">
+    <article class="assignment-sheet-page">
+        <header class="assignment-sheet-header">
+            <div class="assignment-sheet-logo-cell">{{LOGO_HTML}}</div>
+            <div class="assignment-sheet-header-cell">{{HEADER_TEXT}}</div>
+        </header>
+
+        <h1 class="assignment-sheet-title">Scheda prodotti assegnati</h1>
+
+        <section class="assignment-sheet-meta">
+            <div class="assignment-sheet-meta-row">
+                <div class="assignment-sheet-meta-label">Cognome</div>
+                <div class="assignment-sheet-meta-value">{{COGNOME}}</div>
+                <div class="assignment-sheet-meta-label">Nome</div>
+                <div class="assignment-sheet-meta-value">{{NOME}}</div>
+            </div>
+            <div class="assignment-sheet-meta-row">
+                <div class="assignment-sheet-meta-label">Data</div>
+                <div class="assignment-sheet-meta-value">{{DATA}}</div>
+                <div class="assignment-sheet-meta-label"></div>
+                <div class="assignment-sheet-meta-value"></div>
+            </div>
+        </section>
+
+        <table class="assignment-sheet-table">
+            <thead>
+                <tr>
+                    <th style="width: 14%;">Categorico</th>
+                    <th style="width: 33%;">Descrizione</th>
+                    <th style="width: 16%;">Matricola</th>
+                    <th style="width: 17%;">Categoria</th>
+                    <th style="width: 20%;">Modello</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{PRODUCT_ROWS}}
+            </tbody>
+        </table>
+
+        <div class="assignment-sheet-signature">
+            <div class="assignment-sheet-signature-label">Firma</div>
+            <div class="assignment-sheet-signature-line"></div>
+        </div>
+    </article>
+</div>

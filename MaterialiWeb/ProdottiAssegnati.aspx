@@ -21,11 +21,14 @@
             </label>
             <label class="checkbox-field"><asp:CheckBox ID="MostraNonAttiviCheck" runat="server" Text="Includi personale non attivo" AutoPostBack="true" EnableViewState="false" OnCheckedChanged="MostraNonAttiviCheck_CheckedChanged" /></label>
             <label class="field-span-2">Personale<asp:DropDownList ID="PersonaleDropDown" runat="server" CssClass="input" EnableViewState="false" /></label>
+            <label>Data scheda<asp:TextBox ID="DataSchedaText" runat="server" CssClass="input" TextMode="Date" /></label>
         </div>
         <div class="page-actions">
             <asp:Button ID="SearchButton" runat="server" Text="Visualizza prodotti" CssClass="button primary" OnClick="SearchButton_Click" />
             <asp:Button ID="ResetButton" runat="server" Text="Reset" CssClass="button" OnClick="ResetButton_Click" />
+            <asp:Button ID="PreviewSheetButton" runat="server" Text="Anteprima scheda" CssClass="button" OnClick="PreviewSheetButton_Click" />
             <asp:Button ID="ExportCsvButton" runat="server" Text="Esporta CSV" CssClass="button" OnClick="ExportCsvButton_Click" />
+            <asp:Button ID="ExportPdfButton" runat="server" Text="Esporta scheda PDF" CssClass="button" OnClick="ExportPdfButton_Click" />
         </div>
     </section>
 
@@ -51,5 +54,12 @@
                 <asp:HyperLinkField Text="Dettaglio" DataNavigateUrlFields="IdProdotto" DataNavigateUrlFormatString="ProdottoDettaglio.aspx?id={0}" />
             </Columns>
         </asp:GridView>
+    </asp:Panel>
+
+    <asp:Panel ID="PreviewPanel" runat="server" CssClass="form-card" Visible="false">
+        <div class="domain-title">
+            <h2>Anteprima scheda A4</h2>
+        </div>
+        <asp:Literal ID="PreviewHtmlLiteral" runat="server" />
     </asp:Panel>
 </asp:Content>

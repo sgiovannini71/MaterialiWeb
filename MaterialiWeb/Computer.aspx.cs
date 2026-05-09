@@ -35,6 +35,11 @@ namespace MaterialiGestioneWeb
             try
             {
                 ErrorPanel.Visible = false;
+                if (!ExportCsvButton.Enabled)
+                {
+                    throw new InvalidOperationException("Caricare prima dei dati da esportare.");
+                }
+
                 ExportCsv(_repository.GetComputer(SearchText.Text));
             }
             catch (Exception ex)
@@ -49,14 +54,22 @@ namespace MaterialiGestioneWeb
             try
             {
                 ErrorPanel.Visible = false;
-                ComputerGrid.DataSource = _repository.GetComputer(search);
+                var computers = _repository.GetComputer(search);
+                ComputerGrid.DataSource = computers;
                 ComputerGrid.DataBind();
+                SetExportAvailability(computers != null && computers.Count > 0);
             }
             catch (Exception ex)
             {
+                SetExportAvailability(false);
                 ErrorPanel.Visible = true;
                 ErrorMessage.Text = Server.HtmlEncode(ex.Message);
             }
+        }
+
+        private void SetExportAvailability(bool enabled)
+        {
+            ExportCsvButton.Enabled = enabled;
         }
 
         private void ExportCsv(IList<ComputerCorrente> computers)

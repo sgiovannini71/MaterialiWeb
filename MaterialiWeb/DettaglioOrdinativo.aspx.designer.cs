@@ -27,6 +27,7 @@ namespace MaterialiGestioneWeb
         protected global::System.Web.UI.WebControls.Literal EstremiText;
         protected global::System.Web.UI.WebControls.Literal EfText;
         protected global::System.Web.UI.WebControls.Literal TipoText;
+        protected global::System.Web.UI.WebControls.HyperLink AddOggettoLink;
         protected global::System.Web.UI.WebControls.GridView OggettiGrid;
     }
 }

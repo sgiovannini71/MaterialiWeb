@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Web.UI.WebControls;
 using MaterialiGestioneWeb.Infrastructure;
@@ -167,7 +168,9 @@ namespace MaterialiGestioneWeb
             ValoreInventarioText.Text = valoreInventario.ToString("N2");
 
             CrudOrdinativoLink.NavigateUrl = "GestioneCrud.aspx#crud-ordinativi";
-            CrudOggettiLink.NavigateUrl = "GestioneCrud.aspx#crud-oggetti";
+            var oggettiUrl = "GestioneCrud.aspx?idOrdinativo=" + idOrdinativo.ToString(CultureInfo.InvariantCulture) + "#crud-oggetti";
+            CrudOggettiLink.NavigateUrl = oggettiUrl;
+            AddOggettoLink.NavigateUrl = oggettiUrl;
 
             OggettiGrid.DataSource = detail.Oggetti;
             OggettiGrid.DataBind();

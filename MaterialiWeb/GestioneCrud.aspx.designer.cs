@@ -6,15 +6,6 @@ namespace MaterialiGestioneWeb
         protected global::System.Web.UI.WebControls.Literal ErrorMessage;
         protected global::System.Web.UI.WebControls.Panel SuccessPanel;
         protected global::System.Web.UI.WebControls.Literal SuccessMessage;
-        protected global::System.Web.UI.WebControls.TextBox ProdottoCategoricoText;
-        protected global::System.Web.UI.WebControls.TextBox ProdottoMatricolaText;
-        protected global::System.Web.UI.WebControls.DropDownList ProdottoStanzaDropDown;
-        protected global::System.Web.UI.WebControls.DropDownList ProdottoOrdinativoDropDown;
-        protected global::System.Web.UI.WebControls.DropDownList ProdottoOggettoDropDown;
-        protected global::System.Web.UI.WebControls.DropDownList ProdottoEfficienzaDropDown;
-        protected global::System.Web.UI.WebControls.TextBox ProdottoVersamentoText;
-        protected global::System.Web.UI.WebControls.TextBox ProdottoNoteText;
-        protected global::System.Web.UI.WebControls.Button AddProdottoButton;
         protected global::System.Web.UI.WebControls.GridView ProdottiAdminGrid;
         protected global::System.Web.UI.WebControls.TextBox OrdinativoCodiceText;
         protected global::System.Web.UI.WebControls.TextBox OrdinativoDenominazioneText;

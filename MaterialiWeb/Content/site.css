@@ -327,6 +327,24 @@ input[type="submit"].button.danger {
     margin-top: 1.4rem;
 }
 
+.ordinativo-search-section {
+    margin-top: 1.4rem;
+}
+
+.ordinativo-toolbar {
+    align-items: stretch;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.ordinativo-toolbar .input:first-child {
+    flex: 2 1 22rem;
+}
+
+.ordinativo-toolbar select.input {
+    flex: 1 1 18rem;
+}
+
 .section-heading {
     align-items: end;
     display: flex;

@@ -13,29 +13,6 @@
         <asp:Literal ID="ErrorMessage" runat="server" />
     </asp:Panel>
 
-    <section class="form-card">
-        <div class="toolbar">
-            <asp:TextBox ID="SearchText" runat="server" CssClass="input" placeholder="Cerca per codice, denominazione, ditta, ente o estremi..." />
-            <asp:Button ID="SearchButton" runat="server" Text="Cerca" CssClass="button primary" OnClick="SearchButton_Click" />
-            <asp:Button ID="ResetButton" runat="server" Text="Reset" CssClass="button" OnClick="ResetButton_Click" />
-            <asp:DropDownList ID="OrdinativoDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="OrdinativoDropDown_SelectedIndexChanged" />
-            <asp:HyperLink ID="CrudAdminLink" runat="server" CssClass="button" NavigateUrl="GestioneCrud.aspx#crud-ordinativi">Apri CRUD ordinativi</asp:HyperLink>
-        </div>
-        <asp:GridView ID="OrdinativiListGrid" runat="server"
-            AutoGenerateColumns="False"
-            CssClass="data-grid compact"
-            GridLines="None"
-            EmptyDataText="Nessun ordinativo disponibile.">
-            <Columns>
-                <asp:BoundField DataField="IdOrdinativo" HeaderText="Id" />
-                <asp:BoundField DataField="CodiceOrdinativo" HeaderText="Codice" />
-                <asp:BoundField DataField="DenominazioneOrdinativo" HeaderText="Denominazione" />
-                <asp:BoundField DataField="DittaDescrizione" HeaderText="Ditta" />
-                <asp:HyperLinkField Text="Dettaglio" DataNavigateUrlFields="IdOrdinativo" DataNavigateUrlFormatString="DettaglioOrdinativo.aspx?id={0}" />
-            </Columns>
-        </asp:GridView>
-    </section>
-
     <asp:Panel ID="DetailPanel" runat="server" Visible="false">
         <section class="page-title">
             <div>
@@ -83,7 +60,7 @@
         <section class="form-card" style="margin-top: 1rem;">
             <div class="domain-title">
                 <h2>Composizione dell'ordinativo</h2>
-                <a href="GestioneCrud.aspx#crud-oggetti">Aggiungi oggetto ordinativo</a>
+                <asp:HyperLink ID="AddOggettoLink" runat="server">Aggiungi oggetto ordinativo</asp:HyperLink>
             </div>
             <asp:GridView ID="OggettiGrid" runat="server"
                 AutoGenerateColumns="False"
@@ -92,14 +69,12 @@
                 EmptyDataText="Nessun oggetto ordinativo collegato."
                 OnRowDataBound="OggettiGrid_RowDataBound">
                 <Columns>
-                    <asp:BoundField DataField="IdOggOrdinativo" HeaderText="Id oggetto" />
                     <asp:BoundField DataField="DescrizioneProdotto" HeaderText="Descrizione" />
                     <asp:BoundField DataField="Modello" HeaderText="Modello" />
                     <asp:BoundField DataField="NUC" HeaderText="NUC" />
                     <asp:BoundField DataField="Quantita" HeaderText="Quantita" />
                     <asp:BoundField DataField="CategoriaDescrizione" HeaderText="Categoria" />
                     <asp:BoundField DataField="DittaDescrizione" HeaderText="Ditta costruttrice" />
-                    <asp:BoundField DataField="PrezzoInventario" HeaderText="Prezzo inventario" DataFormatString="{0:N2}" />
                     <asp:BoundField DataField="ProdottiGenerati" HeaderText="Prodotti generati" />
                     <asp:BoundField DataField="CategoriciRiepilogo" HeaderText="Categorici" />
                     <asp:TemplateField HeaderText="Prodotti collegati">
@@ -124,4 +99,33 @@
             </asp:GridView>
         </section>
     </asp:Panel>
+
+    <section class="form-card ordinativo-search-section">
+        <div class="section-heading">
+            <div>
+                <h2>Cerca o seleziona ordinativo</h2>
+                <p>Usa la ricerca per filtrare l'elenco o il menu per aprire rapidamente un altro dettaglio.</p>
+            </div>
+            <asp:HyperLink ID="CrudAdminLink" runat="server" CssClass="button" NavigateUrl="GestioneCrud.aspx#crud-ordinativi">Apri CRUD ordinativi</asp:HyperLink>
+        </div>
+        <div class="toolbar ordinativo-toolbar">
+            <asp:TextBox ID="SearchText" runat="server" CssClass="input" placeholder="Cerca per codice, denominazione, ditta, ente o estremi..." />
+            <asp:Button ID="SearchButton" runat="server" Text="Cerca" CssClass="button primary" OnClick="SearchButton_Click" />
+            <asp:Button ID="ResetButton" runat="server" Text="Reset" CssClass="button" OnClick="ResetButton_Click" />
+            <asp:DropDownList ID="OrdinativoDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="OrdinativoDropDown_SelectedIndexChanged" />
+        </div>
+        <asp:GridView ID="OrdinativiListGrid" runat="server"
+            AutoGenerateColumns="False"
+            CssClass="data-grid compact"
+            GridLines="None"
+            EmptyDataText="Nessun ordinativo disponibile.">
+            <Columns>
+                <asp:BoundField DataField="IdOrdinativo" HeaderText="Id" />
+                <asp:BoundField DataField="CodiceOrdinativo" HeaderText="Codice" />
+                <asp:BoundField DataField="DenominazioneOrdinativo" HeaderText="Denominazione" />
+                <asp:BoundField DataField="DittaDescrizione" HeaderText="Ditta" />
+                <asp:HyperLinkField Text="Dettaglio" DataNavigateUrlFields="IdOrdinativo" DataNavigateUrlFormatString="DettaglioOrdinativo.aspx?id={0}" />
+            </Columns>
+        </asp:GridView>
+    </section>
 </asp:Content>

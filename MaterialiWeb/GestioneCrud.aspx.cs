@@ -32,6 +32,7 @@ namespace MaterialiGestioneWeb
 
         private void BindAll()
         {
+            var selectedOggettoOrdinativoId = GetRequestedOggettoOrdinativoId();
             ErrorPanel.Visible = false;
             ProdottiAdminGrid.DataSource = _repository.GetProdottiAdmin();
             ProdottiAdminGrid.DataBind();
@@ -47,11 +48,7 @@ namespace MaterialiGestioneWeb
             ProdPersGrid.DataBind();
             StoricoGrid.DataSource = _repository.GetProdPersStoricoAdmin();
             StoricoGrid.DataBind();
-            BindLookupDropDown(ProdottoStanzaDropDown, _repository.GetStanzeLookup(), null);
-            BindLookupDropDown(ProdottoOrdinativoDropDown, _repository.GetOrdinativiLookup(), null);
-            BindProdottoOggettoDropDown(null, null);
-            BindLookupDropDown(ProdottoEfficienzaDropDown, _repository.GetLivelliEfficienzaLookup(), null);
-            BindLookupDropDown(OggettoOrdinativoDropDown, _repository.GetOrdinativiLookup(), null);
+            BindLookupDropDown(OggettoOrdinativoDropDown, _repository.GetOrdinativiLookup(), selectedOggettoOrdinativoId);
             BindLookupDropDown(OggettoDittaDropDown, _repository.GetDitteLookup(), null);
             BindLookupDropDown(OggettoCategoriaDropDown, _repository.GetCategorieLookup(), null);
             BindLookupDropDown(NetworkProdottoDropDown, _repository.GetProdottiNetworkLookup(), null);
@@ -62,35 +59,6 @@ namespace MaterialiGestioneWeb
             BindPersonaleDropDown(ProdPersPersonaleDropDown, IsProdPersPersonaleEsternoSelected(), ProdPersMostraNonAttiviCheck.Checked, null);
             BindPersonaleDropDown(StoricoPersonaleDropDown, IsStoricoPersonaleEsternoSelected(), StoricoMostraNonAttiviCheck.Checked, null);
             OrdinativoCodiceText.Text = _repository.GetNextCodiceOrdinativo();
-        }
-
-        protected void AddProdottoButton_Click(object sender, EventArgs e)
-        {
-            ExecuteAction(() =>
-            {
-                _repository.CreateProdottoAdmin(new ProdottoAdminItem
-                {
-                    Categorico = ParseOptionalInt(ProdottoCategoricoText.Text),
-                    Matricola = ProdottoMatricolaText.Text,
-                    IdStanza = ParseOptionalInt(ProdottoStanzaDropDown.SelectedValue),
-                    IdOggOrdinativo = ParseOptionalInt(ProdottoOggettoDropDown.SelectedValue),
-                    IdEfficienza = ParseOptionalInt(ProdottoEfficienzaDropDown.SelectedValue),
-                    Versamento = ProdottoVersamentoText.Text,
-                    Note = ProdottoNoteText.Text
-                });
-                ClearText(ProdottoCategoricoText, ProdottoMatricolaText, ProdottoVersamentoText, ProdottoNoteText);
-                ResetDropDown(ProdottoStanzaDropDown);
-                ResetDropDown(ProdottoOrdinativoDropDown);
-                BindProdottoOggettoDropDown(null, null);
-                ResetDropDown(ProdottoEfficienzaDropDown);
-            }, "Prodotto inserito.");
-        }
-
-        protected void ProdottoOrdinativoDropDown_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ErrorPanel.Visible = false;
-            SuccessPanel.Visible = false;
-            BindProdottoOggettoDropDown(ParseOptionalInt(ProdottoOrdinativoDropDown.SelectedValue), null);
         }
 
         protected void AddOrdinativoButton_Click(object sender, EventArgs e)
@@ -112,7 +80,7 @@ namespace MaterialiGestioneWeb
             {
                 _repository.CreateOggettoOrdinativoAdmin(new OggettoOrdinativoAdminItem
                 {
-                    IdOrdinativo = ParseOptionalInt(OggettoOrdinativoDropDown.SelectedValue),
+                    IdOrdinativo = ParseRequiredInt(OggettoOrdinativoDropDown.SelectedValue, "Ordinativo"),
                     DescrizioneProdotto = RequireText(OggettoDescrizioneText.Text, "Descrizione oggetto ordinativo"),
                     IdDittaCostruttrice = ParseOptionalInt(OggettoDittaDropDown.SelectedValue),
                     Modello = OggettoModelloText.Text,
@@ -121,7 +89,15 @@ namespace MaterialiGestioneWeb
                     IdCategProdotti = ParseOptionalInt(OggettoCategoriaDropDown.SelectedValue)
                 });
                 ClearText(OggettoDescrizioneText, OggettoModelloText, OggettoNucText, OggettoQuantitaText);
-                ResetDropDown(OggettoOrdinativoDropDown);
+                var selectedOggettoOrdinativoId = GetRequestedOggettoOrdinativoId();
+                if (selectedOggettoOrdinativoId.HasValue)
+                {
+                    SelectDropDownValue(OggettoOrdinativoDropDown, selectedOggettoOrdinativoId);
+                }
+                else
+                {
+                    ResetDropDown(OggettoOrdinativoDropDown);
+                }
                 ResetDropDown(OggettoDittaDropDown);
                 ResetDropDown(OggettoCategoriaDropDown);
             }, "Oggetto ordinativo inserito e prodotti generati.");
@@ -533,14 +509,6 @@ namespace MaterialiGestioneWeb
             }
         }
 
-        private void BindProdottoOggettoDropDown(int? idOrdinativo, int? selectedId)
-        {
-            BindLookupDropDown(
-                ProdottoOggettoDropDown,
-                idOrdinativo.HasValue ? _repository.GetOggettiOrdinativoLookup(idOrdinativo) : new LookupItem[0],
-                selectedId);
-        }
-
         private void BindPersonaleDropDown(DropDownList control, bool isEsterno, bool includeNonAttivi, int? selectedId)
         {
             if (control == null)
@@ -606,6 +574,11 @@ namespace MaterialiGestioneWeb
         {
             int parsed;
             return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed) ? (int?)parsed : null;
+        }
+
+        private int? GetRequestedOggettoOrdinativoId()
+        {
+            return ParseOptionalInt(Request.QueryString["idOrdinativo"]);
         }
 
         private static int ParseRequiredInt(string value, string fieldName)

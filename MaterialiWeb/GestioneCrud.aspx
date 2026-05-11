@@ -25,22 +25,16 @@
             <h2>Prodotti</h2>
             <a href="#crud-top">Torna su</a>
         </div>
-        <div class="field-grid">
-            <label>Categorico<asp:TextBox ID="ProdottoCategoricoText" runat="server" CssClass="input" /></label>
-            <label>Matricola<asp:TextBox ID="ProdottoMatricolaText" runat="server" CssClass="input" /></label>
-            <label>Stanza<asp:DropDownList ID="ProdottoStanzaDropDown" runat="server" CssClass="input" /></label>
-            <label>Ordinativo<asp:DropDownList ID="ProdottoOrdinativoDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="ProdottoOrdinativoDropDown_SelectedIndexChanged" /></label>
-            <label>Oggetto ordinativo<asp:DropDownList ID="ProdottoOggettoDropDown" runat="server" CssClass="input" /></label>
-            <label>Efficienza<asp:DropDownList ID="ProdottoEfficienzaDropDown" runat="server" CssClass="input" /></label>
-            <label>Versamento<asp:TextBox ID="ProdottoVersamentoText" runat="server" CssClass="input" /></label>
-            <label class="field-span-2">Note<asp:TextBox ID="ProdottoNoteText" runat="server" CssClass="input" TextMode="MultiLine" Rows="2" /></label>
+        <p class="muted-text">I prodotti vengono generati automaticamente dalla quantita indicata negli oggetti ordinativo. Usa questa sezione solo per correggere o manutenere prodotti gia generati.</p>
+        <div class="page-actions">
+            <a class="button primary" href="#crud-oggetti">Aggiungi oggetto ordinativo</a>
+            <a class="button" href="NuovoBene.aspx">Completa prodotti generati</a>
         </div>
-        <div class="page-actions"><asp:Button ID="AddProdottoButton" runat="server" Text="Aggiungi prodotto" CssClass="button primary" OnClick="AddProdottoButton_Click" /></div>
         <asp:GridView ID="ProdottiAdminGrid" runat="server" AutoGenerateColumns="False" CssClass="data-grid compact" GridLines="None" DataKeyNames="IdProdotto"
             OnRowEditing="ProdottiAdminGrid_RowEditing" OnRowCancelingEdit="ProdottiAdminGrid_RowCancelingEdit" OnRowUpdating="ProdottiAdminGrid_RowUpdating" OnRowDeleting="ProdottiAdminGrid_RowDeleting" OnRowDataBound="ProdottiAdminGrid_RowDataBound">
             <Columns>
                 <asp:BoundField DataField="IdProdotto" HeaderText="Id" ReadOnly="True" />
-                <asp:TemplateField HeaderText="Categorico"><ItemTemplate><%# Eval("Categorico") %></ItemTemplate><EditItemTemplate><asp:TextBox ID="EditProdottoCategoricoText" runat="server" CssClass="input" Text='<%# Bind("Categorico") %>' /></EditItemTemplate></asp:TemplateField>
+                <asp:TemplateField HeaderText="Categorico"><ItemTemplate><%# Eval("Categorico") %></ItemTemplate><EditItemTemplate><asp:TextBox ID="EditProdottoCategoricoText" runat="server" CssClass="input" ReadOnly="true" Text='<%# Bind("Categorico") %>' /></EditItemTemplate></asp:TemplateField>
                 <asp:TemplateField HeaderText="Matricola"><ItemTemplate><%# Eval("Matricola") %></ItemTemplate><EditItemTemplate><asp:TextBox ID="EditProdottoMatricolaText" runat="server" CssClass="input" Text='<%# Bind("Matricola") %>' /></EditItemTemplate></asp:TemplateField>
                 <asp:TemplateField HeaderText="Stanza"><ItemTemplate><%# Eval("StanzaDescrizione") %></ItemTemplate><EditItemTemplate><asp:DropDownList ID="EditProdottoStanzaDropDown" runat="server" CssClass="input" /></EditItemTemplate></asp:TemplateField>
                 <asp:TemplateField HeaderText="Ordinativo"><ItemTemplate><%# Eval("OrdinativoDescrizione") %></ItemTemplate><EditItemTemplate><asp:DropDownList ID="EditProdottoOrdinativoDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="EditProdottoOrdinativoDropDown_SelectedIndexChanged" /></EditItemTemplate></asp:TemplateField>
@@ -80,6 +74,7 @@
             <h2>Oggetti ordinativo</h2>
             <a href="#crud-top">Torna su</a>
         </div>
+        <p class="muted-text">Se arrivi dal dettaglio di un ordinativo, il campo Ordinativo viene preselezionato. La quantita inserita genera automaticamente i prodotti collegati.</p>
         <div class="field-grid">
             <label>Ordinativo<asp:DropDownList ID="OggettoOrdinativoDropDown" runat="server" CssClass="input" /></label>
             <label>Descrizione<asp:TextBox ID="OggettoDescrizioneText" runat="server" CssClass="input" /></label>

@@ -48,14 +48,38 @@ a:hover {
     z-index: 5;
 }
 
+.brand-block {
+    align-items: center;
+    color: var(--ink);
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.85rem;
+    min-width: 16rem;
+}
+
+.brand-block:hover {
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.brand-logo {
+    display: block;
+    flex: 0 0 auto;
+    max-height: 3.5rem;
+    max-width: 5.5rem;
+    object-fit: contain;
+}
+
 .brand {
     color: var(--ink);
+    display: block;
     font-size: 1.45rem;
     font-weight: 800;
     letter-spacing: -0.03em;
 }
 
 .tagline {
+    display: block;
     margin: 0.15rem 0 0;
     color: var(--muted);
     font-size: 0.9rem;
@@ -486,5 +510,14 @@ input[type="submit"].button.danger {
 
     .field-span-2 {
         grid-column: auto;
+    }
+
+    .brand-block {
+        min-width: 0;
+    }
+
+    .brand-logo {
+        max-height: 3rem;
+        max-width: 4.75rem;
     }
 }

@@ -11,10 +11,13 @@
 <body>
     <form id="form1" runat="server">
         <header class="app-header">
-            <div>
-                <a class="brand" href="Default.aspx">Gestione Materiali</a>
-                <p class="tagline">Materiale informatico, assegnazioni, rete e postazioni</p>
-            </div>
+            <a class="brand-block" href="Default.aspx">
+                <img class="brand-logo" src="img/logo.png" alt="Logo" />
+                <span>
+                    <span class="brand">Gestione Materiali</span>
+                    <span class="tagline">Materiale informatico, assegnazioni, rete e postazioni</span>
+                </span>
+            </a>
             <nav class="main-nav" aria-label="Navigazione principale">
                 <a href="Default.aspx">Dashboard</a>
                 <a href="Prodotti.aspx">Prodotti</a>

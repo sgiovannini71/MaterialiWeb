@@ -23,7 +23,10 @@ namespace MaterialiGestioneWeb
         {
             if (IsPostBack)
             {
-                BindPersonale(GetPostedIsPersonaleEsternoSelected(), GetPostedIncludeNonAttivi());
+                BindPersonale(
+                    GetPostedIsPersonaleEsternoSelected(),
+                    GetPostedIncludeNonAttivi(),
+                    ParseOptionalInt(Request.Form[PersonaleDropDown.UniqueID]));
             }
         }
 
@@ -57,11 +60,11 @@ namespace MaterialiGestioneWeb
             try
             {
                 ErrorPanel.Visible = false;
-                var idPersonale = ParseRequiredInt(PersonaleDropDown.SelectedValue, "Personale");
+                var idPersonale = GetSelectedPersonaleId();
                 var prodotti = _repository.GetProdottiAssegnati(idPersonale);
                 ProdottiGrid.DataSource = prodotti;
                 ProdottiGrid.DataBind();
-                ResultTitle.Text = Server.HtmlEncode("Materiale assegnato a " + PersonaleDropDown.SelectedItem.Text);
+                ResultTitle.Text = Server.HtmlEncode("Materiale assegnato a " + GetSelectedPersonaleDisplay(idPersonale));
                 ResultPanel.Visible = true;
                 PreviewPanel.Visible = false;
                 SetOutputAvailability(prodotti != null && prodotti.Count > 0);
@@ -97,8 +100,8 @@ namespace MaterialiGestioneWeb
                     throw new InvalidOperationException("Caricare prima dei dati da esportare.");
                 }
 
-                var idPersonale = ParseRequiredInt(PersonaleDropDown.SelectedValue, "Personale");
-                ExportCsv(_repository.GetProdottiAssegnati(idPersonale), PersonaleDropDown.SelectedItem.Text);
+                var idPersonale = GetSelectedPersonaleId();
+                ExportCsv(_repository.GetProdottiAssegnati(idPersonale), GetSelectedPersonaleDisplay(idPersonale));
             }
             catch (Exception ex)
             {
@@ -118,7 +121,7 @@ namespace MaterialiGestioneWeb
                     throw new InvalidOperationException("Caricare prima dei dati da visualizzare.");
                 }
 
-                var idPersonale = ParseRequiredInt(PersonaleDropDown.SelectedValue, "Personale");
+                var idPersonale = GetSelectedPersonaleId();
                 var prodotti = _repository.GetProdottiAssegnati(idPersonale);
                 var personale = GetSelectedPersonale(idPersonale);
                 var dataScheda = DateTime.Today;
@@ -146,7 +149,7 @@ namespace MaterialiGestioneWeb
                     throw new InvalidOperationException("Caricare prima dei dati da esportare.");
                 }
 
-                var idPersonale = ParseRequiredInt(PersonaleDropDown.SelectedValue, "Personale");
+                var idPersonale = GetSelectedPersonaleId();
                 var prodotti = _repository.GetProdottiAssegnati(idPersonale);
                 var personale = GetSelectedPersonale(idPersonale);
                 var dataScheda = DateTime.Today;
@@ -162,10 +165,10 @@ namespace MaterialiGestioneWeb
 
         private void BindPersonale()
         {
-            BindPersonale(IsPersonaleEsternoSelected(), MostraNonAttiviCheck.Checked);
+            BindPersonale(IsPersonaleEsternoSelected(), MostraNonAttiviCheck.Checked, null);
         }
 
-        private void BindPersonale(bool isEsterno, bool includeNonAttivi)
+        private void BindPersonale(bool isEsterno, bool includeNonAttivi, int? selectedId)
         {
             PersonaleDropDown.Items.Clear();
             PersonaleDropDown.Items.Add(new ListItem("-- seleziona personale --", string.Empty));
@@ -175,6 +178,7 @@ namespace MaterialiGestioneWeb
             PersonaleDropDown.DataValueField = "Id";
             PersonaleDropDown.DataBind();
             PersonaleDropDown.AppendDataBoundItems = false;
+            SelectDropDownValue(PersonaleDropDown, selectedId);
         }
 
         private bool IsPersonaleEsternoSelected()
@@ -210,6 +214,25 @@ namespace MaterialiGestioneWeb
                 Cognome = parts.cognome,
                 Nome = parts.nome
             };
+        }
+
+        private int GetSelectedPersonaleId()
+        {
+            var selectedValue = string.IsNullOrWhiteSpace(PersonaleDropDown.SelectedValue)
+                ? Request.Form[PersonaleDropDown.UniqueID]
+                : PersonaleDropDown.SelectedValue;
+
+            return ParseRequiredInt(selectedValue, "Personale");
+        }
+
+        private string GetSelectedPersonaleDisplay(int idPersonale)
+        {
+            if (PersonaleDropDown.SelectedItem != null && !string.IsNullOrWhiteSpace(PersonaleDropDown.SelectedValue))
+            {
+                return PersonaleDropDown.SelectedItem.Text;
+            }
+
+            return GetSelectedPersonale(idPersonale).DisplayName;
         }
 
         private void ExportCsv(IList<ProdottoCorrente> prodotti, string personale)
@@ -298,6 +321,28 @@ namespace MaterialiGestioneWeb
             }
 
             return parsed;
+        }
+
+        private static int? ParseOptionalInt(string value)
+        {
+            int parsed;
+            return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed) ? (int?)parsed : null;
+        }
+
+        private static void SelectDropDownValue(ListControl control, int? selectedId)
+        {
+            if (!selectedId.HasValue)
+            {
+                return;
+            }
+
+            var selectedValue = selectedId.Value.ToString(CultureInfo.InvariantCulture);
+            var item = control.Items.FindByValue(selectedValue);
+            if (item != null)
+            {
+                control.ClearSelection();
+                item.Selected = true;
+            }
         }
 
         private static string NormalizeSelectedPersonaleText(string value)

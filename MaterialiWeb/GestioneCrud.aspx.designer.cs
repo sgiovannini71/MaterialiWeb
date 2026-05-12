@@ -2,6 +2,12 @@ namespace MaterialiGestioneWeb
 {
     public partial class GestioneCrudPage
     {
+        protected global::System.Web.UI.WebControls.Literal ContextCssLiteral;
+        protected global::System.Web.UI.WebControls.Literal PageHeadingText;
+        protected global::System.Web.UI.WebControls.Literal PageIntroText;
+        protected global::System.Web.UI.WebControls.Panel ContextActionsPanel;
+        protected global::System.Web.UI.WebControls.HyperLink BackToDettaglioLink;
+        protected global::System.Web.UI.WebControls.HyperLink FullCrudLink;
         protected global::System.Web.UI.WebControls.Panel ErrorPanel;
         protected global::System.Web.UI.WebControls.Literal ErrorMessage;
         protected global::System.Web.UI.WebControls.Panel SuccessPanel;

@@ -33,32 +33,43 @@ namespace MaterialiGestioneWeb
         private void BindAll()
         {
             var selectedOggettoOrdinativoId = GetRequestedOggettoOrdinativoId();
+            var isContextMode = selectedOggettoOrdinativoId.HasValue;
+            ConfigureContextUi(selectedOggettoOrdinativoId);
             ErrorPanel.Visible = false;
-            ProdottiAdminGrid.DataSource = _repository.GetProdottiAdmin();
-            ProdottiAdminGrid.DataBind();
-            OrdinativiGrid.DataSource = _repository.GetOrdinativiAdmin();
-            OrdinativiGrid.DataBind();
-            OggettiGrid.DataSource = _repository.GetOggettiOrdinativoAdmin();
+            if (!isContextMode)
+            {
+                ProdottiAdminGrid.DataSource = _repository.GetProdottiAdmin();
+                ProdottiAdminGrid.DataBind();
+                OrdinativiGrid.DataSource = _repository.GetOrdinativiAdmin();
+                OrdinativiGrid.DataBind();
+            }
+            OggettiGrid.DataSource = _repository.GetOggettiOrdinativoAdmin(selectedOggettoOrdinativoId);
             OggettiGrid.DataBind();
-            NetworkGrid.DataSource = _repository.GetNetworkDataAdmin();
-            NetworkGrid.DataBind();
-            PostazioniGrid.DataSource = _repository.GetPostazioniAdmin();
-            PostazioniGrid.DataBind();
-            ProdPersGrid.DataSource = _repository.GetProdPersAdmin();
-            ProdPersGrid.DataBind();
-            StoricoGrid.DataSource = _repository.GetProdPersStoricoAdmin();
-            StoricoGrid.DataBind();
+            if (!isContextMode)
+            {
+                NetworkGrid.DataSource = _repository.GetNetworkDataAdmin();
+                NetworkGrid.DataBind();
+                PostazioniGrid.DataSource = _repository.GetPostazioniAdmin();
+                PostazioniGrid.DataBind();
+                ProdPersGrid.DataSource = _repository.GetProdPersAdmin();
+                ProdPersGrid.DataBind();
+                StoricoGrid.DataSource = _repository.GetProdPersStoricoAdmin();
+                StoricoGrid.DataBind();
+            }
             BindLookupDropDown(OggettoOrdinativoDropDown, _repository.GetOrdinativiLookup(), selectedOggettoOrdinativoId);
             BindLookupDropDown(OggettoDittaDropDown, _repository.GetDitteLookup(), null);
             BindLookupDropDown(OggettoCategoriaDropDown, _repository.GetCategorieLookup(), null);
-            BindLookupDropDown(NetworkProdottoDropDown, _repository.GetProdottiNetworkLookup(), null);
-            BindLookupDropDown(PostazioneProdottoDropDown, _repository.GetProdottiLookup(), null);
-            BindLookupDropDown(PostazioneNomeDropDown, _repository.GetNomiMacchinaLookup(), null);
-            BindLookupDropDown(ProdPersProdottoDropDown, _repository.GetProdottiLookup(), null);
-            BindLookupDropDown(StoricoProdottoDropDown, _repository.GetProdottiLookup(), null);
-            BindPersonaleDropDown(ProdPersPersonaleDropDown, IsProdPersPersonaleEsternoSelected(), ProdPersMostraNonAttiviCheck.Checked, null);
-            BindPersonaleDropDown(StoricoPersonaleDropDown, IsStoricoPersonaleEsternoSelected(), StoricoMostraNonAttiviCheck.Checked, null);
-            OrdinativoCodiceText.Text = _repository.GetNextCodiceOrdinativo();
+            if (!isContextMode)
+            {
+                BindLookupDropDown(NetworkProdottoDropDown, _repository.GetProdottiNetworkLookup(), null);
+                BindLookupDropDown(PostazioneProdottoDropDown, _repository.GetProdottiLookup(), null);
+                BindLookupDropDown(PostazioneNomeDropDown, _repository.GetNomiMacchinaLookup(), null);
+                BindLookupDropDown(ProdPersProdottoDropDown, _repository.GetProdottiLookup(), null);
+                BindLookupDropDown(StoricoProdottoDropDown, _repository.GetProdottiLookup(), null);
+                BindPersonaleDropDown(ProdPersPersonaleDropDown, IsProdPersPersonaleEsternoSelected(), ProdPersMostraNonAttiviCheck.Checked, null);
+                BindPersonaleDropDown(StoricoPersonaleDropDown, IsStoricoPersonaleEsternoSelected(), StoricoMostraNonAttiviCheck.Checked, null);
+                OrdinativoCodiceText.Text = _repository.GetNextCodiceOrdinativo();
+            }
         }
 
         protected void AddOrdinativoButton_Click(object sender, EventArgs e)
@@ -289,6 +300,13 @@ namespace MaterialiGestioneWeb
                 return;
             }
 
+            e.Row.CssClass = string.IsNullOrWhiteSpace(e.Row.CssClass) ? "editing-row" : e.Row.CssClass + " editing-row";
+            e.Row.Attributes["id"] = "editing-oggetto-row";
+            ClientScript.RegisterStartupScript(
+                GetType(),
+                "focus-editing-oggetto-row",
+                "var row=document.getElementById('editing-oggetto-row'); if(row){row.scrollIntoView({block:'center'});}",
+                true);
             var item = (OggettoOrdinativoAdminItem)e.Row.DataItem;
             BindLookupDropDown((DropDownList)e.Row.FindControl("EditOggettoOrdinativoDropDown"), _repository.GetOrdinativiLookup(), item.IdOrdinativo);
             BindLookupDropDown((DropDownList)e.Row.FindControl("EditOggettoDittaDropDown"), _repository.GetDitteLookup(), item.IdDittaCostruttrice);
@@ -454,6 +472,35 @@ namespace MaterialiGestioneWeb
         {
             grid.EditIndex = -1;
             BindAll();
+        }
+
+        private void ConfigureContextUi(int? idOrdinativo)
+        {
+            if (!idOrdinativo.HasValue)
+            {
+                ContextCssLiteral.Text = string.Empty;
+                ContextActionsPanel.Visible = false;
+                PageHeadingText.Text = "CRUD amministrativi";
+                PageIntroText.Text = "Gestione completa di prodotti, ordinativi, oggetti ordinativo, rete, postazioni, assegnazioni correnti e storico assegnazioni.";
+                return;
+            }
+
+            ContextCssLiteral.Text = @"
+<style>
+    .domain-jump-nav,
+    #crud-prodotti,
+    #crud-ordinativi,
+    #crud-network,
+    #crud-postazioni,
+    #crud-prodpers,
+    #crud-storico {
+        display: none;
+    }
+</style>";
+            ContextActionsPanel.Visible = true;
+            BackToDettaglioLink.NavigateUrl = "DettaglioOrdinativo.aspx?id=" + idOrdinativo.Value.ToString(CultureInfo.InvariantCulture);
+            PageHeadingText.Text = "Gestione righe oggetto";
+            PageIntroText.Text = "Vista filtrata sull'ordinativo selezionato. La pagina mostra solo le righe oggetto collegate e il form per aggiungerne di nuove.";
         }
 
         private static int GetGridKey(GridView grid, int rowIndex)

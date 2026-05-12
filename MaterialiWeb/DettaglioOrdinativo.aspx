@@ -77,22 +77,27 @@
                     <asp:BoundField DataField="DittaDescrizione" HeaderText="Ditta costruttrice" />
                     <asp:BoundField DataField="ProdottiGenerati" HeaderText="Prodotti generati" />
                     <asp:BoundField DataField="CategoriciRiepilogo" HeaderText="Categorici" />
-                    <asp:TemplateField HeaderText="Prodotti collegati">
+                    <asp:TemplateField HeaderText="Prodotti">
                         <ItemTemplate>
-                            <asp:GridView ID="ProdottiOggettoGrid" runat="server"
-                                AutoGenerateColumns="False"
-                                CssClass="data-grid compact"
-                                GridLines="None"
-                                EmptyDataText="Nessun prodotto generato per questa riga.">
-                                <Columns>
-                                    <asp:BoundField DataField="Categorico" HeaderText="Categorico" />
-                                    <asp:BoundField DataField="Matricola" HeaderText="Matricola" />
-                                    <asp:BoundField DataField="LivelloEfficienza" HeaderText="Stato" />
-                                    <asp:BoundField DataField="NumeroStanza" HeaderText="Stanza" />
-                                    <asp:BoundField DataField="Versamento" HeaderText="Versamento" />
-                                    <asp:HyperLinkField Text="Dettaglio bene" DataNavigateUrlFields="IdProdotto" DataNavigateUrlFormatString="ProdottoDettaglio.aspx?id={0}" />
-                                </Columns>
-                            </asp:GridView>
+                            <details class="products-disclosure">
+                                <summary>Vedi prodotti (<%# Eval("ProdottiGenerati") %>)</summary>
+                                <asp:Repeater ID="ProdottiOggettoRepeater" runat="server">
+                                    <HeaderTemplate><div class="product-list"></HeaderTemplate>
+                                    <ItemTemplate>
+                                        <article class="product-list-item">
+                                            <div>
+                                                <strong>Categorico <%# Eval("Categorico") %></strong>
+                                                <span><%# FormatProductMeta(Container.DataItem) %></span>
+                                            </div>
+                                            <a class="button" href='<%# "ProdottoDettaglio.aspx?id=" + Eval("IdProdotto") %>'>Dettaglio</a>
+                                        </article>
+                                    </ItemTemplate>
+                                    <FooterTemplate></div></FooterTemplate>
+                                </asp:Repeater>
+                                <asp:PlaceHolder ID="NoProdottiPlaceholder" runat="server" Visible="false">
+                                    <p class="muted-text">Nessun prodotto generato per questa riga.</p>
+                                </asp:PlaceHolder>
+                            </details>
                         </ItemTemplate>
                     </asp:TemplateField>
                 </Columns>

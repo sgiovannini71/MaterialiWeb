@@ -74,14 +74,20 @@ namespace MaterialiGestioneWeb
             }
 
             var item = e.Row.DataItem as OggettoOrdinativoDettaglioItem;
-            var prodottiGrid = e.Row.FindControl("ProdottiOggettoGrid") as GridView;
-            if (item == null || prodottiGrid == null)
+            var prodottiRepeater = e.Row.FindControl("ProdottiOggettoRepeater") as Repeater;
+            var emptyPlaceholder = e.Row.FindControl("NoProdottiPlaceholder") as PlaceHolder;
+            if (item == null || prodottiRepeater == null)
             {
                 return;
             }
 
-            prodottiGrid.DataSource = item.Prodotti;
-            prodottiGrid.DataBind();
+            var prodotti = item.Prodotti ?? new System.Collections.Generic.List<ProdottoOrdinativoItem>();
+            prodottiRepeater.DataSource = prodotti;
+            prodottiRepeater.DataBind();
+            if (emptyPlaceholder != null)
+            {
+                emptyPlaceholder.Visible = prodotti.Count == 0;
+            }
         }
 
         private void BindLookups()
@@ -191,6 +197,25 @@ namespace MaterialiGestioneWeb
         private string SafeText(string value)
         {
             return string.IsNullOrWhiteSpace(value) ? "-" : Server.HtmlEncode(value);
+        }
+
+        protected string FormatProductMeta(object dataItem)
+        {
+            var prodotto = dataItem as ProdottoOrdinativoItem;
+            if (prodotto == null)
+            {
+                return string.Empty;
+            }
+
+            var parts = new[]
+            {
+                string.IsNullOrWhiteSpace(prodotto.Matricola) ? null : "Matricola " + prodotto.Matricola,
+                string.IsNullOrWhiteSpace(prodotto.LivelloEfficienza) ? null : prodotto.LivelloEfficienza,
+                string.IsNullOrWhiteSpace(prodotto.NumeroStanza) ? null : "Stanza " + prodotto.NumeroStanza
+            }
+            .Where(value => !string.IsNullOrWhiteSpace(value));
+
+            return Server.HtmlEncode(string.Join(" | ", parts));
         }
 
         private void ShowError(string message)

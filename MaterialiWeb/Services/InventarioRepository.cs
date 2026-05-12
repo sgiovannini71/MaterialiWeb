@@ -655,6 +655,11 @@ ORDER BY o.idOrdinativo DESC;", connection))
 
         public IList<OggettoOrdinativoAdminItem> GetOggettiOrdinativoAdmin()
         {
+            return GetOggettiOrdinativoAdmin(null);
+        }
+
+        public IList<OggettoOrdinativoAdminItem> GetOggettiOrdinativoAdmin(int? idOrdinativo)
+        {
             using (var connection = Db.OpenConnection())
             using (var command = new SqlCommand(@"
 SELECT
@@ -675,9 +680,12 @@ FROM dbo.OggettoOrdinativo oo
 LEFT JOIN dbo.Ordinativo o ON oo.idOrdinativo = o.idOrdinativo
 LEFT JOIN dbo.Ditte d ON oo.idDittaCostruttrice = d.IdDitta
 LEFT JOIN dbo.CategoriaProdotti c ON oo.idCategProdotti = c.IdCategoria
+WHERE @IdOrdinativo IS NULL OR oo.idOrdinativo = @IdOrdinativo
 ORDER BY oo.idOggOrdinativo DESC;", connection))
-            using (var reader = command.ExecuteReader())
             {
+                command.Parameters.Add("@IdOrdinativo", SqlDbType.Int).Value = NullableDb(idOrdinativo);
+                using (var reader = command.ExecuteReader())
+                {
                 var results = new List<OggettoOrdinativoAdminItem>();
                 while (reader.Read())
                 {
@@ -700,6 +708,7 @@ ORDER BY oo.idOggOrdinativo DESC;", connection))
                 }
 
                 return results;
+                }
             }
         }
 

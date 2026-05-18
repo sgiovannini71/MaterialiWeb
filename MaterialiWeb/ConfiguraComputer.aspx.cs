@@ -33,6 +33,7 @@ namespace MaterialiGestioneWeb
                 _repository.AggiornaComputer(new AggiornamentoComputerInput
                 {
                     IdProdotto = ParseRequiredInt(ProdottoDropDown.SelectedValue, "Materiale"),
+                    NumeroSerie = SerialNumberText.Text,
                     NomeMacchina = HostNameText.Text,
                     MacAddress = MacAddressText.Text,
                     NoteRete = TipoRamText.Text
@@ -40,7 +41,7 @@ namespace MaterialiGestioneWeb
 
                 SuccessPanel.Visible = true;
                 ErrorPanel.Visible = false;
-                SuccessMessage.Text = "Configurazione rete/postazione aggiornata.";
+                SuccessMessage.Text = "Configurazione e numero di serie aggiornati.";
             }
             catch (Exception ex)
             {
@@ -70,6 +71,7 @@ namespace MaterialiGestioneWeb
             var idProdotto = ParseOptionalInt(ProdottoDropDown.SelectedValue);
             if (!idProdotto.HasValue)
             {
+                SerialNumberText.Text = string.Empty;
                 HostNameText.Text = string.Empty;
                 MacAddressText.Text = string.Empty;
                 TipoRamText.Text = string.Empty;
@@ -88,7 +90,9 @@ namespace MaterialiGestioneWeb
             ProdottoStato.Text = Server.HtmlEncode(Fallback(prodotto.LivelloEfficienza));
             ProdottoAssegnatario.Text = Server.HtmlEncode(Fallback(prodotto.AssegnatarioDisplay));
             ProdottoStanza.Text = Server.HtmlEncode(Fallback(prodotto.NumeroStanza));
+            ProdottoSeriale.Text = Server.HtmlEncode(Fallback(prodotto.Matricola));
 
+            SerialNumberText.Text = prodotto.Matricola;
             HostNameText.Text = prodotto.NomeMacchina;
             MacAddressText.Text = prodotto.MacAddress;
             TipoRamText.Text = prodotto.Note;

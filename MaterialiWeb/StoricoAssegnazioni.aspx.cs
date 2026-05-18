@@ -62,26 +62,7 @@ namespace MaterialiGestioneWeb
 
         protected void SearchButton_Click(object sender, EventArgs e)
         {
-            try
-            {
-                ErrorPanel.Visible = false;
-                var idProdotto = ParseOptionalInt(ProdottoDropDown.SelectedValue);
-                var idPersonale = ParseOptionalInt(PersonaleDropDown.SelectedValue);
-                var storico = _repository.GetStoricoAssegnazioni(CategoricoText.Text, idProdotto, idPersonale);
-                StoricoGrid.DataSource = storico;
-                StoricoGrid.DataBind();
-                ResultTitle.Text = Server.HtmlEncode("Risultati storico assegnazioni");
-                ResultPanel.Visible = true;
-                SetExportAvailability(storico != null && storico.Count > 0);
-            }
-            catch (Exception ex)
-            {
-                AppLogger.Error("StoricoAssegnazioniPage.SearchButton_Click", "Errore durante la ricerca storico assegnazioni.", ex);
-                ResultPanel.Visible = false;
-                SetExportAvailability(false);
-                ErrorPanel.Visible = true;
-                ErrorMessage.Text = Server.HtmlEncode(ex.Message);
-            }
+            SearchStorico();
         }
 
         protected void ResetButton_Click(object sender, EventArgs e)
@@ -118,12 +99,37 @@ namespace MaterialiGestioneWeb
             }
         }
 
+        private void SearchStorico()
+        {
+            try
+            {
+                ErrorPanel.Visible = false;
+                var idProdotto = ParseOptionalInt(ProdottoDropDown.SelectedValue);
+                var idPersonale = ParseOptionalInt(PersonaleDropDown.SelectedValue);
+                var storico = _repository.GetStoricoAssegnazioni(CategoricoText.Text, idProdotto, idPersonale);
+                StoricoGrid.DataSource = storico;
+                StoricoGrid.DataBind();
+                ResultTitle.Text = Server.HtmlEncode(BuildResultTitle(storico == null ? 0 : storico.Count));
+                ResultPanel.Visible = true;
+                SetExportAvailability(storico != null && storico.Count > 0);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("StoricoAssegnazioniPage.SearchStorico", "Errore durante la ricerca storico assegnazioni.", ex);
+                ResultPanel.Visible = false;
+                SetExportAvailability(false);
+                ErrorPanel.Visible = true;
+                ErrorMessage.Text = Server.HtmlEncode(ex.Message);
+            }
+        }
+
         private void FilterProducts()
         {
             ErrorPanel.Visible = false;
             ResultPanel.Visible = false;
             SetExportAvailability(false);
             BindProdottiByCategorico(CategoricoText.Text, null);
+            SearchStorico();
         }
 
         private void BindProdottiByCategorico(string categoricoFilter, int? selectedId)
@@ -202,6 +208,17 @@ namespace MaterialiGestioneWeb
         private void SetExportAvailability(bool enabled)
         {
             ExportPdfButton.Enabled = enabled;
+        }
+
+        private string BuildResultTitle(int count)
+        {
+            var filter = NormalizeFilterValue(CategoricoText.Text);
+            var suffix = string.IsNullOrWhiteSpace(filter)
+                ? string.Empty
+                : " per categorico " + filter;
+            return count == 1
+                ? "1 risultato storico" + suffix
+                : count.ToString("N0", CultureInfo.InvariantCulture) + " risultati storico" + suffix;
         }
 
         private void ExportPdf(IList<StoricoAssegnazioneConsultazioneItem> storico)

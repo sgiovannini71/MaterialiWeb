@@ -347,6 +347,17 @@ input[type="submit"].button.danger {
     margin: 0;
 }
 
+.inline-edit {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.inline-edit .input {
+    min-width: min(18rem, 100%);
+}
+
 .split-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

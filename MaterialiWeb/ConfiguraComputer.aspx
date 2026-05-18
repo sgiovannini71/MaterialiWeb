@@ -2,12 +2,13 @@
 
 <asp:Content ID="Title6" ContentPlaceHolderID="TitleContent" runat="server">Configura rete e postazione</asp:Content>
 <asp:Content ID="Main6" ContentPlaceHolderID="MainContent" runat="server">
-    <section class="page-title"><h1>Aggiorna rete e postazione</h1><p>Gestisce MAC address in `NetworkData` e nome macchina in `Postazione/NomeMacchina`.</p></section>
+    <section class="page-title"><h1>Aggiorna rete e postazione</h1><p>Gestisce numero di serie, MAC address in `NetworkData` e nome macchina in `Postazione/NomeMacchina`.</p></section>
     <asp:Panel ID="ErrorPanel" runat="server" CssClass="alert error" Visible="false"><asp:Literal ID="ErrorMessage" runat="server" /></asp:Panel>
     <asp:Panel ID="SuccessPanel" runat="server" CssClass="alert success" Visible="false"><asp:Literal ID="SuccessMessage" runat="server" /></asp:Panel>
     <section class="form-card">
         <div class="field-grid">
             <label class="field-span-2">Materiale<asp:DropDownList ID="ProdottoDropDown" runat="server" CssClass="input" AutoPostBack="true" OnSelectedIndexChanged="ProdottoDropDown_SelectedIndexChanged" /></label>
+            <label>Numero di serie<asp:TextBox ID="SerialNumberText" runat="server" CssClass="input" MaxLength="50" /></label>
             <label>Nome macchina<asp:TextBox ID="HostNameText" runat="server" CssClass="input" /></label>
             <label>MAC address<asp:TextBox ID="MacAddressText" runat="server" CssClass="input" /></label>
             <label class="field-span-2">Note rete/postazione<asp:TextBox ID="TipoRamText" runat="server" CssClass="input" TextMode="MultiLine" Rows="3" /></label>
@@ -19,6 +20,7 @@
                 <dt>Stato corrente</dt><dd><asp:Literal ID="ProdottoStato" runat="server" /></dd>
                 <dt>Assegnatario corrente</dt><dd><asp:Literal ID="ProdottoAssegnatario" runat="server" /></dd>
                 <dt>Stanza corrente</dt><dd><asp:Literal ID="ProdottoStanza" runat="server" /></dd>
+                <dt>Numero di serie</dt><dd><asp:Literal ID="ProdottoSeriale" runat="server" /></dd>
             </dl>
         </asp:Panel>
     </section>

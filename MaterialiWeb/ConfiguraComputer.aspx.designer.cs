@@ -12,6 +12,8 @@ namespace MaterialiGestioneWeb
         protected global::System.Web.UI.WebControls.Literal ProdottoStato;
         protected global::System.Web.UI.WebControls.Literal ProdottoAssegnatario;
         protected global::System.Web.UI.WebControls.Literal ProdottoStanza;
+        protected global::System.Web.UI.WebControls.Literal ProdottoSeriale;
+        protected global::System.Web.UI.WebControls.TextBox SerialNumberText;
         protected global::System.Web.UI.WebControls.TextBox ProcessoreText;
         protected global::System.Web.UI.WebControls.TextBox RamText;
         protected global::System.Web.UI.WebControls.DropDownList ImpiegoDropDown;

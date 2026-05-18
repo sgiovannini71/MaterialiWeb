@@ -12,6 +12,9 @@ namespace MaterialiGestioneWeb.Services
 {
     public class InventarioRepository
     {
+        private const int IdEfficienzaEfficienteInUso = 1;
+        private const int IdEfficienzaEfficienteAttesaDistribuzione = 4;
+
         private readonly PersonaleRepository _personaleRepository = new PersonaleRepository();
 
         public DashboardStats GetDashboardStats()
@@ -1506,6 +1509,7 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                 try
                 {
                     CloseCurrentAssignment(connection, transaction, input.IdProdotto, input.DataAssegnazione);
+                    UpdateDataUltimaMov(connection, transaction, input.IdProdotto, input.Note, IdEfficienzaEfficienteInUso);
 
                     int idProdPers;
                     using (var command = new SqlCommand(@"
@@ -1520,7 +1524,6 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                     }
 
                     InsertStoricoSnapshot(connection, transaction, idProdPers, input.IdProdotto, input.IdPersonale, input.DataAssegnazione.Date, null, input.Note);
-                    UpdateDataUltimaMov(connection, transaction, input.IdProdotto, input.Note);
                     transaction.Commit();
                 }
                 catch (Exception ex)
@@ -1541,6 +1544,12 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                 try
                 {
                     CloseCurrentAssignment(connection, transaction, input.IdProdotto, input.DataOperazione);
+                    UpdateDataUltimaMov(
+                        connection,
+                        transaction,
+                        input.IdProdotto,
+                        input.Note,
+                        input.CreaNuovaAssegnazione ? IdEfficienzaEfficienteInUso : IdEfficienzaEfficienteAttesaDistribuzione);
 
                     if (input.CreaNuovaAssegnazione && input.NuovoIdPersonale.HasValue)
                     {
@@ -1559,7 +1568,6 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                         InsertStoricoSnapshot(connection, transaction, idProdPers, input.IdProdotto, input.NuovoIdPersonale.Value, input.DataOperazione.Date, null, input.Note);
                     }
 
-                    UpdateDataUltimaMov(connection, transaction, input.IdProdotto, input.Note);
                     transaction.Commit();
                 }
                 catch (Exception ex)
@@ -1608,8 +1616,10 @@ WHERE IdProdotto = @IdProdotto;", input.IdProdotto, (connection, transaction, co
                 try
                 {
                     var normalizedMac = NormalizeMacAddress(input.MacAddress);
+                    var normalizedNumeroSerie = NormalizeNumeroSerie(input.NumeroSerie);
                     UpsertNetworkData(connection, transaction, input.IdProdotto, normalizedMac, input.NoteRete);
                     UpsertPostazione(connection, transaction, input.IdProdotto, input.NomeMacchina);
+                    UpdateNumeroSerie(connection, transaction, input.IdProdotto, normalizedNumeroSerie);
                     UpdateDataUltimaMov(connection, transaction, input.IdProdotto, input.NoteRete);
                     transaction.Commit();
                 }
@@ -2282,14 +2292,34 @@ WHERE p.IdProdotto = @IdProdotto;", connection, transaction))
 
         private static void UpdateDataUltimaMov(SqlConnection connection, SqlTransaction transaction, int idProdotto, string note)
         {
+            UpdateDataUltimaMov(connection, transaction, idProdotto, note, null);
+        }
+
+        private static void UpdateDataUltimaMov(SqlConnection connection, SqlTransaction transaction, int idProdotto, string note, int? idEfficienza)
+        {
             using (var command = new SqlCommand(@"
 UPDATE dbo.Prodotti
 SET DataUltimaMov = GETDATE(),
+    IdEfficienza = COALESCE(@IdEfficienza, IdEfficienza),
     Note = CASE WHEN @Note IS NULL THEN Note ELSE CONVERT(ntext, @Note) END
 WHERE IdProdotto = @IdProdotto;", connection, transaction))
             {
                 command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
+                command.Parameters.Add("@IdEfficienza", SqlDbType.Int).Value = NullableDb(idEfficienza);
                 command.Parameters.Add("@Note", SqlDbType.NVarChar, -1).Value = NullableDb(note);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private static void UpdateNumeroSerie(SqlConnection connection, SqlTransaction transaction, int idProdotto, string numeroSerie)
+        {
+            using (var command = new SqlCommand(@"
+UPDATE dbo.Prodotti
+SET Matricola = @Matricola
+WHERE IdProdotto = @IdProdotto;", connection, transaction))
+            {
+                command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
+                command.Parameters.Add("@Matricola", SqlDbType.NVarChar, 50).Value = NullableDb(numeroSerie);
                 command.ExecuteNonQuery();
             }
         }
@@ -2416,6 +2446,17 @@ ORDER BY po.idPostazione DESC;", connection, transaction))
             }
 
             return true;
+        }
+
+        private static string NormalizeNumeroSerie(string numeroSerie)
+        {
+            var normalized = string.IsNullOrWhiteSpace(numeroSerie) ? null : numeroSerie.Trim();
+            if (normalized != null && normalized.Length > 50)
+            {
+                throw new InvalidOperationException("Il numero di serie non puo' superare 50 caratteri.");
+            }
+
+            return normalized;
         }
 
         private static object NullableDb(object value)

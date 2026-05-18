@@ -24,7 +24,7 @@
         <div class="detail-card">
             <dl>
                 <dt>Categorico</dt><dd><asp:Literal ID="Categorico" runat="server" /></dd>
-                <dt>Matricola</dt><dd><asp:Literal ID="Seriale" runat="server" /></dd>
+                <dt>Numero di serie</dt><dd><asp:Literal ID="Seriale" runat="server" /></dd>
                 <dt>Categoria</dt><dd><asp:Literal ID="Tipologia" runat="server" /></dd>
                 <dt>Modello</dt><dd><asp:Literal ID="Modello" runat="server" /></dd>
                 <dt>Stato corrente</dt><dd><asp:Literal ID="Stato" runat="server" /></dd>

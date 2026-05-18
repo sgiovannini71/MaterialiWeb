@@ -54,6 +54,7 @@ namespace MaterialiGestioneWeb.Models
     public class AggiornamentoComputerInput
     {
         public int IdProdotto { get; set; }
+        public string NumeroSerie { get; set; }
         public string NomeMacchina { get; set; }
         public string MacAddress { get; set; }
         public string NoteRete { get; set; }

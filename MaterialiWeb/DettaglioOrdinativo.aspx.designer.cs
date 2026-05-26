@@ -18,7 +18,7 @@ namespace MaterialiGestioneWeb
         protected global::System.Web.UI.WebControls.Literal OggettiCount;
         protected global::System.Web.UI.WebControls.Literal QuantitaCount;
         protected global::System.Web.UI.WebControls.Literal ProdottiCount;
-        protected global::System.Web.UI.WebControls.Literal ValoreInventarioText;
+        protected global::System.Web.UI.WebControls.Literal StatiProdottiText;
         protected global::System.Web.UI.WebControls.Literal IdOrdinativoText;
         protected global::System.Web.UI.WebControls.Literal CodiceText;
         protected global::System.Web.UI.WebControls.Literal DenominazioneText;

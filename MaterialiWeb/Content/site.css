@@ -212,6 +212,50 @@ input[type="submit"].button.danger {
     margin-top: 0.35rem;
 }
 
+.stat-card .status-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.7rem;
+}
+
+.stat-card .status-summary span {
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(23, 32, 27, 0.08);
+    border-radius: 999px;
+    color: var(--text);
+    font-weight: 600;
+    padding: 0.35rem 0.55rem;
+}
+
+.stat-card .status-summary strong {
+    display: inline;
+    font-size: 1rem;
+    letter-spacing: normal;
+    margin: 0 0 0 0.3rem;
+}
+
+.status-summary-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: flex-start;
+}
+
+.status-summary-compact span {
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(23, 32, 27, 0.08);
+    border-radius: 999px;
+    display: inline-block;
+    font-size: 0.95rem;
+    padding: 0.3rem 0.55rem;
+    white-space: nowrap;
+}
+
+.status-summary-compact strong {
+    margin-left: 0.25rem;
+}
+
 .toolbar {
     align-items: center;
     display: flex;
@@ -345,17 +389,6 @@ input[type="submit"].button.danger {
 
 .detail-card dd {
     margin: 0;
-}
-
-.inline-edit {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-}
-
-.inline-edit .input {
-    min-width: min(18rem, 100%);
 }
 
 .split-grid {

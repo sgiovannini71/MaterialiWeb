@@ -149,7 +149,6 @@ namespace MaterialiGestioneWeb
             var ordinativo = detail.Ordinativo;
             var totaleQuantita = detail.Oggetti.Sum(item => item.Quantita);
             var totaleProdotti = detail.Oggetti.Sum(item => item.ProdottiGenerati);
-            var valoreInventario = detail.Oggetti.Sum(item => item.PrezzoInventario * item.Quantita);
 
             DetailPanel.Visible = true;
             NomeOrdinativo.Text = Server.HtmlEncode(string.IsNullOrWhiteSpace(ordinativo.DenominazioneOrdinativo) ? "Ordinativo" : ordinativo.DenominazioneOrdinativo);
@@ -171,7 +170,7 @@ namespace MaterialiGestioneWeb
             OggettiCount.Text = detail.Oggetti.Count.ToString();
             QuantitaCount.Text = totaleQuantita.ToString();
             ProdottiCount.Text = totaleProdotti.ToString();
-            ValoreInventarioText.Text = valoreInventario.ToString("N2");
+            StatiProdottiText.Text = BuildStatiProdottiSummary(detail);
 
             CrudOrdinativoLink.NavigateUrl = "GestioneCrud.aspx#crud-ordinativi";
             var oggettiUrl = "GestioneCrud.aspx?idOrdinativo=" + idOrdinativo.ToString(CultureInfo.InvariantCulture) + "#crud-oggetti";
@@ -180,6 +179,38 @@ namespace MaterialiGestioneWeb
 
             OggettiGrid.DataSource = detail.Oggetti;
             OggettiGrid.DataBind();
+        }
+
+        private string BuildStatiProdottiSummary(OrdinativoDettaglio detail)
+        {
+            return BuildStatiProdottiSummary(detail.Oggetti
+                .SelectMany(item => item.Prodotti == null
+                    ? Enumerable.Empty<ProdottoOrdinativoItem>()
+                    : item.Prodotti));
+        }
+
+        protected string FormatOggettoStati(object dataItem)
+        {
+            var oggetto = dataItem as OggettoOrdinativoDettaglioItem;
+            return BuildStatiProdottiSummary(oggetto == null
+                ? Enumerable.Empty<ProdottoOrdinativoItem>()
+                : oggetto.Prodotti == null
+                    ? Enumerable.Empty<ProdottoOrdinativoItem>()
+                    : oggetto.Prodotti);
+        }
+
+        private string BuildStatiProdottiSummary(System.Collections.Generic.IEnumerable<ProdottoOrdinativoItem> prodotti)
+        {
+            var summary = prodotti
+                .GroupBy(item => string.IsNullOrWhiteSpace(item.LivelloEfficienza) ? "Non indicato" : item.LivelloEfficienza)
+                .OrderByDescending(group => group.Count())
+                .ThenBy(group => group.Key)
+                .Select(group => "<span>" + Server.HtmlEncode(group.Key) + "<strong>" + group.Count() + "</strong></span>")
+                .ToList();
+
+            return summary.Count == 0
+                ? "<span>Nessun prodotto generato</span>"
+                : string.Join(string.Empty, summary);
         }
 
         private int? ParseSelectedId(ListControl control)

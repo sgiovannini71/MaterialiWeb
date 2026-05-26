@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using MaterialiGestioneWeb.Infrastructure;
 using MaterialiGestioneWeb.Services;
 
@@ -47,7 +48,8 @@ namespace MaterialiGestioneWeb
                 Fornitore.Text = string.IsNullOrWhiteSpace(prodotto.DittaCostruttrice) ? "-" : Server.HtmlEncode(prodotto.DittaCostruttrice);
                 Fattura.Text = string.IsNullOrWhiteSpace(prodotto.Versamento) ? "-" : Server.HtmlEncode(prodotto.Versamento);
 
-                DischiGrid.DataSource = detail.StoricoAssegnazioni.Count > 0 ? new[] { detail.StoricoAssegnazioni[0] } : null;
+                var assegnazioneCorrente = detail.StoricoAssegnazioni.FirstOrDefault(item => !item.DataFine.HasValue);
+                DischiGrid.DataSource = assegnazioneCorrente == null ? null : new[] { assegnazioneCorrente };
                 DischiGrid.DataBind();
                 DocumentiGrid.DataSource = detail.Ordinativo != null && detail.Ordinativo.IdOrdinativo.HasValue ? new[] { detail.Ordinativo } : null;
                 DocumentiGrid.DataBind();

@@ -39,8 +39,8 @@
                 <strong><asp:Literal ID="ProdottiCount" runat="server" /></strong>
             </article>
             <article class="stat-card">
-                <span>Valore inventario</span>
-                <strong><asp:Literal ID="ValoreInventarioText" runat="server" /></strong>
+                <span>Stato prodotti</span>
+                <div class="status-summary"><asp:Literal ID="StatiProdottiText" runat="server" /></div>
             </article>
         </section>
 
@@ -76,6 +76,11 @@
                     <asp:BoundField DataField="CategoriaDescrizione" HeaderText="Categoria" />
                     <asp:BoundField DataField="DittaDescrizione" HeaderText="Ditta costruttrice" />
                     <asp:BoundField DataField="ProdottiGenerati" HeaderText="Prodotti generati" />
+                    <asp:TemplateField HeaderText="Stato prodotti">
+                        <ItemTemplate>
+                            <div class="status-summary status-summary-compact"><%# FormatOggettoStati(Container.DataItem) %></div>
+                        </ItemTemplate>
+                    </asp:TemplateField>
                     <asp:BoundField DataField="CategoriciRiepilogo" HeaderText="Categorici" />
                     <asp:TemplateField HeaderText="Prodotti">
                         <ItemTemplate>

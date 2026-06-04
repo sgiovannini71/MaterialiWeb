@@ -75,13 +75,11 @@
                     <asp:BoundField DataField="Quantita" HeaderText="Quantita" />
                     <asp:BoundField DataField="CategoriaDescrizione" HeaderText="Categoria" />
                     <asp:BoundField DataField="DittaDescrizione" HeaderText="Ditta costruttrice" />
-                    <asp:BoundField DataField="ProdottiGenerati" HeaderText="Prodotti generati" />
                     <asp:TemplateField HeaderText="Stato prodotti">
                         <ItemTemplate>
                             <div class="status-summary status-summary-compact"><%# FormatOggettoStati(Container.DataItem) %></div>
                         </ItemTemplate>
                     </asp:TemplateField>
-                    <asp:BoundField DataField="CategoriciRiepilogo" HeaderText="Categorici" />
                     <asp:TemplateField HeaderText="Prodotti">
                         <ItemTemplate>
                             <details class="products-disclosure">
@@ -110,7 +108,7 @@
         </section>
     </asp:Panel>
 
-    <section class="form-card ordinativo-search-section">
+    <asp:Panel ID="OrdinativiListPanel" runat="server" CssClass="form-card ordinativo-search-section">
         <div class="section-heading">
             <div>
                 <h2>Cerca o seleziona ordinativo</h2>
@@ -137,5 +135,5 @@
                 <asp:HyperLinkField Text="Dettaglio" DataNavigateUrlFields="IdOrdinativo" DataNavigateUrlFormatString="DettaglioOrdinativo.aspx?id={0}" />
             </Columns>
         </asp:GridView>
-    </section>
+    </asp:Panel>
 </asp:Content>

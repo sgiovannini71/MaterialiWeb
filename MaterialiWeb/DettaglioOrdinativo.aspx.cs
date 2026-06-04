@@ -22,8 +22,11 @@ namespace MaterialiGestioneWeb
             try
             {
                 BindLookups();
-                BindOrdinativiGrid();
                 LoadDetailFromQueryString();
+                if (OrdinativiListPanel.Visible)
+                {
+                    BindOrdinativiGrid();
+                }
             }
             catch (Exception ex)
             {
@@ -123,6 +126,7 @@ namespace MaterialiGestioneWeb
             if (!int.TryParse(Request.QueryString["id"], out idOrdinativo))
             {
                 DetailPanel.Visible = false;
+                OrdinativiListPanel.Visible = true;
                 return;
             }
 
@@ -143,6 +147,7 @@ namespace MaterialiGestioneWeb
             {
                 ShowError("Ordinativo non trovato.");
                 DetailPanel.Visible = false;
+                OrdinativiListPanel.Visible = true;
                 return;
             }
 
@@ -151,6 +156,7 @@ namespace MaterialiGestioneWeb
             var totaleProdotti = detail.Oggetti.Sum(item => item.ProdottiGenerati);
 
             DetailPanel.Visible = true;
+            OrdinativiListPanel.Visible = false;
             NomeOrdinativo.Text = Server.HtmlEncode(string.IsNullOrWhiteSpace(ordinativo.DenominazioneOrdinativo) ? "Ordinativo" : ordinativo.DenominazioneOrdinativo);
             DescrizioneOrdinativo.Text = Server.HtmlEncode(string.Join(" - ", new[]
             {

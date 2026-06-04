@@ -10,6 +10,7 @@ namespace MaterialiGestioneWeb
         protected global::System.Web.UI.WebControls.DropDownList OrdinativoDropDown;
         protected global::System.Web.UI.WebControls.HyperLink CrudAdminLink;
         protected global::System.Web.UI.WebControls.GridView OrdinativiListGrid;
+        protected global::System.Web.UI.WebControls.Panel OrdinativiListPanel;
         protected global::System.Web.UI.WebControls.Panel DetailPanel;
         protected global::System.Web.UI.WebControls.Literal NomeOrdinativo;
         protected global::System.Web.UI.WebControls.Literal DescrizioneOrdinativo;

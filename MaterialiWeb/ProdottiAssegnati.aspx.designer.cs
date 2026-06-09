@@ -4,6 +4,9 @@ namespace MaterialiGestioneWeb
     {
         protected global::System.Web.UI.WebControls.Panel ErrorPanel;
         protected global::System.Web.UI.WebControls.Literal ErrorMessage;
+        protected global::System.Web.UI.WebControls.HiddenField SelectedPersonaleIdHidden;
+        protected global::System.Web.UI.WebControls.HiddenField SelectedPersonaleIsEsternoHidden;
+        protected global::System.Web.UI.WebControls.HiddenField SelectedPersonaleIncludeNonAttiviHidden;
         protected global::System.Web.UI.WebControls.RadioButtonList TipoPersonaleRadio;
         protected global::System.Web.UI.WebControls.CheckBox MostraNonAttiviCheck;
         protected global::System.Web.UI.WebControls.DropDownList PersonaleDropDown;

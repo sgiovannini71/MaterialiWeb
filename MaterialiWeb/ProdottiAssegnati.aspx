@@ -11,6 +11,10 @@
         <asp:Literal ID="ErrorMessage" runat="server" />
     </asp:Panel>
 
+    <asp:HiddenField ID="SelectedPersonaleIdHidden" runat="server" />
+    <asp:HiddenField ID="SelectedPersonaleIsEsternoHidden" runat="server" />
+    <asp:HiddenField ID="SelectedPersonaleIncludeNonAttiviHidden" runat="server" />
+
     <section class="form-card">
         <div class="field-grid">
             <label>Tipo personale
@@ -61,4 +65,5 @@
         </div>
         <asp:Literal ID="PreviewHtmlLiteral" runat="server" />
     </asp:Panel>
+
 </asp:Content>

@@ -16,6 +16,10 @@ namespace MaterialiGestioneWeb
 {
     public partial class ProdottiAssegnatiPage : System.Web.UI.Page
     {
+        private const string SelectedPersonaleIdSessionKey = "ProdottiAssegnati.SelectedPersonaleId";
+        private const string SelectedPersonaleIsEsternoSessionKey = "ProdottiAssegnati.SelectedPersonaleIsEsterno";
+        private const string SelectedPersonaleIncludeNonAttiviSessionKey = "ProdottiAssegnati.SelectedPersonaleIncludeNonAttivi";
+
         private readonly InventarioRepository _repository = new InventarioRepository();
         private readonly PersonaleRepository _personaleRepository = new PersonaleRepository();
 
@@ -26,7 +30,7 @@ namespace MaterialiGestioneWeb
                 BindPersonale(
                     GetPostedIsPersonaleEsternoSelected(),
                     GetPostedIncludeNonAttivi(),
-                    ParseOptionalInt(Request.Form[PersonaleDropDown.UniqueID]));
+                    ParseOptionalInt(GetPostedFormValue(PersonaleDropDown.UniqueID, "PersonaleDropDown")));
             }
         }
 
@@ -34,6 +38,11 @@ namespace MaterialiGestioneWeb
         {
             if (!IsPostBack)
             {
+                if (TryHandleAssignmentSheetAction())
+                {
+                    return;
+                }
+
                 BindPersonale();
                 SetOutputAvailability(false);
             }
@@ -44,6 +53,7 @@ namespace MaterialiGestioneWeb
             ResultPanel.Visible = false;
             PreviewPanel.Visible = false;
             SetOutputAvailability(false);
+            ClearSelectedPersonaleContext();
             BindPersonale();
         }
 
@@ -52,6 +62,7 @@ namespace MaterialiGestioneWeb
             ResultPanel.Visible = false;
             PreviewPanel.Visible = false;
             SetOutputAvailability(false);
+            ClearSelectedPersonaleContext();
             BindPersonale();
         }
 
@@ -60,14 +71,20 @@ namespace MaterialiGestioneWeb
             try
             {
                 ErrorPanel.Visible = false;
-                var idPersonale = GetSelectedPersonaleId();
-                var prodotti = _repository.GetProdottiAssegnati(idPersonale);
+                var selection = GetSelectedPersonaleContext();
+                SaveSelectedPersonaleContext(selection);
+                var prodotti = _repository.GetProdottiAssegnati(selection.Id);
                 ProdottiGrid.DataSource = prodotti;
                 ProdottiGrid.DataBind();
-                ResultTitle.Text = Server.HtmlEncode("Materiale assegnato a " + GetSelectedPersonaleDisplay(idPersonale));
+                ResultTitle.Text = Server.HtmlEncode("Materiale assegnato a " + selection.DisplayName);
                 ResultPanel.Visible = true;
                 PreviewPanel.Visible = false;
-                SetOutputAvailability(prodotti != null && prodotti.Count > 0);
+                var hasProdotti = prodotti != null && prodotti.Count > 0;
+                SetOutputAvailability(hasProdotti);
+                if (hasProdotti)
+                {
+                    ConfigureAssignmentSheetActions(selection);
+                }
             }
             catch (Exception ex)
             {
@@ -87,6 +104,7 @@ namespace MaterialiGestioneWeb
             SetOutputAvailability(false);
             TipoPersonaleRadio.SelectedValue = "I";
             MostraNonAttiviCheck.Checked = false;
+            ClearSelectedPersonaleContext();
             BindPersonale();
         }
 
@@ -95,13 +113,12 @@ namespace MaterialiGestioneWeb
             try
             {
                 ErrorPanel.Visible = false;
-                if (!ExportCsvButton.Enabled)
-                {
-                    throw new InvalidOperationException("Caricare prima dei dati da esportare.");
-                }
-
-                var idPersonale = GetSelectedPersonaleId();
-                ExportCsv(_repository.GetProdottiAssegnati(idPersonale), GetSelectedPersonaleDisplay(idPersonale));
+                var selection = GetSelectedPersonaleContext();
+                SaveSelectedPersonaleContext(selection);
+                var prodotti = _repository.GetProdottiAssegnati(selection.Id);
+                EnsureProdottiLoaded(prodotti, "esportare");
+                SetOutputAvailability(true);
+                ExportCsv(prodotti, selection.DisplayName);
             }
             catch (Exception ex)
             {
@@ -116,16 +133,13 @@ namespace MaterialiGestioneWeb
             try
             {
                 ErrorPanel.Visible = false;
-                if (!PreviewSheetButton.Enabled)
-                {
-                    throw new InvalidOperationException("Caricare prima dei dati da visualizzare.");
-                }
-
-                var idPersonale = GetSelectedPersonaleId();
-                var prodotti = _repository.GetProdottiAssegnati(idPersonale);
-                var personale = GetSelectedPersonale(idPersonale);
+                var selection = GetSelectedPersonaleContext();
+                SaveSelectedPersonaleContext(selection);
+                var prodotti = _repository.GetProdottiAssegnati(selection.Id);
+                EnsureProdottiLoaded(prodotti, "visualizzare");
+                SetOutputAvailability(true);
                 var dataScheda = DateTime.Today;
-                var model = BuildAssignmentSheetModel(prodotti, personale, dataScheda);
+                var model = BuildAssignmentSheetModel(prodotti, selection.Personale, dataScheda);
 
                 PreviewHtmlLiteral.Text = RenderAssignmentSheetTemplate(model);
                 PreviewPanel.Visible = true;
@@ -144,16 +158,13 @@ namespace MaterialiGestioneWeb
             try
             {
                 ErrorPanel.Visible = false;
-                if (!ExportPdfButton.Enabled)
-                {
-                    throw new InvalidOperationException("Caricare prima dei dati da esportare.");
-                }
-
-                var idPersonale = GetSelectedPersonaleId();
-                var prodotti = _repository.GetProdottiAssegnati(idPersonale);
-                var personale = GetSelectedPersonale(idPersonale);
+                var selection = GetSelectedPersonaleContext();
+                SaveSelectedPersonaleContext(selection);
+                var prodotti = _repository.GetProdottiAssegnati(selection.Id);
+                EnsureProdottiLoaded(prodotti, "esportare");
+                SetOutputAvailability(true);
                 var dataScheda = DateTime.Today;
-                ExportPdf(prodotti, personale, dataScheda);
+                ExportPdf(prodotti, selection.Personale, dataScheda);
             }
             catch (Exception ex)
             {
@@ -161,6 +172,89 @@ namespace MaterialiGestioneWeb
                 ErrorPanel.Visible = true;
                 ErrorMessage.Text = Server.HtmlEncode(ex.Message);
             }
+        }
+
+        private bool TryHandleAssignmentSheetAction()
+        {
+            var action = Request.QueryString["sheetAction"];
+            if (string.IsNullOrWhiteSpace(action))
+            {
+                return false;
+            }
+
+            try
+            {
+                ErrorPanel.Visible = false;
+                var selection = GetSelectedPersonaleContextFromQueryString();
+                SaveSelectedPersonaleContext(selection);
+                BindPersonale(selection.IsEsterno, selection.IncludeNonAttivi, selection.Id);
+                var prodotti = _repository.GetProdottiAssegnati(selection.Id);
+                EnsureProdottiLoaded(prodotti, string.Equals(action, "preview", StringComparison.OrdinalIgnoreCase) ? "visualizzare" : "esportare");
+                SetOutputAvailability(true);
+                ConfigureAssignmentSheetActions(selection);
+
+                if (string.Equals(action, "preview", StringComparison.OrdinalIgnoreCase))
+                {
+                    ResultTitle.Text = Server.HtmlEncode("Materiale assegnato a " + selection.DisplayName);
+                    ResultPanel.Visible = false;
+                    var model = BuildAssignmentSheetModel(prodotti, selection.Personale, DateTime.Today);
+                    PreviewHtmlLiteral.Text = RenderAssignmentSheetTemplate(model);
+                    PreviewPanel.Visible = true;
+                    return true;
+                }
+
+                if (string.Equals(action, "pdf", StringComparison.OrdinalIgnoreCase))
+                {
+                    ExportPdf(prodotti, selection.Personale, DateTime.Today);
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("ProdottiAssegnatiPage.TryHandleAssignmentSheetAction", "Errore durante azione scheda da query string.", ex);
+                BindPersonale();
+                ResultPanel.Visible = false;
+                PreviewPanel.Visible = false;
+                SetOutputAvailability(false);
+                ErrorPanel.Visible = true;
+                ErrorMessage.Text = Server.HtmlEncode(ex.Message);
+                return true;
+            }
+        }
+
+        private SelectedPersonaleContext GetSelectedPersonaleContextFromQueryString()
+        {
+            var idPersonale = ParseRequiredInt(Request.QueryString["idPersonale"], "Personale");
+            var isEsterno = ParseRequiredBool(Request.QueryString["esterno"], "Tipo personale");
+            var includeNonAttivi = ParseOptionalBool(Request.QueryString["nonAttivi"]);
+            var personale = GetSelectedPersonale(idPersonale, isEsterno, includeNonAttivi);
+
+            return new SelectedPersonaleContext
+            {
+                Id = idPersonale,
+                IsEsterno = isEsterno,
+                IncludeNonAttivi = includeNonAttivi,
+                Personale = personale,
+                DisplayName = NormalizeSelectedPersonaleText(personale.DisplayName)
+            };
+        }
+
+        private void ConfigureAssignmentSheetActions(SelectedPersonaleContext selection)
+        {
+            PreviewSheetButton.OnClientClick = "window.location='" + BuildAssignmentSheetActionUrl("preview", selection) + "'; return false;";
+            ExportPdfButton.OnClientClick = "window.location='" + BuildAssignmentSheetActionUrl("pdf", selection) + "'; return false;";
+        }
+
+        private string BuildAssignmentSheetActionUrl(string action, SelectedPersonaleContext selection)
+        {
+            var url = "ProdottiAssegnati.aspx?sheetAction=" + System.Web.HttpUtility.UrlEncode(action)
+                + "&idPersonale=" + selection.Id.ToString(CultureInfo.InvariantCulture)
+                + "&esterno=" + (selection.IsEsterno ? "true" : "false")
+                + "&nonAttivi=" + (selection.IncludeNonAttivi ? "true" : "false");
+
+            return ResolveUrl(url).Replace("'", "\\'");
         }
 
         private void BindPersonale()
@@ -188,18 +282,41 @@ namespace MaterialiGestioneWeb
 
         private bool GetPostedIsPersonaleEsternoSelected()
         {
-            return string.Equals(Request.Form[TipoPersonaleRadio.UniqueID], "E", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(GetPostedFormValue(TipoPersonaleRadio.UniqueID, "TipoPersonaleRadio"), "E", StringComparison.OrdinalIgnoreCase);
         }
 
         private bool GetPostedIncludeNonAttivi()
         {
-            return !string.IsNullOrEmpty(Request.Form[MostraNonAttiviCheck.UniqueID]);
+            return !string.IsNullOrEmpty(GetPostedFormValue(MostraNonAttiviCheck.UniqueID, "MostraNonAttiviCheck"));
         }
 
-        private PersonaleLookupItem GetSelectedPersonale(int idPersonale)
+        private SelectedPersonaleContext GetSelectedPersonaleContext()
         {
-            var personale = _personaleRepository.GetPersonale(IsPersonaleEsternoSelected(), MostraNonAttiviCheck.Checked)
+            var idPersonale = GetSelectedPersonaleId();
+            var isEsterno = GetCurrentIsPersonaleEsternoSelected();
+            var includeNonAttivi = GetCurrentIncludeNonAttivi();
+            var personale = GetSelectedPersonale(idPersonale, isEsterno, includeNonAttivi);
+
+            return new SelectedPersonaleContext
+            {
+                Id = idPersonale,
+                IsEsterno = isEsterno,
+                IncludeNonAttivi = includeNonAttivi,
+                Personale = personale,
+                DisplayName = NormalizeSelectedPersonaleText(personale.DisplayName)
+            };
+        }
+
+        private PersonaleLookupItem GetSelectedPersonale(int idPersonale, bool isEsterno, bool includeNonAttivi)
+        {
+            var personale = _personaleRepository.GetPersonale(isEsterno, includeNonAttivi)
                 .FirstOrDefault(item => item.Id == idPersonale);
+
+            if (personale == null && !includeNonAttivi)
+            {
+                personale = _personaleRepository.GetPersonale(isEsterno, true)
+                    .FirstOrDefault(item => item.Id == idPersonale);
+            }
 
             if (personale != null)
             {
@@ -212,27 +329,146 @@ namespace MaterialiGestioneWeb
             {
                 Id = idPersonale,
                 Cognome = parts.cognome,
-                Nome = parts.nome
+                Nome = parts.nome,
+                IsEsterno = isEsterno,
+                IsAttivo = true
             };
         }
 
         private int GetSelectedPersonaleId()
         {
             var selectedValue = string.IsNullOrWhiteSpace(PersonaleDropDown.SelectedValue)
-                ? Request.Form[PersonaleDropDown.UniqueID]
+                ? GetPostedFormValue(PersonaleDropDown.UniqueID, "PersonaleDropDown")
                 : PersonaleDropDown.SelectedValue;
 
+            var parsed = ParseOptionalInt(selectedValue);
+            if (parsed.HasValue)
+            {
+                return parsed.Value;
+            }
+
+            parsed = ParseOptionalInt(SelectedPersonaleIdHidden.Value);
+            if (parsed.HasValue)
+            {
+                return parsed.Value;
+            }
+
+            parsed = ParseOptionalInt(GetPostedFormValue(SelectedPersonaleIdHidden.UniqueID, "SelectedPersonaleIdHidden"));
+            if (parsed.HasValue)
+            {
+                return parsed.Value;
+            }
+
+            var persisted = Session[SelectedPersonaleIdSessionKey];
+            if (persisted is int)
+            {
+                return (int)persisted;
+            }
+
+            AppLogger.Error(
+                "ProdottiAssegnatiPage.GetSelectedPersonaleId",
+                "Id personale non trovato nel postback. Form keys: " + string.Join(", ", Request.Form.AllKeys ?? new string[0]),
+                null);
             return ParseRequiredInt(selectedValue, "Personale");
         }
 
-        private string GetSelectedPersonaleDisplay(int idPersonale)
+        private bool GetCurrentIsPersonaleEsternoSelected()
         {
-            if (PersonaleDropDown.SelectedItem != null && !string.IsNullOrWhiteSpace(PersonaleDropDown.SelectedValue))
+            if (IsPostBack)
             {
-                return PersonaleDropDown.SelectedItem.Text;
+                var postedValue = GetPostedFormValue(TipoPersonaleRadio.UniqueID, "TipoPersonaleRadio");
+                if (!string.IsNullOrWhiteSpace(postedValue))
+                {
+                    return string.Equals(postedValue, "E", StringComparison.OrdinalIgnoreCase);
+                }
+
+                var hiddenValue = SelectedPersonaleIsEsternoHidden.Value;
+                if (!string.IsNullOrWhiteSpace(hiddenValue))
+                {
+                    bool parsed;
+                    if (bool.TryParse(hiddenValue, out parsed))
+                    {
+                        return parsed;
+                    }
+                }
+
+                var persisted = Session[SelectedPersonaleIsEsternoSessionKey];
+                if (persisted is bool)
+                {
+                    return (bool)persisted;
+                }
             }
 
-            return GetSelectedPersonale(idPersonale).DisplayName;
+            return IsPersonaleEsternoSelected();
+        }
+
+        private bool GetCurrentIncludeNonAttivi()
+        {
+            if (IsPostBack)
+            {
+                var postedValue = GetPostedFormValue(MostraNonAttiviCheck.UniqueID, "MostraNonAttiviCheck");
+                if (!string.IsNullOrEmpty(postedValue))
+                {
+                    return true;
+                }
+
+                var hiddenValue = SelectedPersonaleIncludeNonAttiviHidden.Value;
+                if (!string.IsNullOrWhiteSpace(hiddenValue))
+                {
+                    bool parsed;
+                    if (bool.TryParse(hiddenValue, out parsed))
+                    {
+                        return parsed;
+                    }
+                }
+
+                var persisted = Session[SelectedPersonaleIncludeNonAttiviSessionKey];
+                if (persisted is bool)
+                {
+                    return (bool)persisted;
+                }
+            }
+
+            return MostraNonAttiviCheck.Checked;
+        }
+
+        private void SaveSelectedPersonaleContext(SelectedPersonaleContext selection)
+        {
+            SelectedPersonaleIdHidden.Value = selection.Id.ToString(CultureInfo.InvariantCulture);
+            SelectedPersonaleIsEsternoHidden.Value = selection.IsEsterno ? bool.TrueString : bool.FalseString;
+            SelectedPersonaleIncludeNonAttiviHidden.Value = selection.IncludeNonAttivi ? bool.TrueString : bool.FalseString;
+            Session[SelectedPersonaleIdSessionKey] = selection.Id;
+            Session[SelectedPersonaleIsEsternoSessionKey] = selection.IsEsterno;
+            Session[SelectedPersonaleIncludeNonAttiviSessionKey] = selection.IncludeNonAttivi;
+        }
+
+        private void ClearSelectedPersonaleContext()
+        {
+            SelectedPersonaleIdHidden.Value = string.Empty;
+            SelectedPersonaleIsEsternoHidden.Value = string.Empty;
+            SelectedPersonaleIncludeNonAttiviHidden.Value = string.Empty;
+            Session.Remove(SelectedPersonaleIdSessionKey);
+            Session.Remove(SelectedPersonaleIsEsternoSessionKey);
+            Session.Remove(SelectedPersonaleIncludeNonAttiviSessionKey);
+        }
+
+        private string GetPostedFormValue(string uniqueId, string controlId)
+        {
+            var value = Request.Form[uniqueId];
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            foreach (var key in Request.Form.AllKeys ?? new string[0])
+            {
+                if (key != null && key.EndsWith("$" + controlId, StringComparison.OrdinalIgnoreCase))
+                {
+                    return Request.Form[key];
+                }
+            }
+
+            return value;
         }
 
         private void ExportCsv(IList<ProdottoCorrente> prodotti, string personale)
@@ -312,6 +548,14 @@ namespace MaterialiGestioneWeb
             ExportPdfButton.Enabled = enabled;
         }
 
+        private static void EnsureProdottiLoaded(IList<ProdottoCorrente> prodotti, string action)
+        {
+            if (prodotti == null || prodotti.Count == 0)
+            {
+                throw new InvalidOperationException("Caricare prima dei dati da " + action + ".");
+            }
+        }
+
         private static int ParseRequiredInt(string value, string fieldName)
         {
             int parsed;
@@ -321,6 +565,23 @@ namespace MaterialiGestioneWeb
             }
 
             return parsed;
+        }
+
+        private static bool ParseRequiredBool(string value, string fieldName)
+        {
+            bool parsed;
+            if (!bool.TryParse(value, out parsed))
+            {
+                throw new InvalidOperationException(fieldName + " non valido.");
+            }
+
+            return parsed;
+        }
+
+        private static bool ParseOptionalBool(string value)
+        {
+            bool parsed;
+            return bool.TryParse(value, out parsed) && parsed;
         }
 
         private static int? ParseOptionalInt(string value)
@@ -487,6 +748,15 @@ namespace MaterialiGestioneWeb
         {
             return value.HasValue ? value.Value.ToString(CultureInfo.InvariantCulture) : string.Empty;
         }
+    }
+
+    internal sealed class SelectedPersonaleContext
+    {
+        public int Id { get; set; }
+        public bool IsEsterno { get; set; }
+        public bool IncludeNonAttivi { get; set; }
+        public PersonaleLookupItem Personale { get; set; }
+        public string DisplayName { get; set; }
     }
 
     internal sealed class AssignmentSheetModel

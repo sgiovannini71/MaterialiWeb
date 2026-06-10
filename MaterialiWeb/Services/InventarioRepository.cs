@@ -940,11 +940,13 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                     command.Parameters.Add("@Versamento", SqlDbType.NVarChar, 256).Value = NullableDb(item.Versamento);
                     var id = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
                     transaction.Commit();
+                    LogOperationOk("InventarioRepository.CreateProdottoAdmin", "INSERT", "ProdottoAdmin", id, "Inserimento amministrativo prodotto completato.");
                     return id;
                 }
-                catch
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    LogOperationError("InventarioRepository.CreateProdottoAdmin", "INSERT", "ProdottoAdmin", null, "Errore durante inserimento amministrativo prodotto.", ex);
                     throw;
                 }
             }
@@ -1002,10 +1004,12 @@ WHERE IdProdotto = @Id;", command =>
                     }
 
                     transaction.Commit();
+                    LogOperationOk("InventarioRepository.DeleteProdottoAdmin", "DELETE", "ProdottoAdmin", id, "Eliminazione amministrativa prodotto completata.");
                 }
-                catch
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    LogOperationError("InventarioRepository.DeleteProdottoAdmin", "DELETE", "ProdottoAdmin", id, "Errore durante eliminazione amministrativa prodotto.", ex);
                     throw;
                 }
             }
@@ -1071,11 +1075,13 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                     var idOggetto = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
                     CreateProdottiForOggettoOrdinativo(connection, transaction, idOggetto, item.Quantita);
                     transaction.Commit();
+                    LogOperationOk("InventarioRepository.CreateOggettoOrdinativoAdmin", "INSERT", "OggettoOrdinativoAdmin", idOggetto, "Inserimento oggetto ordinativo e prodotti generati completato.");
                     return idOggetto;
                 }
-                catch
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    LogOperationError("InventarioRepository.CreateOggettoOrdinativoAdmin", "INSERT", "OggettoOrdinativoAdmin", null, "Errore durante inserimento oggetto ordinativo.", ex);
                     throw;
                 }
             }
@@ -1149,12 +1155,14 @@ WHERE idOggOrdinativo = @Id;", command =>
                         command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = item.IdProdotto;
                         var id = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
                         transaction.Commit();
+                        LogOperationOk("InventarioRepository.CreatePostazioneAdmin", "INSERT", "PostazioneAdmin", id, "Inserimento postazione completato.");
                         return id;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    LogOperationError("InventarioRepository.CreatePostazioneAdmin", "INSERT", "PostazioneAdmin", null, "Errore durante inserimento postazione.", ex);
                     throw;
                 }
             }
@@ -1190,10 +1198,12 @@ WHERE idOggOrdinativo = @Id;", command =>
 
                     DeleteNomeMacchinaIfOrphan(connection, transaction, oldIdNomeMacchina);
                     transaction.Commit();
+                    LogOperationOk("InventarioRepository.UpdatePostazioneAdmin", "UPDATE", "PostazioneAdmin", item.IdPostazione, "Aggiornamento postazione completato.");
                 }
-                catch
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    LogOperationError("InventarioRepository.UpdatePostazioneAdmin", "UPDATE", "PostazioneAdmin", item.IdPostazione, "Errore durante aggiornamento postazione.", ex);
                     throw;
                 }
             }
@@ -1226,10 +1236,12 @@ WHERE idOggOrdinativo = @Id;", command =>
 
                     DeleteNomeMacchinaIfOrphan(connection, transaction, idNomeMacchina);
                     transaction.Commit();
+                    LogOperationOk("InventarioRepository.DeletePostazioneAdmin", "DELETE", "PostazioneAdmin", id, "Eliminazione postazione completata.");
                 }
-                catch
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    LogOperationError("InventarioRepository.DeletePostazioneAdmin", "DELETE", "PostazioneAdmin", id, "Errore durante eliminazione postazione.", ex);
                     throw;
                 }
             }
@@ -1488,13 +1500,14 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                         command.Parameters.Add("@Versamento", SqlDbType.NVarChar, 256).Value = NullableDb(input.Versamento);
                         var idProdotto = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
                         transaction.Commit();
+                        LogOperationOk("InventarioRepository.CreateProdotto", "INSERT", "Prodotto", idProdotto, "Creazione nuovo materiale completata.");
                         return idProdotto;
                     }
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    AppLogger.Error("InventarioRepository.CreateProdotto", "Errore nella creazione del materiale.", ex);
+                    LogOperationError("InventarioRepository.CreateProdotto", "INSERT", "Prodotto", null, "Errore nella creazione del materiale.", ex);
                     throw;
                 }
             }
@@ -1525,11 +1538,12 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
 
                     InsertStoricoSnapshot(connection, transaction, idProdPers, input.IdProdotto, input.IdPersonale, input.DataAssegnazione.Date, null, input.Note);
                     transaction.Commit();
+                    LogOperationOk("InventarioRepository.AssegnaProdotto", "INSERT", "ProdPers", idProdPers, "Assegnazione materiale completata. IdProdotto=" + input.IdProdotto.ToString(CultureInfo.InvariantCulture) + "; IdPersonale=" + input.IdPersonale.ToString(CultureInfo.InvariantCulture) + ".");
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    AppLogger.Error("InventarioRepository.AssegnaProdotto", "Errore in assegnazione.", ex);
+                    LogOperationError("InventarioRepository.AssegnaProdotto", "INSERT", "ProdPers", input.IdProdotto, "Errore in assegnazione.", ex);
                     throw;
                 }
             }
@@ -1569,11 +1583,12 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                     }
 
                     transaction.Commit();
+                    LogOperationOk("InventarioRepository.RegistraRientroORiassegnazione", input.CreaNuovaAssegnazione ? "INSERT" : "UPDATE", "ProdPers", input.IdProdotto, input.CreaNuovaAssegnazione ? "Riassegnazione materiale completata." : "Rientro materiale completato.");
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    AppLogger.Error("InventarioRepository.RegistraRientroORiassegnazione", "Errore in rientro/riassegnazione.", ex);
+                    LogOperationError("InventarioRepository.RegistraRientroORiassegnazione", input.CreaNuovaAssegnazione ? "INSERT" : "UPDATE", "ProdPers", input.IdProdotto, "Errore in rientro/riassegnazione.", ex);
                     throw;
                 }
             }
@@ -1622,11 +1637,12 @@ WHERE IdProdotto = @IdProdotto;", input.IdProdotto, (connection, transaction, co
                     UpdateNumeroSerie(connection, transaction, input.IdProdotto, normalizedNumeroSerie);
                     UpdateDataUltimaMov(connection, transaction, input.IdProdotto, input.NoteRete);
                     transaction.Commit();
+                    LogOperationOk("InventarioRepository.AggiornaComputer", "UPDATE", "Computer", input.IdProdotto, "Aggiornamento rete/postazione completato.");
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    AppLogger.Error("InventarioRepository.AggiornaComputer", "Errore in aggiornamento rete/postazione.", ex);
+                    LogOperationError("InventarioRepository.AggiornaComputer", "UPDATE", "Computer", input.IdProdotto, "Errore in aggiornamento rete/postazione.", ex);
                     throw;
                 }
             }
@@ -1685,12 +1701,13 @@ WHERE IdProdotto = @IdProdotto;", input.IdProdotto, (connection, transaction, co
                     }
 
                     transaction.Commit();
+                    LogOperationOk("InventarioRepository.ImportaReteDaNomiMacchina", "UPDATE", "NetworkData", null, "Import rete completato. Aggiornati=" + results.Count(item => string.Equals(item.Esito, "Aggiornata", StringComparison.OrdinalIgnoreCase)).ToString(CultureInfo.InvariantCulture) + "; Totale=" + results.Count.ToString(CultureInfo.InvariantCulture) + ".");
                     return results;
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    AppLogger.Error("InventarioRepository.ImportaReteDaNomiMacchina", "Errore durante import rete da TXT.", ex);
+                    LogOperationError("InventarioRepository.ImportaReteDaNomiMacchina", "UPDATE", "NetworkData", null, "Errore durante import rete da TXT.", ex);
                     throw;
                 }
             }
@@ -1725,11 +1742,12 @@ WHERE IdProdotto = @IdProdotto;", connection, transaction))
                     }
 
                     transaction.Commit();
+                    LogOperationOk("InventarioRepository.DismettiProdotto", "UPDATE", "Prodotto", input.IdProdotto, "Dismissione o versamento materiale completato.");
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    AppLogger.Error("InventarioRepository.DismettiProdotto", "Errore in dismissione.", ex);
+                    LogOperationError("InventarioRepository.DismettiProdotto", "UPDATE", "Prodotto", input.IdProdotto, "Errore in dismissione.", ex);
                     throw;
                 }
             }
@@ -2153,17 +2171,23 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
         private void CloseCurrentAssignment(SqlConnection connection, SqlTransaction transaction, int idProdotto, DateTime dataRestituzione)
         {
             int? idProdPers = null;
+            int? idPersonale = null;
+            DateTime? dataAssegnazione = null;
             using (var command = new SqlCommand(@"
-SELECT TOP (1) IdProdPers
+SELECT TOP (1) IdProdPers, IdPersonale, DataAssegnazione
 FROM dbo.ProdPers
 WHERE IdProdotto = @IdProdotto
 ORDER BY DataAssegnazione DESC, IdProdPers DESC;", connection, transaction))
             {
                 command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
-                var scalar = command.ExecuteScalar();
-                if (scalar != null && scalar != DBNull.Value)
+                using (var reader = command.ExecuteReader())
                 {
-                    idProdPers = Convert.ToInt32(scalar, CultureInfo.InvariantCulture);
+                    if (reader.Read())
+                    {
+                        idProdPers = reader["IdProdPers"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["IdProdPers"], CultureInfo.InvariantCulture);
+                        idPersonale = reader["IdPersonale"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["IdPersonale"], CultureInfo.InvariantCulture);
+                        dataAssegnazione = reader["DataAssegnazione"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["DataAssegnazione"], CultureInfo.InvariantCulture);
+                    }
                 }
             }
 
@@ -2172,6 +2196,7 @@ ORDER BY DataAssegnazione DESC, IdProdPers DESC;", connection, transaction))
                 return;
             }
 
+            var storicoAggiornato = 0;
             using (var command = new SqlCommand(@"
 UPDATE dbo.ProdPersStorico
 SET dataRestituzione = @DataRestituzione
@@ -2179,7 +2204,43 @@ WHERE idProdPers = @IdProdPers AND dataRestituzione IS NULL;", connection, trans
             {
                 command.Parameters.Add("@DataRestituzione", SqlDbType.Date).Value = dataRestituzione.Date;
                 command.Parameters.Add("@IdProdPers", SqlDbType.Int).Value = idProdPers.Value;
-                command.ExecuteNonQuery();
+                storicoAggiornato = command.ExecuteNonQuery();
+            }
+
+            if (storicoAggiornato == 0 && idPersonale.HasValue)
+            {
+                using (var command = new SqlCommand(@"
+UPDATE dbo.ProdPersStorico
+SET dataRestituzione = @DataRestituzione,
+    idProdPers = COALESCE(idProdPers, @IdProdPers)
+WHERE id = (
+    SELECT TOP (1) id
+    FROM dbo.ProdPersStorico
+    WHERE idProdotto = @IdProdotto
+      AND idPersonale = @IdPersonale
+      AND dataRestituzione IS NULL
+    ORDER BY dataAssegnazione DESC, id DESC
+);", connection, transaction))
+                {
+                    command.Parameters.Add("@DataRestituzione", SqlDbType.Date).Value = dataRestituzione.Date;
+                    command.Parameters.Add("@IdProdPers", SqlDbType.Int).Value = idProdPers.Value;
+                    command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
+                    command.Parameters.Add("@IdPersonale", SqlDbType.Int).Value = idPersonale.Value;
+                    storicoAggiornato = command.ExecuteNonQuery();
+                }
+            }
+
+            if (storicoAggiornato == 0 && idPersonale.HasValue)
+            {
+                InsertStoricoSnapshot(
+                    connection,
+                    transaction,
+                    idProdPers.Value,
+                    idProdotto,
+                    idPersonale.Value,
+                    dataAssegnazione.HasValue ? dataAssegnazione.Value : dataRestituzione.Date,
+                    dataRestituzione.Date,
+                    null);
             }
 
             using (var command = new SqlCommand("DELETE FROM dbo.ProdPers WHERE IdProdPers = @IdProdPers;", connection, transaction))
@@ -2587,29 +2648,132 @@ ORDER BY c.Descrizione;", connection))
 
         private void ExecuteDomainNonQuery(string source, string sql, Action<SqlCommand> parameterizer)
         {
-            AppLogger.Info(source, "Aggiornamento anagrafica dominio.");
+            var operation = InferOperationFromSql(sql);
+            var entity = ExtractEntityFromSource(source);
             using (var connection = Db.OpenConnection())
             using (var command = new SqlCommand(sql, connection))
             {
-                parameterizer(command);
-                command.ExecuteNonQuery();
+                try
+                {
+                    parameterizer(command);
+                    command.ExecuteNonQuery();
+                    LogOperationOk(source, operation, entity, GetIntParameterValue(command, "@Id"), "Operazione amministrativa completata.");
+                }
+                catch (Exception ex)
+                {
+                    LogOperationError(source, operation, entity, GetIntParameterValue(command, "@Id"), "Errore durante operazione amministrativa.", ex);
+                    throw;
+                }
             }
         }
 
         private int ExecuteInsertScalar(string source, string sql, Action<SqlCommand> parameterizer)
         {
-            AppLogger.Info(source, "Inserimento amministrativo.");
+            var operation = InferOperationFromSql(sql);
+            var entity = ExtractEntityFromSource(source);
             using (var connection = Db.OpenConnection())
             using (var command = new SqlCommand(sql, connection))
             {
-                parameterizer(command);
-                return Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
+                try
+                {
+                    parameterizer(command);
+                    var id = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
+                    LogOperationOk(source, operation, entity, id, "Inserimento amministrativo completato.");
+                    return id;
+                }
+                catch (Exception ex)
+                {
+                    LogOperationError(source, operation, entity, GetIntParameterValue(command, "@Id"), "Errore durante inserimento amministrativo.", ex);
+                    throw;
+                }
             }
         }
 
         private void ExecuteDelete(string source, string sql, int id)
         {
             ExecuteDomainNonQuery(source, sql, command => command.Parameters.Add("@Id", SqlDbType.Int).Value = id);
+        }
+
+        private static void LogOperationOk(string source, string operation, string entity, int? id, string detail)
+        {
+            AppLogger.Info(source, BuildOperationLogMessage(operation, entity, id, "OK", detail));
+        }
+
+        private static void LogOperationError(string source, string operation, string entity, int? id, string detail, Exception exception)
+        {
+            AppLogger.Error(source, BuildOperationLogMessage(operation, entity, id, "KO", detail), exception);
+        }
+
+        private static string BuildOperationLogMessage(string operation, string entity, int? id, string outcome, string detail)
+        {
+            var idText = id.HasValue ? id.Value.ToString(CultureInfo.InvariantCulture) : "-";
+            return "OPERAZIONE=" + operation
+                + "; ENTITA=" + entity
+                + "; ID=" + idText
+                + "; ESITO=" + outcome
+                + "; DETTAGLIO=" + detail;
+        }
+
+        private static string InferOperationFromSql(string sql)
+        {
+            var normalized = string.IsNullOrWhiteSpace(sql) ? string.Empty : sql.TrimStart();
+            if (normalized.StartsWith("INSERT", StringComparison.OrdinalIgnoreCase))
+            {
+                return "INSERT";
+            }
+
+            if (normalized.StartsWith("UPDATE", StringComparison.OrdinalIgnoreCase))
+            {
+                return "UPDATE";
+            }
+
+            if (normalized.StartsWith("DELETE", StringComparison.OrdinalIgnoreCase))
+            {
+                return "DELETE";
+            }
+
+            return "WRITE";
+        }
+
+        private static string ExtractEntityFromSource(string source)
+        {
+            if (string.IsNullOrWhiteSpace(source))
+            {
+                return "-";
+            }
+
+            var name = source;
+            var dotIndex = name.LastIndexOf('.');
+            if (dotIndex >= 0 && dotIndex < name.Length - 1)
+            {
+                name = name.Substring(dotIndex + 1);
+            }
+
+            foreach (var prefix in new[] { "Create", "Update", "Delete", "Registra", "Assegna", "Cambia", "Aggiorna", "Dismetti", "Completa" })
+            {
+                if (name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && name.Length > prefix.Length)
+                {
+                    return name.Substring(prefix.Length);
+                }
+            }
+
+            return name;
+        }
+
+        private static int? GetIntParameterValue(SqlCommand command, string parameterName)
+        {
+            if (command == null || !command.Parameters.Contains(parameterName))
+            {
+                return null;
+            }
+
+            var value = command.Parameters[parameterName].Value;
+            if (value == null || value == DBNull.Value)
+            {
+                return null;
+            }
+
+            return Convert.ToInt32(value, CultureInfo.InvariantCulture);
         }
 
         private static string NormalizeSingleChar(string value)
@@ -2717,10 +2881,12 @@ ORDER BY c.Descrizione;", connection))
                     }
 
                     transaction.Commit();
+                    LogOperationOk(source, "UPDATE", ExtractEntityFromSource(source), idProdotto, "Aggiornamento materiale completato.");
                 }
-                catch
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    LogOperationError(source, "UPDATE", ExtractEntityFromSource(source), idProdotto, "Errore durante aggiornamento materiale.", ex);
                     throw;
                 }
             }

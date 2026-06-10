@@ -239,7 +239,7 @@
                 <span class="pill">Tecnologia: ASP.NET Web Forms / C#</span>
                 <span class="pill">Database principale: <code>Materiale</code></span>
                 <span class="pill">Anagrafica personale: <code>DipendentiDB</code></span>
-                <span class="pill">Aggiornata: 11 maggio 2026</span>
+                <span class="pill">Aggiornata: 10 giugno 2026</span>
             </div>
         </section>
 
@@ -546,6 +546,16 @@
                         <td>Ricarica i campi correnti al cambio prodotto</td>
                     </tr>
                     <tr>
+                        <td>Prodotti per assegnatario</td>
+                        <td>Mostra i prodotti assegnati a personale interno o esterno</td>
+                        <td>Export CSV, anteprima A4 e scheda PDF usano la selezione assegnatario esplicitata nella URL</td>
+                    </tr>
+                    <tr>
+                        <td>Import rete</td>
+                        <td>Importa nome macchina e MAC address da file TXT/CSV delimitato</td>
+                        <td>Aggiorna MAC e accoda una nota operativa nel campo note del prodotto</td>
+                    </tr>
+                    <tr>
                         <td>Dismetti bene</td>
                         <td>Registra dismissione o uscita dal ciclo attivo</td>
                         <td>Ricarica versamento ed efficienza correnti</td>
@@ -609,11 +619,22 @@
                 L'applicativo interroga <code>DipendentiDB</code> per recuperare nominativi e anagrafiche usate nelle assegnazioni,
                 con distinzione tra personale interno ed esterno nelle maschere che la prevedono.
             </p>
+            <ul>
+                <li>Le maschere di assegnazione distinguono personale <code>Interno</code> e <code>Esterno</code>.</li>
+                <li>In <code>ProdottiAssegnati.aspx</code>, anteprima scheda e PDF ricevono <code>idPersonale</code> e tipo assegnatario nella URL per evitare perdite di selezione nei postback.</li>
+                <li>La scheda A4 usa il template <code>html/AssignmentSheetTemplate.html</code> e il logo configurato in <code>Web.config</code>.</li>
+            </ul>
             <h3>Rete e postazioni</h3>
             <p>
                 Le informazioni tecniche del bene possono includere nome macchina, dominio e MAC address.
                 Questi dati sono esposti nel contesto prodotto e aggiornati nelle pagine di configurazione.
             </p>
+            <ul>
+                <li><code>ConfiguraComputer.aspx</code> aggiorna nome macchina, MAC address, numero serie e note tecniche del bene selezionato.</li>
+                <li><code>ImportaRete.aspx</code> legge file delimitati da tab, punto e virgola, virgola o spazio; la prima colonna e il nome macchina e la seconda il MAC address.</li>
+                <li>Durante l'import MAC, <code>NetworkData</code> viene ricreato con nota <code>Import TXT</code>.</li>
+                <li>Durante lo stesso import, <code>Prodotti.Note</code> non viene piu sovrascritto: la nota <code>Aggiornamento MAC da import TXT</code> viene accodata con separatore <code>|</code>.</li>
+            </ul>
         </section>
 
         <section class="section">
@@ -622,10 +643,23 @@
                 Il logging applicativo scrive nella cartella relativa <code>App_Data\Logs</code>.
                 In ambiente IIS il percorso reale corrisponde a <code>&lt;root sito&gt;\App_Data\Logs</code>.
             </p>
+            <h3>Logging operativo</h3>
+            <p>
+                Le operazioni di inserimento, modifica e cancellazione sono tracciate nel repository tramite <code>AppLogger</code>.
+                I log sono testuali e mantengono un formato uniforme.
+            </p>
+            <pre><code>OPERAZIONE=INSERT|UPDATE|DELETE; ENTITA=...; ID=...; ESITO=OK|KO; DETTAGLIO=...</code></pre>
+            <ul>
+                <li>Gli helper comuni coprono CRUD amministrativi, domini e operazioni standard su prodotti.</li>
+                <li>I metodi transazionali manuali loggano l'esito positivo dopo <code>Commit</code> e l'esito negativo nei <code>catch</code>.</li>
+                <li>Il log non sostituisce una autenticazione applicativa: attualmente non esiste una identita utente applicativa da registrare.</li>
+            </ul>
+            <h3>Deploy</h3>
             <ul>
                 <li>Verificare i permessi di scrittura dell'identity dell'Application Pool.</li>
                 <li>Controllare che in deploy sia presente un solo assembly applicativo nel <code>bin</code>.</li>
                 <li>Il database corretto del sito e <code>Materiale</code>, non <code>Materiali</code>.</li>
+                <li>Verificare che siano pubblicati i template HTML configurati: <code>AssignmentSheetTemplate.html</code> e <code>StoricoAssegnazioniTemplate.html</code>.</li>
             </ul>
             <div class="warning">
                 Se nel <code>bin</code> rimangono sia <code>MaterialiWeb.dll</code> sia una vecchia <code>MaterialiGestioneWeb.dll</code>,
@@ -635,7 +669,7 @@
 
         <p class="footer">
             Guida rigenerata per allineamento agli sviluppi piu recenti del repository
-            <code>MaterialiDB/MaterialiWeb</code>, inclusa la nuova vista gerarchica degli ordinativi.
+            <code>MaterialiDB/MaterialiWeb</code>: schede assegnatario, logging operativo e import MAC con append note.
         </p>
     </div>
 </body>

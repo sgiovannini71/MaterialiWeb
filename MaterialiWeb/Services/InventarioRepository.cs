@@ -1692,7 +1692,7 @@ WHERE IdProdotto = @IdProdotto;", input.IdProdotto, (connection, transaction, co
                         }
 
                         UpsertNetworkData(connection, transaction, idProdotto.Value, normalizedMac, "Import TXT");
-                        UpdateDataUltimaMov(connection, transaction, idProdotto.Value, "Aggiornamento MAC da import TXT");
+                        AppendDataUltimaMovNote(connection, transaction, idProdotto.Value, "Aggiornamento MAC da import TXT");
                         result.IdProdotto = idProdotto;
                         result.MacAddress = normalizedMac;
                         result.Esito = "Aggiornata";
@@ -2367,6 +2367,24 @@ WHERE IdProdotto = @IdProdotto;", connection, transaction))
             {
                 command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
                 command.Parameters.Add("@IdEfficienza", SqlDbType.Int).Value = NullableDb(idEfficienza);
+                command.Parameters.Add("@Note", SqlDbType.NVarChar, -1).Value = NullableDb(note);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private static void AppendDataUltimaMovNote(SqlConnection connection, SqlTransaction transaction, int idProdotto, string note)
+        {
+            using (var command = new SqlCommand(@"
+UPDATE dbo.Prodotti
+SET DataUltimaMov = GETDATE(),
+    Note = CASE
+        WHEN @Note IS NULL THEN Note
+        WHEN Note IS NULL OR DATALENGTH(Note) = 0 THEN CONVERT(ntext, @Note)
+        ELSE CONVERT(ntext, CONVERT(nvarchar(max), Note) + N' | ' + @Note)
+    END
+WHERE IdProdotto = @IdProdotto;", connection, transaction))
+            {
+                command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
                 command.Parameters.Add("@Note", SqlDbType.NVarChar, -1).Value = NullableDb(note);
                 command.ExecuteNonQuery();
             }

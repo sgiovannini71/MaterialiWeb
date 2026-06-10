@@ -79,6 +79,7 @@
     <Content Include="Domini.aspx" />
     <Content Include="GestioneCrud.aspx" />
     <Content Include="Global.asax" />
+    <Content Include="img\logo.jpg" />
     <Content Include="ImportaRete.aspx" />
     <Content Include="img\logo.png" />
     <Content Include="html\AssignmentSheetTemplate.html" />

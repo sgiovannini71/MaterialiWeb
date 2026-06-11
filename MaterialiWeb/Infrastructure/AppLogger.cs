@@ -34,6 +34,7 @@ namespace MaterialiGestioneWeb.Infrastructure
                 var line =
                     DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)
                     + " [" + level + "] "
+                    + "[user=" + ResolveCurrentUser() + "] "
                     + source
                     + " - "
                     + message;
@@ -68,6 +69,48 @@ namespace MaterialiGestioneWeb.Infrastructure
 
             var basePath = HttpRuntime.AppDomainAppPath ?? AppDomain.CurrentDomain.BaseDirectory;
             return Path.Combine(basePath, configuredPath);
+        }
+
+        private static string ResolveCurrentUser()
+        {
+            try
+            {
+                var context = HttpContext.Current;
+                if (context == null)
+                {
+                    return "n/a";
+                }
+
+                var sessionUsername = context.Session != null && context.Session["Username"] != null
+                    ? context.Session["Username"].ToString()
+                    : string.Empty;
+
+                var windowsUser = context.User != null &&
+                    context.User.Identity != null &&
+                    !string.IsNullOrWhiteSpace(context.User.Identity.Name)
+                        ? context.User.Identity.Name
+                        : string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(sessionUsername) && !string.IsNullOrWhiteSpace(windowsUser))
+                {
+                    return sessionUsername + " (" + windowsUser + ")";
+                }
+
+                if (!string.IsNullOrWhiteSpace(sessionUsername))
+                {
+                    return sessionUsername;
+                }
+
+                if (!string.IsNullOrWhiteSpace(windowsUser))
+                {
+                    return windowsUser;
+                }
+            }
+            catch
+            {
+            }
+
+            return "n/a";
         }
     }
 }

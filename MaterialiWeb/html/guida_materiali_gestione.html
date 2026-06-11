@@ -239,7 +239,7 @@
                 <span class="pill">Tecnologia: ASP.NET Web Forms / C#</span>
                 <span class="pill">Database principale: <code>Materiale</code></span>
                 <span class="pill">Anagrafica personale: <code>DipendentiDB</code></span>
-                <span class="pill">Aggiornata: 10 giugno 2026</span>
+                <span class="pill">Aggiornata: 11 giugno 2026</span>
             </div>
         </section>
 
@@ -258,7 +258,8 @@
                 <li>10. Refresh automatico del contesto prodotto</li>
                 <li>11. CRUD amministrativa</li>
                 <li>12. Integrazione con personale e rete</li>
-                <li>13. Logging e note di deploy</li>
+                <li>13. Autenticazione e autorizzazioni</li>
+                <li>14. Logging e note di deploy</li>
             </ul>
         </section>
 
@@ -638,25 +639,205 @@
         </section>
 
         <section class="section">
-            <h2>13. Logging e note di deploy</h2>
+            <h2>13. Autenticazione e autorizzazioni</h2>
             <p>
-                Il logging applicativo scrive nella cartella relativa <code>App_Data\Logs</code>.
-                In ambiente IIS il percorso reale corrisponde a <code>&lt;root sito&gt;\App_Data\Logs</code>.
+                L'applicativo usa <strong>Windows Authentication</strong> come meccanismo di autenticazione.
+                Non esiste una pagina di login applicativa: l'identita dell'utente viene fornita da IIS o IIS Express
+                tramite <code>HttpContext.Current.User.Identity.Name</code>.
+            </p>
+            <p>
+                Dopo l'autenticazione Windows, l'applicativo verifica se l'utente e autorizzato consultando
+                la tabella <code>dbo.AutorizzazioniMateriali</code> nel database <code>Materiale</code>.
+            </p>
+
+            <h3>Configurazione applicativa</h3>
+            <p>
+                Nel file <code>Web.config</code> devono essere presenti queste impostazioni:
+            </p>
+            <pre><code>&lt;authentication mode="Windows" /&gt;
+&lt;authorization&gt;
+  &lt;deny users="?" /&gt;
+&lt;/authorization&gt;</code></pre>
+            <p>
+                Nei file di progetto e nel profilo utente locale di Visual Studio/IIS Express devono essere coerenti anche
+                queste impostazioni:
+            </p>
+            <pre><code>&lt;IISExpressAnonymousAuthentication&gt;disabled&lt;/IISExpressAnonymousAuthentication&gt;
+&lt;IISExpressWindowsAuthentication&gt;enabled&lt;/IISExpressWindowsAuthentication&gt;</code></pre>
+            <div class="warning">
+                Un errore <code>401.2 Unauthorized: Logon failed due to server configuration</code> indica un problema
+                di configurazione IIS/IIS Express, non un problema della tabella autorizzazioni. In quel caso il codice
+                applicativo non viene ancora eseguito.
+            </div>
+
+            <h3>Classe base di sicurezza</h3>
+            <p>
+                Tutte le pagine operative ereditano da <code>Auth.BaseAuthenticatedPage</code>.
+                La classe base esegue questi controlli prima del normale <code>Page_Load</code>:
+            </p>
+            <ol>
+                <li>Verifica che l'utente Windows sia autenticato.</li>
+                <li>Legge il valore di <code>HttpContext.Current.User.Identity.Name</code>.</li>
+                <li>Cerca l'utente in <code>dbo.AutorizzazioniMateriali</code>.</li>
+                <li>Se autorizzato, valorizza <code>Session["UserId"]</code>, <code>Session["Username"]</code>, <code>Session["Livello"]</code> e <code>Session["WindowsUser"]</code>.</li>
+                <li>Se non autorizzato, reindirizza a <code>AccessDenied.aspx</code>.</li>
+            </ol>
+            <div class="note">
+                La ricerca accetta sia il formato completo <code>DOMINIO\utente</code> sia il solo nome utente
+                ricavato dopo la barra inversa. Questo consente di registrare in tabella anche valori come
+                <code>Administrator</code>, quando l'identita Windows arriva come <code>NOMEPC\Administrator</code>.
+            </div>
+            <div class="note">
+                Il livello viene riletto da <code>dbo.AutorizzazioniMateriali</code> a ogni richiesta.
+                Se un amministratore cambia un utente da <code>200</code> a <code>100</code>, il nuovo livello viene
+                applicato alla richiesta successiva senza attendere la scadenza della sessione.
+            </div>
+
+            <h3>Tabella autorizzazioni</h3>
+            <p>
+                La tabella deve essere creata con lo script
+                <code>SqlScripts/create_autorizzazioni_materiali.sql</code>.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Campo</th>
+                        <th>Scopo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Id</code></td>
+                        <td>Identificativo interno dell'autorizzazione.</td>
+                    </tr>
+                    <tr>
+                        <td><code>Username</code></td>
+                        <td>Nome utente Windows autorizzato. Puo essere <code>DOMINIO\utente</code> oppure solo <code>utente</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>Livello</code></td>
+                        <td>Livello applicativo usato per distinguere i tipi di utilizzatore.</td>
+                    </tr>
+                    <tr>
+                        <td><code>Attivo</code></td>
+                        <td>Abilita o disabilita l'accesso senza cancellare la riga.</td>
+                    </tr>
+                    <tr>
+                        <td><code>Note</code></td>
+                        <td>Annotazioni amministrative facoltative.</td>
+                    </tr>
+                    <tr>
+                        <td><code>CreatedAt</code> / <code>UpdatedAt</code></td>
+                        <td>Date tecniche di creazione e aggiornamento.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Tipi di utilizzatore</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Livello</th>
+                        <th>Tipo</th>
+                        <th>Uso previsto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>100</code></td>
+                        <td>Visualizzatore</td>
+                        <td>Consultazione dati materiali, assegnazioni, storico e report. Non puo usare CRUD o pagine operative di modifica.</td>
+                    </tr>
+                    <tr>
+                        <td><code>150</code></td>
+                        <td>Operatore</td>
+                        <td>Gestione operativa dei beni: assegnazione, rientro, cambio stato, ubicazione, import rete e dati tecnici.</td>
+                    </tr>
+                    <tr>
+                        <td><code>200</code></td>
+                        <td>Amministratore</td>
+                        <td>Controllo completo, inclusa manutenzione amministrativa e gestione delle configurazioni.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="note">
+                I livelli sono definiti in <code>Auth/LivelliUtente.cs</code>. Le pagine possono applicare controlli
+                puntuali usando <code>SecurityHelper.CheckLevel</code> o <code>SecurityHelper.CheckMinLevel</code>.
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Area</th>
+                        <th>Livelli ammessi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Dashboard, prodotti, dettaglio prodotto, storico, prodotti assegnati, computer e dettaglio ordinativo</td>
+                        <td><code>100</code>, <code>150</code>, <code>200</code></td>
+                    </tr>
+                    <tr>
+                        <td>Assegnazione, rientro/riassegnazione, cambio stato, cambio ubicazione, configurazione computer, import rete, nuovo bene e dismissione</td>
+                        <td><code>150</code>, <code>200</code></td>
+                    </tr>
+                    <tr>
+                        <td>CRUD amministrativo e domini/configurazioni</td>
+                        <td><code>200</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Aggiungere un utente</h3>
+            <ol>
+                <li>Verificare il nome Windows effettivo dell'utente. Dopo il primo accesso autorizzato viene riportato nei log come <code>WindowsUser</code>.</li>
+                <li>Inserire una riga in <code>dbo.AutorizzazioniMateriali</code> scegliendo il livello corretto.</li>
+                <li>Se l'utente deve essere sospeso, impostare <code>Attivo = 0</code> invece di cancellare la riga.</li>
+                <li>Far chiudere e riaprire il browser o terminare la sessione applicativa se l'utente era gia connesso.</li>
+            </ol>
+            <pre><code>INSERT INTO dbo.AutorizzazioniMateriali (Username, Livello, Note)
+VALUES (N'Administrator', 200, N'Amministratore');
+
+INSERT INTO dbo.AutorizzazioniMateriali (Username, Livello, Note)
+VALUES (N'DOMINIO\m.rossi', 150, N'Operatore materiali');</code></pre>
+
+            <h3>Disabilitare o cambiare livello</h3>
+            <pre><code>UPDATE dbo.AutorizzazioniMateriali
+SET Attivo = 0,
+    UpdatedAt = SYSUTCDATETIME()
+WHERE Username = N'DOMINIO\m.rossi';
+
+UPDATE dbo.AutorizzazioniMateriali
+SET Livello = 200,
+    UpdatedAt = SYSUTCDATETIME()
+WHERE Username = N'DOMINIO\m.rossi';</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>14. Logging e note di deploy</h2>
+            <p>
+                Il logging applicativo scrive nella cartella configurata dalla chiave <code>AppLogDirectory</code>
+                in <code>Web.config</code>. Se la chiave e assente, il fallback e <code>App_Data\Logs</code>.
             </p>
             <h3>Logging operativo</h3>
             <p>
                 Le operazioni di inserimento, modifica e cancellazione sono tracciate nel repository tramite <code>AppLogger</code>.
-                I log sono testuali e mantengono un formato uniforme.
+                I log sono testuali, mantengono un formato uniforme e riportano automaticamente l'utente corrente.
             </p>
-            <pre><code>OPERAZIONE=INSERT|UPDATE|DELETE; ENTITA=...; ID=...; ESITO=OK|KO; DETTAGLIO=...</code></pre>
+            <pre><code>2026-06-11 10:15:12.123 [INFO] [user=Administrator (NOMEPC\Administrator)] Sorgente - Messaggio
+
+OPERAZIONE=INSERT|UPDATE|DELETE; ENTITA=...; ID=...; ESITO=OK|KO; DETTAGLIO=...</code></pre>
             <ul>
                 <li>Gli helper comuni coprono CRUD amministrativi, domini e operazioni standard su prodotti.</li>
                 <li>I metodi transazionali manuali loggano l'esito positivo dopo <code>Commit</code> e l'esito negativo nei <code>catch</code>.</li>
-                <li>Il log non sostituisce una autenticazione applicativa: attualmente non esiste una identita utente applicativa da registrare.</li>
+                <li>Ogni riga include l'utente Windows o l'utente autorizzato salvato in sessione.</li>
+                <li>La classe <code>BaseAuthenticatedPage</code> logga anche accessi autorizzati, utenti Windows non presenti in tabella e accessi negati per livello.</li>
             </ul>
             <h3>Deploy</h3>
             <ul>
                 <li>Verificare i permessi di scrittura dell'identity dell'Application Pool.</li>
+                <li>Abilitare Windows Authentication e disabilitare Anonymous Authentication su IIS o IIS Express.</li>
+                <li>Eseguire lo script <code>SqlScripts/create_autorizzazioni_materiali.sql</code> sul database <code>Materiale</code>.</li>
+                <li>Inserire almeno un utente amministratore in <code>dbo.AutorizzazioniMateriali</code> prima del primo accesso operativo.</li>
                 <li>Controllare che in deploy sia presente un solo assembly applicativo nel <code>bin</code>.</li>
                 <li>Il database corretto del sito e <code>Materiale</code>, non <code>Materiali</code>.</li>
                 <li>Verificare che siano pubblicati i template HTML configurati: <code>AssignmentSheetTemplate.html</code> e <code>StoricoAssegnazioniTemplate.html</code>.</li>
@@ -669,7 +850,8 @@
 
         <p class="footer">
             Guida rigenerata per allineamento agli sviluppi piu recenti del repository
-            <code>MaterialiDB/MaterialiWeb</code>: schede assegnatario, logging operativo e import MAC con append note.
+            <code>MaterialiDB/MaterialiWeb</code>: autenticazione Windows, autorizzazioni applicative,
+            schede assegnatario, logging operativo con utente e import MAC con append note.
         </p>
     </div>
 </body>

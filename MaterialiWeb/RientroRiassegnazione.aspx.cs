@@ -9,10 +9,15 @@ using MaterialiGestioneWeb.Services;
 
 namespace MaterialiGestioneWeb
 {
-    public partial class RientroRiassegnazionePage : System.Web.UI.Page
+    public partial class RientroRiassegnazionePage : Auth.BaseAuthenticatedPage
     {
         private readonly InventarioRepository _repository = new InventarioRepository();
         private readonly PersonaleRepository _personaleRepository = new PersonaleRepository();
+
+        protected override int[] LivelliConsentiti
+        {
+            get { return new[] { (int)Auth.LivelliUtente.Operatore, (int)Auth.LivelliUtente.Amministratore }; }
+        }
 
         protected void Page_Init(object sender, EventArgs e)
         {

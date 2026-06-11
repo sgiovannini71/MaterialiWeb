@@ -13,7 +13,7 @@ using MaterialiGestioneWeb.Services;
 
 namespace MaterialiGestioneWeb
 {
-    public partial class StoricoAssegnazioniPage : System.Web.UI.Page
+    public partial class StoricoAssegnazioniPage : Auth.BaseAuthenticatedPage
     {
         private readonly InventarioRepository _repository = new InventarioRepository();
         private readonly PersonaleRepository _personaleRepository = new PersonaleRepository();

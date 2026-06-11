@@ -14,7 +14,7 @@ using MaterialiGestioneWeb.Services;
 
 namespace MaterialiGestioneWeb
 {
-    public partial class ProdottiAssegnatiPage : System.Web.UI.Page
+    public partial class ProdottiAssegnatiPage : Auth.BaseAuthenticatedPage
     {
         private const string SelectedPersonaleIdSessionKey = "ProdottiAssegnati.SelectedPersonaleId";
         private const string SelectedPersonaleIsEsternoSessionKey = "ProdottiAssegnati.SelectedPersonaleIsEsterno";

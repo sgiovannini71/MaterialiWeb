@@ -13,8 +13,8 @@
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
     <IISExpressSSLPort />
-    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
-    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
+    <IISExpressAnonymousAuthentication>disabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>enabled</IISExpressWindowsAuthentication>
     <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v16.0</VSToolsPath>
   </PropertyGroup>
@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AccessDenied.aspx" />
     <Content Include="AssegnaBene.aspx" />
     <Content Include="CambiaStato.aspx" />
     <Content Include="CambiaUbicazione.aspx" />
@@ -70,6 +71,7 @@
     <Content Include="RientroRiassegnazione.aspx" />
     <Content Include="Scripts\site.js" />
     <Content Include="Site.Master" />
+    <Content Include="SqlScripts\create_autorizzazioni_materiali.sql" />
     <Content Include="StoricoAssegnazioni.aspx" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -81,6 +83,10 @@
     <Content Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Auth\BaseAuthenticatedPage.cs" />
+    <Compile Include="Auth\LivelliUtente.cs" />
+    <Compile Include="Auth\SecurityHelper.cs" />
+    <Compile Include="Auth\UtenteAutorizzato.cs" />
     <Compile Include="AssegnaBene.aspx.cs">
       <DependentUpon>AssegnaBene.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

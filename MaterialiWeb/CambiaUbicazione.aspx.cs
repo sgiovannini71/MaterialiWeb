@@ -7,9 +7,14 @@ using MaterialiGestioneWeb.Services;
 
 namespace MaterialiGestioneWeb
 {
-    public partial class CambiaUbicazionePage : System.Web.UI.Page
+    public partial class CambiaUbicazionePage : Auth.BaseAuthenticatedPage
     {
         private readonly InventarioRepository _repository = new InventarioRepository();
+
+        protected override int[] LivelliConsentiti
+        {
+            get { return new[] { (int)Auth.LivelliUtente.Operatore, (int)Auth.LivelliUtente.Amministratore }; }
+        }
 
         protected void Page_Load(object sender, EventArgs e)
         {

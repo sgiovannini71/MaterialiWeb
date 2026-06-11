@@ -6,10 +6,15 @@ using MaterialiGestioneWeb.Services;
 
 namespace MaterialiGestioneWeb
 {
-    public partial class NuovoBenePage : System.Web.UI.Page
+    public partial class NuovoBenePage : Auth.BaseAuthenticatedPage
     {
         private const int DefaultFiltroEfficienza = 1;
         private readonly InventarioRepository _repository = new InventarioRepository();
+
+        protected override int[] LivelliConsentiti
+        {
+            get { return new[] { (int)Auth.LivelliUtente.Operatore, (int)Auth.LivelliUtente.Amministratore }; }
+        }
 
         protected void Page_Load(object sender, EventArgs e)
         {

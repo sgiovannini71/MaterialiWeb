@@ -11,7 +11,7 @@ namespace MaterialiGestioneWeb.Data
             var connectionString = ConfigurationManager.ConnectionStrings["MaterialiDb"].ConnectionString;
             var connection = new SqlConnection(connectionString);
             connection.Open();
-            AppLogger.Info("Db.OpenConnection", "Connessione SQL aperta verso MaterialiDb.");
+            //AppLogger.Info("Db.OpenConnection", "Connessione SQL aperta verso MaterialiDb.");
             return connection;
         }
     }

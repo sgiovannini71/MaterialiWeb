@@ -985,26 +985,30 @@ WHERE IdProdotto = @Id;", command =>
             {
                 try
                 {
+                    var pendingLogs = new List<OperationLogEntry>();
                     using (var cmd = new SqlCommand("DELETE FROM dbo.ProdPersStorico WHERE idProdotto = @IdProdotto;", connection, transaction))
                     {
                         cmd.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = id;
-                        cmd.ExecuteNonQuery();
+                        var rows = cmd.ExecuteNonQuery();
+                        AddPendingLog(pendingLogs, "InventarioRepository.DeleteProdottoAdmin", "DELETE", "ProdPersStorico", id, "Eliminati record storico collegati al prodotto. Righe=" + rows.ToString(CultureInfo.InvariantCulture) + ".");
                     }
 
                     using (var cmd = new SqlCommand("DELETE FROM dbo.NetworkData WHERE idProdotto = @IdProdotto;", connection, transaction))
                     {
                         cmd.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = id;
-                        cmd.ExecuteNonQuery();
+                        var rows = cmd.ExecuteNonQuery();
+                        AddPendingLog(pendingLogs, "InventarioRepository.DeleteProdottoAdmin", "DELETE", "NetworkData", id, "Eliminati record rete collegati al prodotto. Righe=" + rows.ToString(CultureInfo.InvariantCulture) + ".");
                     }
 
                     using (var cmd = new SqlCommand("DELETE FROM dbo.Prodotti WHERE IdProdotto = @IdProdotto;", connection, transaction))
                     {
                         cmd.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = id;
                         cmd.ExecuteNonQuery();
+                        AddPendingLog(pendingLogs, "InventarioRepository.DeleteProdottoAdmin", "DELETE", "ProdottoAdmin", id, "Eliminazione amministrativa prodotto completata.");
                     }
 
                     transaction.Commit();
-                    LogOperationOk("InventarioRepository.DeleteProdottoAdmin", "DELETE", "ProdottoAdmin", id, "Eliminazione amministrativa prodotto completata.");
+                    FlushOperationLogs(pendingLogs);
                 }
                 catch (Exception ex)
                 {
@@ -1072,10 +1076,12 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                     command.Parameters.Add("@PrezzoUnitario", SqlDbType.Money).Value = 0m;
                     command.Parameters.Add("@PrezzoInventario", SqlDbType.Money).Value = 0m;
                     command.Parameters.Add("@IdCategoria", SqlDbType.Int).Value = NullableDb(item.IdCategProdotti);
+                    var pendingLogs = new List<OperationLogEntry>();
                     var idOggetto = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
-                    CreateProdottiForOggettoOrdinativo(connection, transaction, idOggetto, item.Quantita);
+                    AddPendingLog(pendingLogs, "InventarioRepository.CreateOggettoOrdinativoAdmin", "INSERT", "OggettoOrdinativoAdmin", idOggetto, "Inserimento oggetto ordinativo completato.");
+                    CreateProdottiForOggettoOrdinativo(connection, transaction, idOggetto, item.Quantita, pendingLogs);
                     transaction.Commit();
-                    LogOperationOk("InventarioRepository.CreateOggettoOrdinativoAdmin", "INSERT", "OggettoOrdinativoAdmin", idOggetto, "Inserimento oggetto ordinativo e prodotti generati completato.");
+                    FlushOperationLogs(pendingLogs);
                     return idOggetto;
                 }
                 catch (Exception ex)
@@ -1148,14 +1154,16 @@ WHERE idOggOrdinativo = @Id;", command =>
             {
                 try
                 {
-                    var idNomeMacchina = EnsureNomeMacchina(connection, transaction, item.NomeMacchina, item.IdNomeMacchina);
+                    var pendingLogs = new List<OperationLogEntry>();
+                    var idNomeMacchina = EnsureNomeMacchina(connection, transaction, item.NomeMacchina, item.IdNomeMacchina, pendingLogs);
                     using (var command = new SqlCommand("INSERT INTO dbo.Postazione (idNomeMacchina, idProdotto) VALUES (@IdNomeMacchina, @IdProdotto); SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                     {
                         command.Parameters.Add("@IdNomeMacchina", SqlDbType.Int).Value = NullableDb(idNomeMacchina);
                         command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = item.IdProdotto;
                         var id = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
+                        AddPendingLog(pendingLogs, "InventarioRepository.CreatePostazioneAdmin", "INSERT", "PostazioneAdmin", id, "Inserimento postazione completato. IdProdotto=" + item.IdProdotto.ToString(CultureInfo.InvariantCulture) + ".");
                         transaction.Commit();
-                        LogOperationOk("InventarioRepository.CreatePostazioneAdmin", "INSERT", "PostazioneAdmin", id, "Inserimento postazione completato.");
+                        FlushOperationLogs(pendingLogs);
                         return id;
                     }
                 }
@@ -1176,7 +1184,8 @@ WHERE idOggOrdinativo = @Id;", command =>
             {
                 try
                 {
-                    var idNomeMacchina = EnsureNomeMacchina(connection, transaction, item.NomeMacchina, item.IdNomeMacchina);
+                    var pendingLogs = new List<OperationLogEntry>();
+                    var idNomeMacchina = EnsureNomeMacchina(connection, transaction, item.NomeMacchina, item.IdNomeMacchina, pendingLogs);
                     int? oldIdNomeMacchina = null;
                     using (var select = new SqlCommand("SELECT idNomeMacchina FROM dbo.Postazione WHERE idPostazione = @Id;", connection, transaction))
                     {
@@ -1194,11 +1203,12 @@ WHERE idOggOrdinativo = @Id;", command =>
                         command.Parameters.Add("@IdNomeMacchina", SqlDbType.Int).Value = NullableDb(idNomeMacchina);
                         command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = item.IdProdotto;
                         command.ExecuteNonQuery();
+                        AddPendingLog(pendingLogs, "InventarioRepository.UpdatePostazioneAdmin", "UPDATE", "PostazioneAdmin", item.IdPostazione, "Aggiornamento postazione completato. IdProdotto=" + item.IdProdotto.ToString(CultureInfo.InvariantCulture) + ".");
                     }
 
-                    DeleteNomeMacchinaIfOrphan(connection, transaction, oldIdNomeMacchina);
+                    DeleteNomeMacchinaIfOrphan(connection, transaction, oldIdNomeMacchina, pendingLogs);
                     transaction.Commit();
-                    LogOperationOk("InventarioRepository.UpdatePostazioneAdmin", "UPDATE", "PostazioneAdmin", item.IdPostazione, "Aggiornamento postazione completato.");
+                    FlushOperationLogs(pendingLogs);
                 }
                 catch (Exception ex)
                 {
@@ -1217,6 +1227,7 @@ WHERE idOggOrdinativo = @Id;", command =>
             {
                 try
                 {
+                    var pendingLogs = new List<OperationLogEntry>();
                     int? idNomeMacchina = null;
                     using (var select = new SqlCommand("SELECT idNomeMacchina FROM dbo.Postazione WHERE idPostazione = @Id;", connection, transaction))
                     {
@@ -1232,11 +1243,12 @@ WHERE idOggOrdinativo = @Id;", command =>
                     {
                         command.Parameters.Add("@Id", SqlDbType.Int).Value = id;
                         command.ExecuteNonQuery();
+                        AddPendingLog(pendingLogs, "InventarioRepository.DeletePostazioneAdmin", "DELETE", "PostazioneAdmin", id, "Eliminazione postazione completata.");
                     }
 
-                    DeleteNomeMacchinaIfOrphan(connection, transaction, idNomeMacchina);
+                    DeleteNomeMacchinaIfOrphan(connection, transaction, idNomeMacchina, pendingLogs);
                     transaction.Commit();
-                    LogOperationOk("InventarioRepository.DeletePostazioneAdmin", "DELETE", "PostazioneAdmin", id, "Eliminazione postazione completata.");
+                    FlushOperationLogs(pendingLogs);
                 }
                 catch (Exception ex)
                 {
@@ -1484,8 +1496,9 @@ WHERE id = @Id;", command =>
             {
                 try
                 {
+                    var pendingLogs = new List<OperationLogEntry>();
                     var categorico = input.Categorico ?? GetNextCategorico(connection, transaction);
-                    var idOggetto = EnsureOggettoOrdinativo(connection, transaction, input);
+                    var idOggetto = EnsureOggettoOrdinativo(connection, transaction, input, pendingLogs);
                     using (var command = new SqlCommand(@"
 INSERT INTO dbo.Prodotti (idStanza, idOggOrdinativo, Categorico, Matricola, IdEfficienza, DataUltimaMov, Note, Versamento)
 VALUES (@IdStanza, @IdOggOrdinativo, @Categorico, @Matricola, @IdEfficienza, GETDATE(), @Note, @Versamento);
@@ -1499,8 +1512,9 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                         command.Parameters.Add("@Note", SqlDbType.NVarChar, -1).Value = NullableDb(input.Note);
                         command.Parameters.Add("@Versamento", SqlDbType.NVarChar, 256).Value = NullableDb(input.Versamento);
                         var idProdotto = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
+                        AddPendingLog(pendingLogs, "InventarioRepository.CreateProdotto", "INSERT", "Prodotto", idProdotto, "Creazione nuovo materiale completata.");
                         transaction.Commit();
-                        LogOperationOk("InventarioRepository.CreateProdotto", "INSERT", "Prodotto", idProdotto, "Creazione nuovo materiale completata.");
+                        FlushOperationLogs(pendingLogs);
                         return idProdotto;
                     }
                 }
@@ -1521,8 +1535,9 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
             {
                 try
                 {
-                    CloseCurrentAssignment(connection, transaction, input.IdProdotto, input.DataAssegnazione);
-                    UpdateDataUltimaMov(connection, transaction, input.IdProdotto, input.Note, IdEfficienzaEfficienteInUso);
+                    var pendingLogs = new List<OperationLogEntry>();
+                    CloseCurrentAssignment(connection, transaction, input.IdProdotto, input.DataAssegnazione, pendingLogs);
+                    UpdateDataUltimaMov(connection, transaction, input.IdProdotto, input.Note, IdEfficienzaEfficienteInUso, pendingLogs);
 
                     int idProdPers;
                     using (var command = new SqlCommand(@"
@@ -1534,11 +1549,12 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                         command.Parameters.Add("@IdPersonale", SqlDbType.Int).Value = input.IdPersonale;
                         command.Parameters.Add("@DataAssegnazione", SqlDbType.Date).Value = input.DataAssegnazione.Date;
                         idProdPers = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
+                        AddPendingLog(pendingLogs, "InventarioRepository.AssegnaProdotto", "INSERT", "ProdPers", idProdPers, "Assegnazione materiale completata. IdProdotto=" + input.IdProdotto.ToString(CultureInfo.InvariantCulture) + "; IdPersonale=" + input.IdPersonale.ToString(CultureInfo.InvariantCulture) + ".");
                     }
 
-                    InsertStoricoSnapshot(connection, transaction, idProdPers, input.IdProdotto, input.IdPersonale, input.DataAssegnazione.Date, null, input.Note);
+                    InsertStoricoSnapshot(connection, transaction, idProdPers, input.IdProdotto, input.IdPersonale, input.DataAssegnazione.Date, null, input.Note, pendingLogs);
                     transaction.Commit();
-                    LogOperationOk("InventarioRepository.AssegnaProdotto", "INSERT", "ProdPers", idProdPers, "Assegnazione materiale completata. IdProdotto=" + input.IdProdotto.ToString(CultureInfo.InvariantCulture) + "; IdPersonale=" + input.IdPersonale.ToString(CultureInfo.InvariantCulture) + ".");
+                    FlushOperationLogs(pendingLogs);
                 }
                 catch (Exception ex)
                 {
@@ -1557,13 +1573,15 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
             {
                 try
                 {
-                    CloseCurrentAssignment(connection, transaction, input.IdProdotto, input.DataOperazione);
+                    var pendingLogs = new List<OperationLogEntry>();
+                    CloseCurrentAssignment(connection, transaction, input.IdProdotto, input.DataOperazione, pendingLogs);
                     UpdateDataUltimaMov(
                         connection,
                         transaction,
                         input.IdProdotto,
                         input.Note,
-                        input.CreaNuovaAssegnazione ? IdEfficienzaEfficienteInUso : IdEfficienzaEfficienteAttesaDistribuzione);
+                        input.CreaNuovaAssegnazione ? IdEfficienzaEfficienteInUso : IdEfficienzaEfficienteAttesaDistribuzione,
+                        pendingLogs);
 
                     if (input.CreaNuovaAssegnazione && input.NuovoIdPersonale.HasValue)
                     {
@@ -1577,13 +1595,15 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                             insert.Parameters.Add("@IdPersonale", SqlDbType.Int).Value = input.NuovoIdPersonale.Value;
                             insert.Parameters.Add("@DataAssegnazione", SqlDbType.Date).Value = input.DataOperazione.Date;
                             idProdPers = Convert.ToInt32(insert.ExecuteScalar(), CultureInfo.InvariantCulture);
+                            AddPendingLog(pendingLogs, "InventarioRepository.RegistraRientroORiassegnazione", "INSERT", "ProdPers", idProdPers, "Nuova assegnazione da rientro/riassegnazione. IdProdotto=" + input.IdProdotto.ToString(CultureInfo.InvariantCulture) + "; IdPersonale=" + input.NuovoIdPersonale.Value.ToString(CultureInfo.InvariantCulture) + ".");
                         }
 
-                        InsertStoricoSnapshot(connection, transaction, idProdPers, input.IdProdotto, input.NuovoIdPersonale.Value, input.DataOperazione.Date, null, input.Note);
+                        InsertStoricoSnapshot(connection, transaction, idProdPers, input.IdProdotto, input.NuovoIdPersonale.Value, input.DataOperazione.Date, null, input.Note, pendingLogs);
                     }
 
+                    AddPendingLog(pendingLogs, "InventarioRepository.RegistraRientroORiassegnazione", input.CreaNuovaAssegnazione ? "INSERT" : "UPDATE", "ProdPers", input.IdProdotto, input.CreaNuovaAssegnazione ? "Riassegnazione materiale completata." : "Rientro materiale completato.");
                     transaction.Commit();
-                    LogOperationOk("InventarioRepository.RegistraRientroORiassegnazione", input.CreaNuovaAssegnazione ? "INSERT" : "UPDATE", "ProdPers", input.IdProdotto, input.CreaNuovaAssegnazione ? "Riassegnazione materiale completata." : "Rientro materiale completato.");
+                    FlushOperationLogs(pendingLogs);
                 }
                 catch (Exception ex)
                 {
@@ -1630,14 +1650,16 @@ WHERE IdProdotto = @IdProdotto;", input.IdProdotto, (connection, transaction, co
             {
                 try
                 {
+                    var pendingLogs = new List<OperationLogEntry>();
                     var normalizedMac = NormalizeMacAddress(input.MacAddress);
                     var normalizedNumeroSerie = NormalizeNumeroSerie(input.NumeroSerie);
-                    UpsertNetworkData(connection, transaction, input.IdProdotto, normalizedMac, input.NoteRete);
-                    UpsertPostazione(connection, transaction, input.IdProdotto, input.NomeMacchina);
-                    UpdateNumeroSerie(connection, transaction, input.IdProdotto, normalizedNumeroSerie);
-                    UpdateDataUltimaMov(connection, transaction, input.IdProdotto, input.NoteRete);
+                    UpsertNetworkData(connection, transaction, input.IdProdotto, normalizedMac, input.NoteRete, pendingLogs);
+                    UpsertPostazione(connection, transaction, input.IdProdotto, input.NomeMacchina, pendingLogs);
+                    UpdateNumeroSerie(connection, transaction, input.IdProdotto, normalizedNumeroSerie, pendingLogs);
+                    UpdateDataUltimaMov(connection, transaction, input.IdProdotto, input.NoteRete, pendingLogs);
+                    AddPendingLog(pendingLogs, "InventarioRepository.AggiornaComputer", "UPDATE", "Computer", input.IdProdotto, "Aggiornamento rete/postazione completato.");
                     transaction.Commit();
-                    LogOperationOk("InventarioRepository.AggiornaComputer", "UPDATE", "Computer", input.IdProdotto, "Aggiornamento rete/postazione completato.");
+                    FlushOperationLogs(pendingLogs);
                 }
                 catch (Exception ex)
                 {
@@ -1656,6 +1678,7 @@ WHERE IdProdotto = @IdProdotto;", input.IdProdotto, (connection, transaction, co
             {
                 try
                 {
+                    var pendingLogs = new List<OperationLogEntry>();
                     foreach (var item in items)
                     {
                         var result = new ImportReteResultItem
@@ -1691,8 +1714,8 @@ WHERE IdProdotto = @IdProdotto;", input.IdProdotto, (connection, transaction, co
                             continue;
                         }
 
-                        UpsertNetworkData(connection, transaction, idProdotto.Value, normalizedMac, "Import TXT");
-                        AppendDataUltimaMovNote(connection, transaction, idProdotto.Value, "Aggiornamento MAC da import TXT");
+                        UpsertNetworkData(connection, transaction, idProdotto.Value, normalizedMac, "Import TXT", pendingLogs);
+                        AppendDataUltimaMovNote(connection, transaction, idProdotto.Value, "Aggiornamento MAC da import TXT", pendingLogs);
                         result.IdProdotto = idProdotto;
                         result.MacAddress = normalizedMac;
                         result.Esito = "Aggiornata";
@@ -1700,8 +1723,9 @@ WHERE IdProdotto = @IdProdotto;", input.IdProdotto, (connection, transaction, co
                         results.Add(result);
                     }
 
+                    AddPendingLog(pendingLogs, "InventarioRepository.ImportaReteDaNomiMacchina", "UPDATE", "NetworkData", null, "Import rete completato. Aggiornati=" + results.Count(item => string.Equals(item.Esito, "Aggiornata", StringComparison.OrdinalIgnoreCase)).ToString(CultureInfo.InvariantCulture) + "; Totale=" + results.Count.ToString(CultureInfo.InvariantCulture) + ".");
                     transaction.Commit();
-                    LogOperationOk("InventarioRepository.ImportaReteDaNomiMacchina", "UPDATE", "NetworkData", null, "Import rete completato. Aggiornati=" + results.Count(item => string.Equals(item.Esito, "Aggiornata", StringComparison.OrdinalIgnoreCase)).ToString(CultureInfo.InvariantCulture) + "; Totale=" + results.Count.ToString(CultureInfo.InvariantCulture) + ".");
+                    FlushOperationLogs(pendingLogs);
                     return results;
                 }
                 catch (Exception ex)
@@ -1721,9 +1745,10 @@ WHERE IdProdotto = @IdProdotto;", input.IdProdotto, (connection, transaction, co
             {
                 try
                 {
+                    var pendingLogs = new List<OperationLogEntry>();
                     if (input.ChiudiAssegnazioneAttiva)
                     {
-                        CloseCurrentAssignment(connection, transaction, input.IdProdotto, DateTime.Today);
+                        CloseCurrentAssignment(connection, transaction, input.IdProdotto, DateTime.Today, pendingLogs);
                     }
 
                     using (var command = new SqlCommand(@"
@@ -1739,10 +1764,11 @@ WHERE IdProdotto = @IdProdotto;", connection, transaction))
                         command.Parameters.Add("@Versamento", SqlDbType.NVarChar, 256).Value = NullableDb(input.Versamento);
                         command.Parameters.Add("@Note", SqlDbType.NVarChar, -1).Value = NullableDb(input.Note);
                         command.ExecuteNonQuery();
+                        AddPendingLog(pendingLogs, "InventarioRepository.DismettiProdotto", "UPDATE", "Prodotto", input.IdProdotto, "Dismissione o versamento materiale completato.");
                     }
 
                     transaction.Commit();
-                    LogOperationOk("InventarioRepository.DismettiProdotto", "UPDATE", "Prodotto", input.IdProdotto, "Dismissione o versamento materiale completato.");
+                    FlushOperationLogs(pendingLogs);
                 }
                 catch (Exception ex)
                 {
@@ -1956,18 +1982,21 @@ WHERE IdProdotto = @IdProdotto;", idProdotto, (connection, transaction, command)
             }, "InventarioRepository.CompletaProdottoGenerato");
         }
 
-        private static void CreateProdottiForOggettoOrdinativo(SqlConnection connection, SqlTransaction transaction, int idOggettoOrdinativo, int quantita)
+        private static void CreateProdottiForOggettoOrdinativo(SqlConnection connection, SqlTransaction transaction, int idOggettoOrdinativo, int quantita, IList<OperationLogEntry> pendingLogs)
         {
             var nextCategorico = GetNextCategorico(connection, transaction);
             for (var index = 0; index < quantita; index++)
             {
                 using (var command = new SqlCommand(@"
 INSERT INTO dbo.Prodotti (idStanza, idOggOrdinativo, Categorico, Matricola, IdEfficienza, DataUltimaMov, Note, Versamento)
-VALUES (NULL, @IdOggOrdinativo, @Categorico, NULL, NULL, GETDATE(), NULL, NULL);", connection, transaction))
+VALUES (NULL, @IdOggOrdinativo, @Categorico, NULL, NULL, GETDATE(), NULL, NULL);
+SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                 {
+                    var categorico = nextCategorico + index;
                     command.Parameters.Add("@IdOggOrdinativo", SqlDbType.Int).Value = idOggettoOrdinativo;
-                    command.Parameters.Add("@Categorico", SqlDbType.Int).Value = nextCategorico + index;
-                    command.ExecuteNonQuery();
+                    command.Parameters.Add("@Categorico", SqlDbType.Int).Value = categorico;
+                    var idProdotto = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
+                    AddPendingLog(pendingLogs, "InventarioRepository.CreateOggettoOrdinativoAdmin", "INSERT", "Prodotto", idProdotto, "Prodotto generato da oggetto ordinativo. IdOggettoOrdinativo=" + idOggettoOrdinativo.ToString(CultureInfo.InvariantCulture) + "; Categorico=" + categorico.ToString(CultureInfo.InvariantCulture) + ".");
                 }
             }
         }
@@ -2125,7 +2154,7 @@ ORDER BY p.idOggOrdinativo, p.Categorico, p.IdProdotto;", connection))
             return string.Join(", ", categorici.Take(6)) + " ...";
         }
 
-        private int? EnsureOggettoOrdinativo(SqlConnection connection, SqlTransaction transaction, NuovoProdottoInput input)
+        private int? EnsureOggettoOrdinativo(SqlConnection connection, SqlTransaction transaction, NuovoProdottoInput input, IList<OperationLogEntry> pendingLogs)
         {
             if (input.IdOggettoOrdinativo.HasValue)
             {
@@ -2164,11 +2193,13 @@ SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
                 command.Parameters.Add("@PrezzoUnitarioNetto", SqlDbType.Money).Value = input.PrezzoUnitarioNetto ?? 0m;
                 command.Parameters.Add("@PrezzoInventario", SqlDbType.Money).Value = input.PrezzoInventario ?? 0m;
                 command.Parameters.Add("@IdCategoria", SqlDbType.Int).Value = NullableDb(input.IdCategoria);
-                return Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
+                var idOggetto = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
+                AddPendingLog(pendingLogs, "InventarioRepository.EnsureOggettoOrdinativo", "INSERT", "OggettoOrdinativo", idOggetto, "Oggetto ordinativo creato durante inserimento prodotto.");
+                return idOggetto;
             }
         }
 
-        private void CloseCurrentAssignment(SqlConnection connection, SqlTransaction transaction, int idProdotto, DateTime dataRestituzione)
+        private void CloseCurrentAssignment(SqlConnection connection, SqlTransaction transaction, int idProdotto, DateTime dataRestituzione, IList<OperationLogEntry> pendingLogs)
         {
             int? idProdPers = null;
             int? idPersonale = null;
@@ -2205,6 +2236,10 @@ WHERE idProdPers = @IdProdPers AND dataRestituzione IS NULL;", connection, trans
                 command.Parameters.Add("@DataRestituzione", SqlDbType.Date).Value = dataRestituzione.Date;
                 command.Parameters.Add("@IdProdPers", SqlDbType.Int).Value = idProdPers.Value;
                 storicoAggiornato = command.ExecuteNonQuery();
+                if (storicoAggiornato > 0)
+                {
+                    AddPendingLog(pendingLogs, "InventarioRepository.CloseCurrentAssignment", "UPDATE", "ProdPersStorico", idProdPers.Value, "Chiusura storico assegnazione corrente. IdProdotto=" + idProdotto.ToString(CultureInfo.InvariantCulture) + ".");
+                }
             }
 
             if (storicoAggiornato == 0 && idPersonale.HasValue)
@@ -2227,6 +2262,10 @@ WHERE id = (
                     command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
                     command.Parameters.Add("@IdPersonale", SqlDbType.Int).Value = idPersonale.Value;
                     storicoAggiornato = command.ExecuteNonQuery();
+                    if (storicoAggiornato > 0)
+                    {
+                        AddPendingLog(pendingLogs, "InventarioRepository.CloseCurrentAssignment", "UPDATE", "ProdPersStorico", idProdPers.Value, "Chiusura storico assegnazione per prodotto/personale. IdProdotto=" + idProdotto.ToString(CultureInfo.InvariantCulture) + "; IdPersonale=" + idPersonale.Value.ToString(CultureInfo.InvariantCulture) + ".");
+                    }
                 }
             }
 
@@ -2240,17 +2279,19 @@ WHERE id = (
                     idPersonale.Value,
                     dataAssegnazione.HasValue ? dataAssegnazione.Value : dataRestituzione.Date,
                     dataRestituzione.Date,
-                    null);
+                    null,
+                    pendingLogs);
             }
 
             using (var command = new SqlCommand("DELETE FROM dbo.ProdPers WHERE IdProdPers = @IdProdPers;", connection, transaction))
             {
                 command.Parameters.Add("@IdProdPers", SqlDbType.Int).Value = idProdPers.Value;
                 command.ExecuteNonQuery();
+                AddPendingLog(pendingLogs, "InventarioRepository.CloseCurrentAssignment", "DELETE", "ProdPers", idProdPers.Value, "Rimossa assegnazione corrente. IdProdotto=" + idProdotto.ToString(CultureInfo.InvariantCulture) + ".");
             }
         }
 
-        private void InsertStoricoSnapshot(SqlConnection connection, SqlTransaction transaction, int idProdPers, int idProdotto, int idPersonale, DateTime dataAssegnazione, DateTime? dataRestituzione, string noteOperazione)
+        private void InsertStoricoSnapshot(SqlConnection connection, SqlTransaction transaction, int idProdPers, int idProdotto, int idPersonale, DateTime dataAssegnazione, DateTime? dataRestituzione, string noteOperazione, IList<OperationLogEntry> pendingLogs)
         {
             var snapshot = ReadSnapshot(connection, transaction, idProdotto);
             using (var command = new SqlCommand(@"
@@ -2279,7 +2320,8 @@ VALUES
     @NoteProdotto,
     @NomeMacchina,
     @SerialNumber
-);", connection, transaction))
+);
+SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
             {
                 command.Parameters.Add("@IdProdPers", SqlDbType.Int).Value = idProdPers;
                 command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
@@ -2291,7 +2333,8 @@ VALUES
                 command.Parameters.Add("@NoteProdotto", SqlDbType.NVarChar, 500).Value = NullableDb(ComposeStoricoNote(snapshot.NoteProdotto, noteOperazione));
                 command.Parameters.Add("@NomeMacchina", SqlDbType.NVarChar, 50).Value = NullableDb(snapshot.NomeMacchina);
                 command.Parameters.Add("@SerialNumber", SqlDbType.NVarChar, 50).Value = NullableDb(snapshot.SerialNumber);
-                command.ExecuteNonQuery();
+                var idStorico = Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
+                AddPendingLog(pendingLogs, "InventarioRepository.InsertStoricoSnapshot", "INSERT", "ProdPersStorico", idStorico, "Snapshot storico assegnazione. IdProdPers=" + idProdPers.ToString(CultureInfo.InvariantCulture) + "; IdProdotto=" + idProdotto.ToString(CultureInfo.InvariantCulture) + "; IdPersonale=" + idPersonale.ToString(CultureInfo.InvariantCulture) + ".");
             }
         }
 
@@ -2351,12 +2394,12 @@ WHERE p.IdProdotto = @IdProdotto;", connection, transaction))
             return noteProdotto + " | " + noteOperazione;
         }
 
-        private static void UpdateDataUltimaMov(SqlConnection connection, SqlTransaction transaction, int idProdotto, string note)
+        private static void UpdateDataUltimaMov(SqlConnection connection, SqlTransaction transaction, int idProdotto, string note, IList<OperationLogEntry> pendingLogs)
         {
-            UpdateDataUltimaMov(connection, transaction, idProdotto, note, null);
+            UpdateDataUltimaMov(connection, transaction, idProdotto, note, null, pendingLogs);
         }
 
-        private static void UpdateDataUltimaMov(SqlConnection connection, SqlTransaction transaction, int idProdotto, string note, int? idEfficienza)
+        private static void UpdateDataUltimaMov(SqlConnection connection, SqlTransaction transaction, int idProdotto, string note, int? idEfficienza, IList<OperationLogEntry> pendingLogs)
         {
             using (var command = new SqlCommand(@"
 UPDATE dbo.Prodotti
@@ -2369,10 +2412,11 @@ WHERE IdProdotto = @IdProdotto;", connection, transaction))
                 command.Parameters.Add("@IdEfficienza", SqlDbType.Int).Value = NullableDb(idEfficienza);
                 command.Parameters.Add("@Note", SqlDbType.NVarChar, -1).Value = NullableDb(note);
                 command.ExecuteNonQuery();
+                AddPendingLog(pendingLogs, "InventarioRepository.UpdateDataUltimaMov", "UPDATE", "Prodotti", idProdotto, "Aggiornata data ultimo movimento" + (idEfficienza.HasValue ? " e livello efficienza" : string.Empty) + ".");
             }
         }
 
-        private static void AppendDataUltimaMovNote(SqlConnection connection, SqlTransaction transaction, int idProdotto, string note)
+        private static void AppendDataUltimaMovNote(SqlConnection connection, SqlTransaction transaction, int idProdotto, string note, IList<OperationLogEntry> pendingLogs)
         {
             using (var command = new SqlCommand(@"
 UPDATE dbo.Prodotti
@@ -2387,10 +2431,11 @@ WHERE IdProdotto = @IdProdotto;", connection, transaction))
                 command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
                 command.Parameters.Add("@Note", SqlDbType.NVarChar, -1).Value = NullableDb(note);
                 command.ExecuteNonQuery();
+                AddPendingLog(pendingLogs, "InventarioRepository.AppendDataUltimaMovNote", "UPDATE", "Prodotti", idProdotto, "Aggiornata data ultimo movimento con nota accodata.");
             }
         }
 
-        private static void UpdateNumeroSerie(SqlConnection connection, SqlTransaction transaction, int idProdotto, string numeroSerie)
+        private static void UpdateNumeroSerie(SqlConnection connection, SqlTransaction transaction, int idProdotto, string numeroSerie, IList<OperationLogEntry> pendingLogs)
         {
             using (var command = new SqlCommand(@"
 UPDATE dbo.Prodotti
@@ -2400,15 +2445,20 @@ WHERE IdProdotto = @IdProdotto;", connection, transaction))
                 command.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
                 command.Parameters.Add("@Matricola", SqlDbType.NVarChar, 50).Value = NullableDb(numeroSerie);
                 command.ExecuteNonQuery();
+                AddPendingLog(pendingLogs, "InventarioRepository.UpdateNumeroSerie", "UPDATE", "Prodotti", idProdotto, "Aggiornato numero serie/matricola.");
             }
         }
 
-        private static void UpsertNetworkData(SqlConnection connection, SqlTransaction transaction, int idProdotto, string macAddress, string note)
+        private static void UpsertNetworkData(SqlConnection connection, SqlTransaction transaction, int idProdotto, string macAddress, string note, IList<OperationLogEntry> pendingLogs)
         {
             using (var delete = new SqlCommand("DELETE FROM dbo.NetworkData WHERE idProdotto = @IdProdotto;", connection, transaction))
             {
                 delete.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
-                delete.ExecuteNonQuery();
+                var rows = delete.ExecuteNonQuery();
+                if (rows > 0)
+                {
+                    AddPendingLog(pendingLogs, "InventarioRepository.UpsertNetworkData", "DELETE", "NetworkData", idProdotto, "Eliminati dati rete precedenti. Righe=" + rows.ToString(CultureInfo.InvariantCulture) + ".");
+                }
             }
 
             if (string.IsNullOrWhiteSpace(macAddress))
@@ -2418,21 +2468,27 @@ WHERE IdProdotto = @IdProdotto;", connection, transaction))
 
             using (var insert = new SqlCommand(@"
 INSERT INTO dbo.NetworkData (idProdotto, macaddress, note)
-VALUES (@IdProdotto, @MacAddress, @Note);", connection, transaction))
+VALUES (@IdProdotto, @MacAddress, @Note);
+SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
             {
                 insert.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
                 insert.Parameters.Add("@MacAddress", SqlDbType.NChar, 17).Value = macAddress;
                 insert.Parameters.Add("@Note", SqlDbType.VarChar, 50).Value = NullableDb(note);
-                insert.ExecuteNonQuery();
+                var idNetworkData = Convert.ToInt32(insert.ExecuteScalar(), CultureInfo.InvariantCulture);
+                AddPendingLog(pendingLogs, "InventarioRepository.UpsertNetworkData", "INSERT", "NetworkData", idNetworkData, "Inseriti dati rete. IdProdotto=" + idProdotto.ToString(CultureInfo.InvariantCulture) + ".");
             }
         }
 
-        private static void UpsertPostazione(SqlConnection connection, SqlTransaction transaction, int idProdotto, string nomeMacchina)
+        private static void UpsertPostazione(SqlConnection connection, SqlTransaction transaction, int idProdotto, string nomeMacchina, IList<OperationLogEntry> pendingLogs)
         {
             using (var delete = new SqlCommand("DELETE FROM dbo.Postazione WHERE idProdotto = @IdProdotto;", connection, transaction))
             {
                 delete.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
-                delete.ExecuteNonQuery();
+                var rows = delete.ExecuteNonQuery();
+                if (rows > 0)
+                {
+                    AddPendingLog(pendingLogs, "InventarioRepository.UpsertPostazione", "DELETE", "Postazione", idProdotto, "Eliminate postazioni precedenti. Righe=" + rows.ToString(CultureInfo.InvariantCulture) + ".");
+                }
             }
 
             if (string.IsNullOrWhiteSpace(nomeMacchina))
@@ -2455,15 +2511,17 @@ VALUES (@IdProdotto, @MacAddress, @Note);", connection, transaction))
                     {
                         insert.Parameters.Add("@NomeMacchina", SqlDbType.VarChar, 25).Value = nomeMacchina.Trim();
                         idNomeMacchina = Convert.ToInt32(insert.ExecuteScalar(), CultureInfo.InvariantCulture);
+                        AddPendingLog(pendingLogs, "InventarioRepository.UpsertPostazione", "INSERT", "NomeMacchina", idNomeMacchina, "Inserito nome macchina da aggiornamento postazione.");
                     }
                 }
             }
 
-            using (var insert = new SqlCommand("INSERT INTO dbo.Postazione (idNomeMacchina, idProdotto) VALUES (@IdNomeMacchina, @IdProdotto);", connection, transaction))
+            using (var insert = new SqlCommand("INSERT INTO dbo.Postazione (idNomeMacchina, idProdotto) VALUES (@IdNomeMacchina, @IdProdotto); SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
             {
                 insert.Parameters.Add("@IdNomeMacchina", SqlDbType.Int).Value = idNomeMacchina;
                 insert.Parameters.Add("@IdProdotto", SqlDbType.Int).Value = idProdotto;
-                insert.ExecuteNonQuery();
+                var idPostazione = Convert.ToInt32(insert.ExecuteScalar(), CultureInfo.InvariantCulture);
+                AddPendingLog(pendingLogs, "InventarioRepository.UpsertPostazione", "INSERT", "Postazione", idPostazione, "Inserita postazione. IdProdotto=" + idProdotto.ToString(CultureInfo.InvariantCulture) + "; IdNomeMacchina=" + idNomeMacchina.ToString(CultureInfo.InvariantCulture) + ".");
             }
         }
 
@@ -2804,7 +2862,7 @@ ORDER BY c.Descrizione;", connection))
             return value.Trim().Substring(0, 1);
         }
 
-        private static int? EnsureNomeMacchina(SqlConnection connection, SqlTransaction transaction, string nomeMacchina, int? idNomeMacchina)
+        private static int? EnsureNomeMacchina(SqlConnection connection, SqlTransaction transaction, string nomeMacchina, int? idNomeMacchina, IList<OperationLogEntry> pendingLogs)
         {
             if (idNomeMacchina.HasValue)
             {
@@ -2815,6 +2873,7 @@ ORDER BY c.Descrizione;", connection))
                         update.Parameters.Add("@Id", SqlDbType.Int).Value = idNomeMacchina.Value;
                         update.Parameters.Add("@Nome", SqlDbType.VarChar, 25).Value = nomeMacchina.Trim();
                         update.ExecuteNonQuery();
+                        AddPendingLog(pendingLogs, "InventarioRepository.EnsureNomeMacchina", "UPDATE", "NomeMacchina", idNomeMacchina.Value, "Aggiornato nome macchina.");
                     }
                 }
 
@@ -2839,11 +2898,13 @@ ORDER BY c.Descrizione;", connection))
             using (var insert = new SqlCommand("INSERT INTO dbo.NomeMacchina (NomeMacchina) VALUES (@Nome); SELECT CAST(SCOPE_IDENTITY() AS int);", connection, transaction))
             {
                 insert.Parameters.Add("@Nome", SqlDbType.VarChar, 25).Value = nomeMacchina.Trim();
-                return Convert.ToInt32(insert.ExecuteScalar(), CultureInfo.InvariantCulture);
+                var id = Convert.ToInt32(insert.ExecuteScalar(), CultureInfo.InvariantCulture);
+                AddPendingLog(pendingLogs, "InventarioRepository.EnsureNomeMacchina", "INSERT", "NomeMacchina", id, "Inserito nome macchina.");
+                return id;
             }
         }
 
-        private static void DeleteNomeMacchinaIfOrphan(SqlConnection connection, SqlTransaction transaction, int? idNomeMacchina)
+        private static void DeleteNomeMacchinaIfOrphan(SqlConnection connection, SqlTransaction transaction, int? idNomeMacchina, IList<OperationLogEntry> pendingLogs)
         {
             if (!idNomeMacchina.HasValue)
             {
@@ -2863,7 +2924,11 @@ ORDER BY c.Descrizione;", connection))
             using (var delete = new SqlCommand("DELETE FROM dbo.NomeMacchina WHERE idnomemacchina = @Id;", connection, transaction))
             {
                 delete.Parameters.Add("@Id", SqlDbType.Int).Value = idNomeMacchina.Value;
-                delete.ExecuteNonQuery();
+                var rows = delete.ExecuteNonQuery();
+                if (rows > 0)
+                {
+                    AddPendingLog(pendingLogs, "InventarioRepository.DeleteNomeMacchinaIfOrphan", "DELETE", "NomeMacchina", idNomeMacchina.Value, "Eliminato nome macchina non piu collegato a postazioni.");
+                }
             }
         }
 
@@ -2908,6 +2973,49 @@ ORDER BY c.Descrizione;", connection))
                     throw;
                 }
             }
+        }
+
+        private static void AddPendingLog(IList<OperationLogEntry> pendingLogs, string source, string operation, string entity, int? id, string detail)
+        {
+            if (pendingLogs == null)
+            {
+                return;
+            }
+
+            pendingLogs.Add(new OperationLogEntry
+            {
+                Source = source,
+                Operation = operation,
+                Entity = entity,
+                Id = id,
+                Detail = detail
+            });
+        }
+
+        private static void FlushOperationLogs(IEnumerable<OperationLogEntry> pendingLogs)
+        {
+            if (pendingLogs == null)
+            {
+                return;
+            }
+
+            foreach (var log in pendingLogs)
+            {
+                LogOperationOk(log.Source, log.Operation, log.Entity, log.Id, log.Detail);
+            }
+        }
+
+        private sealed class OperationLogEntry
+        {
+            public string Source { get; set; }
+
+            public string Operation { get; set; }
+
+            public string Entity { get; set; }
+
+            public int? Id { get; set; }
+
+            public string Detail { get; set; }
         }
 
         private sealed class SnapshotInfo

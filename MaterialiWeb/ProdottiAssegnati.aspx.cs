@@ -706,12 +706,14 @@ namespace MaterialiGestioneWeb
                     .Append("<td>").Append(Server.HtmlEncode(prodotto.Matricola)).Append("</td>")
                     .Append("<td>").Append(Server.HtmlEncode(prodotto.Categoria)).Append("</td>")
                     .Append("<td>").Append(Server.HtmlEncode(prodotto.Modello)).Append("</td>")
+                    .Append("<td>").Append(Server.HtmlEncode(prodotto.LivelloEfficienza)).Append("</td>")
+                    .Append("<td>").Append(Server.HtmlEncode(prodotto.NomeMacchina)).Append("</td>")
                     .Append("</tr>");
             }
 
             if (!hasRows)
             {
-                builder.Append("<tr><td colspan=\"5\" class=\"assignment-sheet-empty\">Nessun prodotto assegnato.</td></tr>");
+                builder.Append("<tr><td colspan=\"7\" class=\"assignment-sheet-empty\">Nessun prodotto assegnato.</td></tr>");
             }
 
             return builder.ToString();
@@ -779,12 +781,12 @@ namespace MaterialiGestioneWeb
 
     internal static class AssignmentSheetPdfExporter
     {
-        private const float PageWidth = 595f;
-        private const float PageHeight = 842f;
-        private const float MarginLeft = 40f;
-        private const float MarginRight = 40f;
-        private const float MarginTop = 48f;
-        private const float MarginBottom = 48f;
+        private const float PageWidth = 842f;
+        private const float PageHeight = 595f;
+        private const float MarginLeft = 36f;
+        private const float MarginRight = 36f;
+        private const float MarginTop = 34f;
+        private const float MarginBottom = 34f;
         private const float TableHeaderHeight = 22f;
         private static readonly Encoding PdfEncoding = Encoding.GetEncoding(1252);
 
@@ -832,11 +834,13 @@ namespace MaterialiGestioneWeb
         {
             return new[]
             {
-                WrapText(ToText(prodotto.Categorico), 52f, 9f),
-                WrapText(prodotto.DescrizioneProdotto, 158f, 9f),
-                WrapText(prodotto.Matricola, 78f, 9f),
-                WrapText(prodotto.Categoria, 88f, 9f),
-                WrapText(prodotto.Modello, 110f, 9f)
+                WrapText(ToText(prodotto.Categorico), 58f, 8f),
+                WrapText(prodotto.DescrizioneProdotto, 214f, 8f),
+                WrapText(prodotto.Matricola, 78f, 8f),
+                WrapText(prodotto.Categoria, 100f, 8f),
+                WrapText(prodotto.Modello, 98f, 8f),
+                WrapText(prodotto.LivelloEfficienza, 82f, 8f),
+                WrapText(prodotto.NomeMacchina, 92f, 8f)
             };
         }
 
@@ -859,7 +863,7 @@ namespace MaterialiGestioneWeb
             y -= 28f;
 
             AppendText(sb, "Cognome: " + Safe(model.Cognome), MarginLeft, y, 11f, true);
-            AppendText(sb, "Nome: " + Safe(model.Nome), 290f, y, 11f, true);
+            AppendText(sb, "Nome: " + Safe(model.Nome), 430f, y, 11f, true);
             y -= 20f;
             AppendText(sb, "Data: " + model.Data.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture), MarginLeft, y, 11f, false);
             y -= 24f;
@@ -875,7 +879,7 @@ namespace MaterialiGestioneWeb
         private static void AppendTableHeader(StringBuilder sb, ref float y)
         {
             var widths = GetColumnWidths();
-            var headers = new[] { "Categorico", "Descrizione", "Matricola", "Categoria", "Modello" };
+            var headers = new[] { "Categorico", "Descrizione", "Matricola", "Categoria", "Modello", "STATO", "Nome macchina" };
             var x = MarginLeft;
             DrawRectangle(sb, MarginLeft, y - TableHeaderHeight, TotalTableWidth(), TableHeaderHeight);
 
@@ -888,7 +892,7 @@ namespace MaterialiGestioneWeb
             x = MarginLeft;
             for (var index = 0; index < headers.Length; index++)
             {
-                AppendText(sb, headers[index], x + 4f, y - 15f, 9f, true);
+                AppendText(sb, headers[index], x + 3f, y - 15f, 8f, true);
                 x += widths[index];
             }
 
@@ -913,7 +917,7 @@ namespace MaterialiGestioneWeb
                 var lineY = y - 13f;
                 foreach (var line in row[index])
                 {
-                    AppendText(sb, line, x + 4f, lineY, 9f, false);
+                    AppendText(sb, line, x + 3f, lineY, 8f, false);
                     lineY -= 11f;
                 }
 
@@ -926,8 +930,8 @@ namespace MaterialiGestioneWeb
         private static void AppendSignature(StringBuilder sb, AssignmentSheetModel model, ref float y)
         {
             y -= 30f;
-            AppendText(sb, "Firma:", 360f, y, 11f, false);
-            DrawLine(sb, 405f, y - 2f, 540f, y - 2f);
+            AppendText(sb, "Firma:", 620f, y, 11f, false);
+            DrawLine(sb, 665f, y - 2f, 805f, y - 2f);
         }
 
         private static string[] WrapText(string value, float width, float fontSize)
@@ -1024,7 +1028,7 @@ namespace MaterialiGestioneWeb
             for (var i = 0; i < pagesContent.Count; i++)
             {
                 var imageResources = logoObjectNumber == 0 ? string.Empty : " /XObject << /Im1 " + logoObjectNumber.ToString(CultureInfo.InvariantCulture) + " 0 R >>";
-                objects.Add("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >>" + imageResources + " >> /Contents " + contentObjectNumbers[i].ToString(CultureInfo.InvariantCulture) + " 0 R >>");
+                objects.Add("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 842 595] /Resources << /Font << /F1 3 0 R /F2 4 0 R >>" + imageResources + " >> /Contents " + contentObjectNumbers[i].ToString(CultureInfo.InvariantCulture) + " 0 R >>");
                 var streamBytes = PdfEncoding.GetBytes(pagesContent[i]);
                 var stream = PdfEncoding.GetString(streamBytes);
                 objects.Add("<< /Length " + streamBytes.Length.ToString(CultureInfo.InvariantCulture) + " >>\nstream\n" + stream + "\nendstream");
@@ -1116,7 +1120,7 @@ namespace MaterialiGestioneWeb
 
         private static float[] GetColumnWidths()
         {
-            return new[] { 60f, 165f, 85f, 95f, 110f };
+            return new[] { 65f, 230f, 85f, 110f, 108f, 85f, 87f };
         }
 
         private static float TotalTableWidth()

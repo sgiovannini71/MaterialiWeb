@@ -42,10 +42,10 @@ namespace MaterialiGestioneWeb
             try
             {
                 AppLogger.Info("RientroRiassegnazionePage.SaveButton_Click", "Richiesta rientro/riassegnazione materiale.");
-                var idProdotto = ParseRequiredInt(ProdottoDropDown.SelectedValue, "Prodotto");
+                var idProdotto = ParseRequiredInt(GetPostedOrSelectedValue(ProdottoDropDown), "Prodotto");
                 var detail = RequireAssignedProduct(idProdotto);
                 var isRiassegnazione = IsRiassegnazioneMode();
-                var nuovoIdPersonale = ParseOptionalInt(PersonaleDropDown.SelectedValue);
+                var nuovoIdPersonale = ParseOptionalInt(GetPostedOrSelectedValue(PersonaleDropDown));
 
                 if (isRiassegnazione && !nuovoIdPersonale.HasValue)
                 {
@@ -310,6 +310,17 @@ namespace MaterialiGestioneWeb
         private bool GetPostedIncludeNonAttivi()
         {
             return !string.IsNullOrEmpty(Request.Form[MostraNonAttiviCheck.UniqueID]);
+        }
+
+        private string GetPostedOrSelectedValue(ListControl control)
+        {
+            if (control == null)
+            {
+                return string.Empty;
+            }
+
+            var postedValue = Request.Form[control.UniqueID];
+            return !string.IsNullOrWhiteSpace(postedValue) ? postedValue : control.SelectedValue;
         }
 
         private static void BindDropDown(ListControl control, object dataSource, string emptyText, string textField)

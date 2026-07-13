@@ -18,13 +18,13 @@
                 </asp:RadioButtonList>
             </label>
             <label>Tipo personale
-                <asp:RadioButtonList ID="TipoPersonaleRadio" runat="server" CssClass="radio-list" RepeatDirection="Horizontal" AutoPostBack="true" EnableViewState="false" OnSelectedIndexChanged="TipoPersonaleRadio_SelectedIndexChanged">
+                <asp:RadioButtonList ID="TipoPersonaleRadio" runat="server" CssClass="radio-list" RepeatDirection="Horizontal" AutoPostBack="true" OnSelectedIndexChanged="TipoPersonaleRadio_SelectedIndexChanged">
                     <asp:ListItem Value="I" Selected="True">Interno</asp:ListItem>
                     <asp:ListItem Value="E">Esterno</asp:ListItem>
                 </asp:RadioButtonList>
             </label>
-            <label class="checkbox-field"><asp:CheckBox ID="MostraNonAttiviCheck" runat="server" Text="Includi personale non attivo" AutoPostBack="true" EnableViewState="false" OnCheckedChanged="MostraNonAttiviCheck_CheckedChanged" /></label>
-            <label>Nuovo assegnatario<asp:DropDownList ID="PersonaleDropDown" runat="server" CssClass="input" EnableViewState="false" /></label>
+            <label class="checkbox-field"><asp:CheckBox ID="MostraNonAttiviCheck" runat="server" Text="Includi personale non attivo" AutoPostBack="true" OnCheckedChanged="MostraNonAttiviCheck_CheckedChanged" /></label>
+            <label>Nuovo assegnatario<asp:DropDownList ID="PersonaleDropDown" runat="server" CssClass="input" /></label>
             <label class="field-span-2">Note<asp:TextBox ID="NoteText" runat="server" CssClass="input" TextMode="MultiLine" Rows="3" /></label>
         </div>
         <asp:Panel ID="ProdottoContextPanel" runat="server" CssClass="detail-card" Visible="false">

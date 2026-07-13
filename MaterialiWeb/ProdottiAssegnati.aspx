@@ -50,7 +50,7 @@
                 <asp:BoundField DataField="Matricola" HeaderText="Matricola" />
                 <asp:BoundField DataField="Categoria" HeaderText="Categoria" />
                 <asp:BoundField DataField="Modello" HeaderText="Modello" />
-                <asp:BoundField DataField="LivelloEfficienza" HeaderText="Stato" />
+                <asp:BoundField DataField="LivelloEfficienza" HeaderText="STATO" />
                 <asp:BoundField DataField="NumeroStanza" HeaderText="Stanza" />
                 <asp:BoundField DataField="NomeMacchina" HeaderText="Nome macchina" />
                 <asp:BoundField DataField="MacAddress" HeaderText="MAC" />

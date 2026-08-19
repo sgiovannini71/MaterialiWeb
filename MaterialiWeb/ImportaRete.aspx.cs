@@ -7,7 +7,7 @@ using MaterialiGestioneWeb.Services;
 
 namespace MaterialiGestioneWeb
 {
-    public partial class ImportaRetePage : System.Web.UI.Page
+    public partial class ImportaRetePage : MaterialiGestioneWeb.Infrastructure.BaseAuthenticatedPage
     {
         private readonly InventarioRepository _repository = new InventarioRepository();
 

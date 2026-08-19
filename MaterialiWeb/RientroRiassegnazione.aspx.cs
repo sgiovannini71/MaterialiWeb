@@ -9,7 +9,7 @@ using MaterialiGestioneWeb.Services;
 
 namespace MaterialiGestioneWeb
 {
-    public partial class RientroRiassegnazionePage : System.Web.UI.Page
+    public partial class RientroRiassegnazionePage : MaterialiGestioneWeb.Infrastructure.BaseAuthenticatedPage
     {
         private readonly InventarioRepository _repository = new InventarioRepository();
         private readonly PersonaleRepository _personaleRepository = new PersonaleRepository();

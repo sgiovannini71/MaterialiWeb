@@ -6,7 +6,7 @@ using MaterialiGestioneWeb.Services;
 
 namespace MaterialiGestioneWeb
 {
-    public partial class NuovoBenePage : System.Web.UI.Page
+    public partial class NuovoBenePage : MaterialiGestioneWeb.Infrastructure.BaseAuthenticatedPage
     {
         private const int DefaultFiltroEfficienza = 1;
         private readonly InventarioRepository _repository = new InventarioRepository();

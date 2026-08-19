@@ -8,7 +8,7 @@ using MaterialiGestioneWeb.Services;
 
 namespace MaterialiGestioneWeb
 {
-    public partial class GestioneCrudPage : System.Web.UI.Page
+    public partial class GestioneCrudPage : MaterialiGestioneWeb.Infrastructure.BaseAuthenticatedPage
     {
         private readonly InventarioRepository _repository = new InventarioRepository();
         private readonly PersonaleRepository _personaleRepository = new PersonaleRepository();

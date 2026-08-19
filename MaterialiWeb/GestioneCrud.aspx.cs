@@ -74,15 +74,24 @@ namespace MaterialiGestioneWeb
 
         protected void AddOrdinativoButton_Click(object sender, EventArgs e)
         {
+            int? nuovoOrdinativoId = null;
             ExecuteAction(() =>
             {
-                _repository.CreateOrdinativoAdmin(new OrdinativoAdminItem
+                nuovoOrdinativoId = _repository.CreateOrdinativoAdmin(new OrdinativoAdminItem
                 {
                     CodiceOrdinativo = _repository.GetNextCodiceOrdinativo(),
                     DenominazioneOrdinativo = RequireText(OrdinativoDenominazioneText.Text, "Denominazione ordinativo")
                 });
                 ClearText(OrdinativoDenominazioneText);
             }, "Ordinativo inserito.");
+
+            if (nuovoOrdinativoId.HasValue)
+            {
+                Response.Redirect(
+                    "DettaglioOrdinativo.aspx?id=" + nuovoOrdinativoId.Value.ToString(CultureInfo.InvariantCulture),
+                    false);
+                Context.ApplicationInstance.CompleteRequest();
+            }
         }
 
         protected void AddOggettoButton_Click(object sender, EventArgs e)

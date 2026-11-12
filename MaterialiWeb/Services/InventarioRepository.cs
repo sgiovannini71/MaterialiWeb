@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
@@ -14,6 +15,10 @@ namespace MaterialiGestioneWeb.Services
     {
         private const int IdEfficienzaEfficienteInUso = 1;
         private const int IdEfficienzaEfficienteAttesaDistribuzione = 4;
+
+        private static readonly int AdminPageSize = int.TryParse(
+            ConfigurationManager.AppSettings["AdminGridPageSize"], out var pageSize)
+            ? pageSize : 100;
 
         private readonly PersonaleRepository _personaleRepository = new PersonaleRepository();
 
@@ -567,7 +572,7 @@ ORDER BY Descrizione;", reader => new LookupItem
         {
             using (var connection = Db.OpenConnection())
             using (var command = new SqlCommand(@"
-SELECT
+SELECT TOP (@AdminPageSize)
     p.IdProdotto,
     p.idStanza,
     oo.idOrdinativo,
@@ -620,7 +625,7 @@ ORDER BY p.IdProdotto DESC;", connection))
         {
             using (var connection = Db.OpenConnection())
             using (var command = new SqlCommand(@"
-SELECT
+SELECT TOP (@AdminPageSize)
     o.idOrdinativo,
     o.CodiceOrdinativo,
     o.denominazioneOrdinativo,
@@ -665,7 +670,7 @@ ORDER BY o.idOrdinativo DESC;", connection))
         {
             using (var connection = Db.OpenConnection())
             using (var command = new SqlCommand(@"
-SELECT
+SELECT TOP (@AdminPageSize)
     oo.idOggOrdinativo,
     oo.idOrdinativo,
     oo.descrizioneProdotto,
@@ -757,7 +762,7 @@ ORDER BY oo.idOggOrdinativo DESC;", connection))
         {
             using (var connection = Db.OpenConnection())
             using (var command = new SqlCommand(@"
-SELECT
+SELECT TOP (@AdminPageSize)
     nd.idNetworkData,
     nd.idProdotto,
     nd.macaddress,
@@ -797,7 +802,7 @@ ORDER BY nd.idNetworkData DESC;", connection))
         {
             using (var connection = Db.OpenConnection())
             using (var command = new SqlCommand(@"
-SELECT p.idPostazione, p.idProdotto, p.idNomeMacchina, n.NomeMacchina, pr.Categorico, oo.descrizioneProdotto, pr.Matricola
+SELECT TOP (@AdminPageSize) p.idPostazione, p.idProdotto, p.idNomeMacchina, n.NomeMacchina, pr.Categorico, oo.descrizioneProdotto, pr.Matricola
 FROM dbo.Postazione p
 LEFT JOIN dbo.NomeMacchina n ON p.idNomeMacchina = n.idnomemacchina
 INNER JOIN dbo.Prodotti pr ON p.idProdotto = pr.IdProdotto
@@ -832,7 +837,7 @@ ORDER BY p.idPostazione DESC;", connection))
             var results = new List<ProdPersAdminItem>();
             using (var connection = Db.OpenConnection())
             using (var command = new SqlCommand(@"
-SELECT pp.IdProdPers, pp.IdProdotto, pp.IdPersonale, pp.DataAssegnazione, p.Categorico, oo.descrizioneProdotto, p.Matricola
+SELECT TOP (@AdminPageSize) pp.IdProdPers, pp.IdProdotto, pp.IdPersonale, pp.DataAssegnazione, p.Categorico, oo.descrizioneProdotto, p.Matricola
 FROM dbo.ProdPers pp
 LEFT JOIN dbo.Prodotti p ON pp.IdProdotto = p.IdProdotto
 LEFT JOIN dbo.OggettoOrdinativo oo ON p.idOggOrdinativo = oo.idOggOrdinativo
@@ -874,7 +879,7 @@ ORDER BY pp.IdProdPers DESC;", connection))
             var results = new List<ProdPersStoricoAdminItem>();
             using (var connection = Db.OpenConnection())
             using (var command = new SqlCommand(@"
-SELECT s.id, s.idProdPers, s.idProdotto, s.idPersonale, s.dataAssegnazione, s.dataRestituzione, s.numeroStanza, s.livelloEfficienza, s.noteProdotto, s.nomeMacchina, s.serialNumber,
+SELECT TOP (@AdminPageSize) s.id, s.idProdPers, s.idProdotto, s.idPersonale, s.dataAssegnazione, s.dataRestituzione, s.numeroStanza, s.livelloEfficienza, s.noteProdotto, s.nomeMacchina, s.serialNumber,
        p.Categorico, oo.descrizioneProdotto, p.Matricola
 FROM dbo.ProdPersStorico s
 LEFT JOIN dbo.Prodotti p ON s.idProdotto = p.IdProdotto

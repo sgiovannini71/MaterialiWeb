@@ -505,6 +505,13 @@ input[type="submit"].button.danger {
     text-decoration: none;
 }
 
+[data-crud-navigation] a.active {
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 6px;
+}
+
 .domain-section {
     scroll-margin-top: 12rem;
 }

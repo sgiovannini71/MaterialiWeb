@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Web.UI.WebControls;
 using MaterialiGestioneWeb.Infrastructure;
@@ -11,16 +10,6 @@ namespace MaterialiGestioneWeb
     public partial class GestioneCrudPage : System.Web.UI.Page
     {
         private readonly InventarioRepository _repository = new InventarioRepository();
-        private readonly PersonaleRepository _personaleRepository = new PersonaleRepository();
-
-        protected void Page_Init(object sender, EventArgs e)
-        {
-            if (IsPostBack)
-            {
-                BindAllPersonaleDropDown(ProdPersPersonaleDropDown, null);
-                BindAllPersonaleDropDown(StoricoPersonaleDropDown, null);
-            }
-        }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -45,29 +34,11 @@ namespace MaterialiGestioneWeb
             }
             OggettiGrid.DataSource = _repository.GetOggettiOrdinativoAdmin(selectedOggettoOrdinativoId);
             OggettiGrid.DataBind();
-            if (!isContextMode)
-            {
-                NetworkGrid.DataSource = _repository.GetNetworkDataAdmin();
-                NetworkGrid.DataBind();
-                PostazioniGrid.DataSource = _repository.GetPostazioniAdmin();
-                PostazioniGrid.DataBind();
-                ProdPersGrid.DataSource = _repository.GetProdPersAdmin();
-                ProdPersGrid.DataBind();
-                StoricoGrid.DataSource = _repository.GetProdPersStoricoAdmin();
-                StoricoGrid.DataBind();
-            }
             BindLookupDropDown(OggettoOrdinativoDropDown, _repository.GetOrdinativiLookup(), selectedOggettoOrdinativoId);
             BindLookupDropDown(OggettoDittaDropDown, _repository.GetDitteLookup(), null);
             BindLookupDropDown(OggettoCategoriaDropDown, _repository.GetCategorieLookup(), null);
             if (!isContextMode)
             {
-                BindLookupDropDown(NetworkProdottoDropDown, _repository.GetProdottiNetworkLookup(), null);
-                BindLookupDropDown(PostazioneProdottoDropDown, _repository.GetProdottiLookup(), null);
-                BindLookupDropDown(PostazioneNomeDropDown, _repository.GetNomiMacchinaLookup(), null);
-                BindLookupDropDown(ProdPersProdottoDropDown, _repository.GetProdottiLookup(), null);
-                BindLookupDropDown(StoricoProdottoDropDown, _repository.GetProdottiLookup(), null);
-                BindPersonaleDropDown(ProdPersPersonaleDropDown, IsProdPersPersonaleEsternoSelected(), ProdPersMostraNonAttiviCheck.Checked, null);
-                BindPersonaleDropDown(StoricoPersonaleDropDown, IsStoricoPersonaleEsternoSelected(), StoricoMostraNonAttiviCheck.Checked, null);
                 OrdinativoCodiceText.Text = _repository.GetNextCodiceOrdinativo();
             }
         }
@@ -112,94 +83,6 @@ namespace MaterialiGestioneWeb
                 ResetDropDown(OggettoDittaDropDown);
                 ResetDropDown(OggettoCategoriaDropDown);
             }, "Oggetto ordinativo inserito e prodotti generati.");
-        }
-
-        protected void AddNetworkButton_Click(object sender, EventArgs e)
-        {
-            ExecuteAction(() =>
-            {
-                _repository.CreateNetworkDataAdmin(new NetworkDataAdminItem
-                {
-                    IdProdotto = ParseRequiredInt(NetworkProdottoDropDown.SelectedValue, "Prodotto rete"),
-                    MacAddress = RequireText(NetworkMacText.Text, "MAC address"),
-                    Note = NetworkNoteText.Text
-                });
-                ClearText(NetworkMacText, NetworkNoteText);
-                ResetDropDown(NetworkProdottoDropDown);
-            }, "Record rete inserito.");
-        }
-
-        protected void AddPostazioneButton_Click(object sender, EventArgs e)
-        {
-            ExecuteAction(() =>
-            {
-                _repository.CreatePostazioneAdmin(new PostazioneAdminItem
-                {
-                    IdProdotto = ParseRequiredInt(PostazioneProdottoDropDown.SelectedValue, "Prodotto postazione"),
-                    IdNomeMacchina = ParseOptionalInt(PostazioneNomeDropDown.SelectedValue)
-                });
-                ResetDropDown(PostazioneProdottoDropDown);
-                ResetDropDown(PostazioneNomeDropDown);
-            }, "Postazione inserita.");
-        }
-
-        protected void AddProdPersButton_Click(object sender, EventArgs e)
-        {
-            ExecuteAction(() =>
-            {
-                _repository.CreateProdPersAdmin(new ProdPersAdminItem
-                {
-                    IdProdotto = ParseOptionalInt(ProdPersProdottoDropDown.SelectedValue),
-                    IdPersonale = ParseOptionalInt(ProdPersPersonaleDropDown.SelectedValue),
-                    DataAssegnazione = ParseOptionalDate(ProdPersDataText.Text)
-                });
-                ClearText(ProdPersDataText);
-                ResetDropDown(ProdPersProdottoDropDown);
-                ResetDropDown(ProdPersPersonaleDropDown);
-            }, "Assegnazione corrente inserita.");
-        }
-
-        protected void AddStoricoButton_Click(object sender, EventArgs e)
-        {
-            ExecuteAction(() =>
-            {
-                _repository.CreateProdPersStoricoAdmin(new ProdPersStoricoAdminItem
-                {
-                    IdProdPers = ParseOptionalInt(StoricoProdPersIdText.Text),
-                    IdProdotto = ParseOptionalInt(StoricoProdottoDropDown.SelectedValue),
-                    IdPersonale = ParseOptionalInt(StoricoPersonaleDropDown.SelectedValue),
-                    DataAssegnazione = ParseOptionalDate(StoricoDataAssText.Text),
-                    DataRestituzione = ParseOptionalDate(StoricoDataResText.Text),
-                    NumeroStanza = StoricoStanzaText.Text,
-                    LivelloEfficienza = StoricoLivelloText.Text,
-                    NomeMacchina = StoricoMacchinaText.Text,
-                    SerialNumber = StoricoSerialeText.Text,
-                    NoteProdotto = StoricoNoteText.Text
-                });
-                ClearText(StoricoProdPersIdText, StoricoDataAssText, StoricoDataResText, StoricoStanzaText, StoricoLivelloText, StoricoMacchinaText, StoricoSerialeText, StoricoNoteText);
-                ResetDropDown(StoricoProdottoDropDown);
-                ResetDropDown(StoricoPersonaleDropDown);
-            }, "Storico assegnazione inserito.");
-        }
-
-        protected void ProdPersTipoPersonaleRadio_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            BindPersonaleDropDown(ProdPersPersonaleDropDown, IsProdPersPersonaleEsternoSelected(), ProdPersMostraNonAttiviCheck.Checked, null);
-        }
-
-        protected void ProdPersMostraNonAttiviCheck_CheckedChanged(object sender, EventArgs e)
-        {
-            BindPersonaleDropDown(ProdPersPersonaleDropDown, IsProdPersPersonaleEsternoSelected(), ProdPersMostraNonAttiviCheck.Checked, null);
-        }
-
-        protected void StoricoTipoPersonaleRadio_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            BindPersonaleDropDown(StoricoPersonaleDropDown, IsStoricoPersonaleEsternoSelected(), StoricoMostraNonAttiviCheck.Checked, null);
-        }
-
-        protected void StoricoMostraNonAttiviCheck_CheckedChanged(object sender, EventArgs e)
-        {
-            BindPersonaleDropDown(StoricoPersonaleDropDown, IsStoricoPersonaleEsternoSelected(), StoricoMostraNonAttiviCheck.Checked, null);
         }
 
         protected void ProdottiAdminGrid_RowEditing(object sender, GridViewEditEventArgs e) { SetEdit(ProdottiAdminGrid, e.NewEditIndex); }
@@ -313,135 +196,6 @@ namespace MaterialiGestioneWeb
             BindLookupDropDown((DropDownList)e.Row.FindControl("EditOggettoCategoriaDropDown"), _repository.GetCategorieLookup(), item.IdCategProdotti);
         }
 
-        protected void NetworkGrid_RowEditing(object sender, GridViewEditEventArgs e) { SetEdit(NetworkGrid, e.NewEditIndex); }
-        protected void NetworkGrid_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e) { CancelEdit(NetworkGrid); }
-        protected void NetworkGrid_RowUpdating(object sender, GridViewUpdateEventArgs e)
-        {
-            ExecuteAction(() =>
-            {
-                var row = NetworkGrid.Rows[e.RowIndex];
-                _repository.UpdateNetworkDataAdmin(new NetworkDataAdminItem
-                {
-                    IdNetworkData = GetGridKey(NetworkGrid, e.RowIndex),
-                    IdProdotto = GetDropDownRequiredValue(row, "EditNetworkProdottoDropDown", "Prodotto rete"),
-                    MacAddress = RequireText(GetText(row, "EditNetworkMacText"), "MAC address"),
-                    Note = GetText(row, "EditNetworkNoteText")
-                });
-                NetworkGrid.EditIndex = -1;
-            }, "Record rete aggiornato.");
-        }
-        protected void NetworkGrid_RowDeleting(object sender, GridViewDeleteEventArgs e) { ExecuteAction(() => _repository.DeleteNetworkDataAdmin(GetGridKey(NetworkGrid, e.RowIndex)), "Record rete eliminato."); }
-
-        protected void NetworkGrid_RowDataBound(object sender, GridViewRowEventArgs e)
-        {
-            if (!IsEditRow(e.Row))
-            {
-                return;
-            }
-
-            var item = (NetworkDataAdminItem)e.Row.DataItem;
-            BindLookupDropDown((DropDownList)e.Row.FindControl("EditNetworkProdottoDropDown"), _repository.GetProdottiNetworkLookup(), item.IdProdotto);
-        }
-
-        protected void PostazioniGrid_RowEditing(object sender, GridViewEditEventArgs e) { SetEdit(PostazioniGrid, e.NewEditIndex); }
-        protected void PostazioniGrid_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e) { CancelEdit(PostazioniGrid); }
-        protected void PostazioniGrid_RowUpdating(object sender, GridViewUpdateEventArgs e)
-        {
-            ExecuteAction(() =>
-            {
-                var row = PostazioniGrid.Rows[e.RowIndex];
-                _repository.UpdatePostazioneAdmin(new PostazioneAdminItem
-                {
-                    IdPostazione = GetGridKey(PostazioniGrid, e.RowIndex),
-                    IdProdotto = GetDropDownRequiredValue(row, "EditPostazioneProdottoDropDown", "Prodotto postazione"),
-                    IdNomeMacchina = GetDropDownSelectedValue(row, "EditPostazioneNomeDropDown")
-                });
-                PostazioniGrid.EditIndex = -1;
-            }, "Postazione aggiornata.");
-        }
-        protected void PostazioniGrid_RowDeleting(object sender, GridViewDeleteEventArgs e) { ExecuteAction(() => _repository.DeletePostazioneAdmin(GetGridKey(PostazioniGrid, e.RowIndex)), "Postazione eliminata."); }
-
-        protected void PostazioniGrid_RowDataBound(object sender, GridViewRowEventArgs e)
-        {
-            if (!IsEditRow(e.Row))
-            {
-                return;
-            }
-
-            var item = (PostazioneAdminItem)e.Row.DataItem;
-            BindLookupDropDown((DropDownList)e.Row.FindControl("EditPostazioneProdottoDropDown"), _repository.GetProdottiLookup(), item.IdProdotto);
-            BindLookupDropDown((DropDownList)e.Row.FindControl("EditPostazioneNomeDropDown"), _repository.GetNomiMacchinaLookup(), item.IdNomeMacchina);
-        }
-
-        protected void ProdPersGrid_RowEditing(object sender, GridViewEditEventArgs e) { SetEdit(ProdPersGrid, e.NewEditIndex); }
-        protected void ProdPersGrid_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e) { CancelEdit(ProdPersGrid); }
-        protected void ProdPersGrid_RowUpdating(object sender, GridViewUpdateEventArgs e)
-        {
-            ExecuteAction(() =>
-            {
-                var row = ProdPersGrid.Rows[e.RowIndex];
-                _repository.UpdateProdPersAdmin(new ProdPersAdminItem
-                {
-                    IdProdPers = GetGridKey(ProdPersGrid, e.RowIndex),
-                    IdProdotto = GetDropDownSelectedValue(row, "EditProdPersProdottoDropDown"),
-                    IdPersonale = GetDropDownSelectedValue(row, "EditProdPersPersonaleDropDown"),
-                    DataAssegnazione = ParseOptionalDate(GetText(row, "EditProdPersDataText"))
-                });
-                ProdPersGrid.EditIndex = -1;
-            }, "Assegnazione corrente aggiornata.");
-        }
-        protected void ProdPersGrid_RowDeleting(object sender, GridViewDeleteEventArgs e) { ExecuteAction(() => _repository.DeleteProdPersAdmin(GetGridKey(ProdPersGrid, e.RowIndex)), "Assegnazione corrente eliminata."); }
-
-        protected void ProdPersGrid_RowDataBound(object sender, GridViewRowEventArgs e)
-        {
-            if (!IsEditRow(e.Row))
-            {
-                return;
-            }
-
-            var item = (ProdPersAdminItem)e.Row.DataItem;
-            BindLookupDropDown((DropDownList)e.Row.FindControl("EditProdPersProdottoDropDown"), _repository.GetProdottiLookup(), item.IdProdotto);
-            BindAllPersonaleDropDown((DropDownList)e.Row.FindControl("EditProdPersPersonaleDropDown"), item.IdPersonale);
-        }
-
-        protected void StoricoGrid_RowEditing(object sender, GridViewEditEventArgs e) { SetEdit(StoricoGrid, e.NewEditIndex); }
-        protected void StoricoGrid_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e) { CancelEdit(StoricoGrid); }
-        protected void StoricoGrid_RowUpdating(object sender, GridViewUpdateEventArgs e)
-        {
-            ExecuteAction(() =>
-            {
-                var row = StoricoGrid.Rows[e.RowIndex];
-                _repository.UpdateProdPersStoricoAdmin(new ProdPersStoricoAdminItem
-                {
-                    Id = GetGridKey(StoricoGrid, e.RowIndex),
-                    IdProdPers = ParseOptionalInt(GetText(row, "EditStoricoProdPersIdText")),
-                    IdProdotto = GetDropDownSelectedValue(row, "EditStoricoProdottoDropDown"),
-                    IdPersonale = GetDropDownSelectedValue(row, "EditStoricoPersonaleDropDown"),
-                    DataAssegnazione = ParseOptionalDate(GetText(row, "EditStoricoDataAssText")),
-                    DataRestituzione = ParseOptionalDate(GetText(row, "EditStoricoDataResText")),
-                    NumeroStanza = GetText(row, "EditStoricoStanzaText"),
-                    LivelloEfficienza = GetText(row, "EditStoricoLivelloText"),
-                    NomeMacchina = GetText(row, "EditStoricoMacchinaText"),
-                    SerialNumber = GetText(row, "EditStoricoSerialeText"),
-                    NoteProdotto = GetText(row, "EditStoricoNoteText")
-                });
-                StoricoGrid.EditIndex = -1;
-            }, "Storico assegnazione aggiornato.");
-        }
-        protected void StoricoGrid_RowDeleting(object sender, GridViewDeleteEventArgs e) { ExecuteAction(() => _repository.DeleteProdPersStoricoAdmin(GetGridKey(StoricoGrid, e.RowIndex)), "Storico assegnazione eliminato."); }
-
-        protected void StoricoGrid_RowDataBound(object sender, GridViewRowEventArgs e)
-        {
-            if (!IsEditRow(e.Row))
-            {
-                return;
-            }
-
-            var item = (ProdPersStoricoAdminItem)e.Row.DataItem;
-            BindLookupDropDown((DropDownList)e.Row.FindControl("EditStoricoProdottoDropDown"), _repository.GetProdottiLookup(), item.IdProdotto);
-            BindAllPersonaleDropDown((DropDownList)e.Row.FindControl("EditStoricoPersonaleDropDown"), item.IdPersonale);
-        }
-
         private void ExecuteAction(Action action, string successMessage)
         {
             try
@@ -481,7 +235,7 @@ namespace MaterialiGestioneWeb
                 ContextCssLiteral.Text = string.Empty;
                 ContextActionsPanel.Visible = false;
                 PageHeadingText.Text = "CRUD amministrativi";
-                PageIntroText.Text = "Gestione completa di prodotti, ordinativi, oggetti ordinativo, rete, postazioni, assegnazioni correnti e storico assegnazioni.";
+                PageIntroText.Text = "Gestione di prodotti, ordinativi e oggetti ordinativo.";
                 return;
             }
 
@@ -489,11 +243,7 @@ namespace MaterialiGestioneWeb
 <style>
     .domain-jump-nav,
     #crud-prodotti,
-    #crud-ordinativi,
-    #crud-network,
-    #crud-postazioni,
-    #crud-prodpers,
-    #crud-storico {
+    #crud-ordinativi {
         display: none;
     }
 </style>";
@@ -556,45 +306,6 @@ namespace MaterialiGestioneWeb
             }
         }
 
-        private void BindPersonaleDropDown(DropDownList control, bool isEsterno, bool includeNonAttivi, int? selectedId)
-        {
-            if (control == null)
-            {
-                return;
-            }
-
-            control.Items.Clear();
-            control.Items.Add(new ListItem("-- seleziona personale --", string.Empty));
-            control.AppendDataBoundItems = true;
-            control.DataSource = _personaleRepository.GetPersonale(isEsterno, includeNonAttivi);
-            control.DataTextField = "DisplayName";
-            control.DataValueField = "Id";
-            control.DataBind();
-            control.AppendDataBoundItems = false;
-            SelectDropDownValue(control, selectedId);
-        }
-
-        private void BindAllPersonaleDropDown(DropDownList control, int? selectedId)
-        {
-            if (control == null)
-            {
-                return;
-            }
-
-            var items = new List<LookupItem>();
-            foreach (var item in _personaleRepository.GetPersonale(false, true))
-            {
-                items.Add(new LookupItem { Id = item.Id, Nome = "Interno - " + item.DisplayName });
-            }
-
-            foreach (var item in _personaleRepository.GetPersonale(true, true))
-            {
-                items.Add(new LookupItem { Id = item.Id, Nome = "Esterno - " + item.DisplayName });
-            }
-
-            BindLookupDropDown(control, items, selectedId);
-        }
-
         private static void SelectDropDownValue(DropDownList control, int? selectedId)
         {
             if (selectedId.HasValue)
@@ -605,16 +316,6 @@ namespace MaterialiGestioneWeb
                     control.SelectedValue = selectedValue;
                 }
             }
-        }
-
-        private bool IsProdPersPersonaleEsternoSelected()
-        {
-            return ProdPersTipoPersonaleRadio.SelectedValue == "E";
-        }
-
-        private bool IsStoricoPersonaleEsternoSelected()
-        {
-            return StoricoTipoPersonaleRadio.SelectedValue == "E";
         }
 
         private static int? ParseOptionalInt(string value)

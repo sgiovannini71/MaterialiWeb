@@ -593,10 +593,12 @@ LEFT JOIN dbo.OggettoOrdinativo oo ON p.idOggOrdinativo = oo.idOggOrdinativo
 LEFT JOIN dbo.Ordinativo o ON oo.idOrdinativo = o.idOrdinativo
 LEFT JOIN dbo.LivelliEfficenza le ON p.IdEfficienza = le.IdEfficienza
 ORDER BY p.IdProdotto DESC;", connection))
-            using (var reader = command.ExecuteReader())
             {
-                var results = new List<ProdottoAdminItem>();
-                while (reader.Read())
+                command.Parameters.Add("@AdminPageSize", SqlDbType.Int).Value = AdminPageSize;
+                using (var reader = command.ExecuteReader())
+                {
+                    var results = new List<ProdottoAdminItem>();
+                    while (reader.Read())
                 {
                     results.Add(new ProdottoAdminItem
                     {
@@ -638,10 +640,12 @@ SELECT TOP (@AdminPageSize)
 FROM dbo.Ordinativo o
 LEFT JOIN dbo.Ditte d ON o.idDittaOrdinativo = d.IdDitta
 ORDER BY o.idOrdinativo DESC;", connection))
-            using (var reader = command.ExecuteReader())
             {
-                var results = new List<OrdinativoAdminItem>();
-                while (reader.Read())
+                command.Parameters.Add("@AdminPageSize", SqlDbType.Int).Value = AdminPageSize;
+                using (var reader = command.ExecuteReader())
+                {
+                    var results = new List<OrdinativoAdminItem>();
+                    while (reader.Read())
                 {
                     results.Add(new OrdinativoAdminItem
                     {
@@ -692,12 +696,13 @@ WHERE @IdOrdinativo IS NULL OR oo.idOrdinativo = @IdOrdinativo
 ORDER BY oo.idOggOrdinativo DESC;", connection))
             {
                 command.Parameters.Add("@IdOrdinativo", SqlDbType.Int).Value = NullableDb(idOrdinativo);
+                command.Parameters.Add("@AdminPageSize", SqlDbType.Int).Value = AdminPageSize;
                 using (var reader = command.ExecuteReader())
                 {
-                var results = new List<OggettoOrdinativoAdminItem>();
-                while (reader.Read())
-                {
-                    results.Add(new OggettoOrdinativoAdminItem
+                    var results = new List<OggettoOrdinativoAdminItem>();
+                    while (reader.Read())
+                    {
+                        results.Add(new OggettoOrdinativoAdminItem
                     {
                         IdOggOrdinativo = reader.GetInt32Value("idOggOrdinativo"),
                         IdOrdinativo = reader["idOrdinativo"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["idOrdinativo"], CultureInfo.InvariantCulture),
@@ -716,9 +721,9 @@ ORDER BY oo.idOggOrdinativo DESC;", connection))
                 }
 
                 return results;
-                }
             }
         }
+    }
 
         public OrdinativoDettaglio GetOrdinativoDettaglio(int idOrdinativo)
         {
@@ -774,10 +779,12 @@ FROM dbo.NetworkData nd
 INNER JOIN dbo.Prodotti p ON nd.idProdotto = p.IdProdotto
 LEFT JOIN dbo.OggettoOrdinativo oo ON p.idOggOrdinativo = oo.idOggOrdinativo
 ORDER BY nd.idNetworkData DESC;", connection))
-            using (var reader = command.ExecuteReader())
             {
-                var results = new List<NetworkDataAdminItem>();
-                while (reader.Read())
+                command.Parameters.Add("@AdminPageSize", SqlDbType.Int).Value = AdminPageSize;
+                using (var reader = command.ExecuteReader())
+                {
+                    var results = new List<NetworkDataAdminItem>();
+                    while (reader.Read())
                 {
                     results.Add(new NetworkDataAdminItem
                     {
@@ -808,12 +815,14 @@ LEFT JOIN dbo.NomeMacchina n ON p.idNomeMacchina = n.idnomemacchina
 INNER JOIN dbo.Prodotti pr ON p.idProdotto = pr.IdProdotto
 LEFT JOIN dbo.OggettoOrdinativo oo ON pr.idOggOrdinativo = oo.idOggOrdinativo
 ORDER BY p.idPostazione DESC;", connection))
-            using (var reader = command.ExecuteReader())
             {
-                var results = new List<PostazioneAdminItem>();
-                while (reader.Read())
+                command.Parameters.Add("@AdminPageSize", SqlDbType.Int).Value = AdminPageSize;
+                using (var reader = command.ExecuteReader())
                 {
-                    results.Add(new PostazioneAdminItem
+                    var results = new List<PostazioneAdminItem>();
+                    while (reader.Read())
+                    {
+                        results.Add(new PostazioneAdminItem
                     {
                         IdPostazione = reader.GetInt32Value("idPostazione"),
                         IdProdotto = reader.GetInt32Value("idProdotto"),
@@ -842,23 +851,26 @@ FROM dbo.ProdPers pp
 LEFT JOIN dbo.Prodotti p ON pp.IdProdotto = p.IdProdotto
 LEFT JOIN dbo.OggettoOrdinativo oo ON p.idOggOrdinativo = oo.idOggOrdinativo
 ORDER BY pp.IdProdPers DESC;", connection))
-            using (var reader = command.ExecuteReader())
             {
-                while (reader.Read())
+                command.Parameters.Add("@AdminPageSize", SqlDbType.Int).Value = AdminPageSize;
+                using (var reader = command.ExecuteReader())
                 {
-                    results.Add(new ProdPersAdminItem
+                    while (reader.Read())
                     {
-                        IdProdPers = reader.GetInt32Value("IdProdPers"),
-                        IdProdotto = reader["IdProdotto"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["IdProdotto"], CultureInfo.InvariantCulture),
-                        IdPersonale = reader["IdPersonale"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["IdPersonale"], CultureInfo.InvariantCulture),
-                        DataAssegnazione = reader["DataAssegnazione"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["DataAssegnazione"], CultureInfo.InvariantCulture),
-                        ProdottoDescrizione = string.Join(" - ", new[]
+                        results.Add(new ProdPersAdminItem
                         {
-                            reader["Categorico"] == DBNull.Value ? string.Empty : Convert.ToString(reader["Categorico"], CultureInfo.InvariantCulture),
-                            reader.GetStringOrEmpty("descrizioneProdotto"),
-                            reader.GetStringOrEmpty("Matricola")
-                        }).Trim(' ', '-')
-                    });
+                            IdProdPers = reader.GetInt32Value("IdProdPers"),
+                            IdProdotto = reader["IdProdotto"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["IdProdotto"], CultureInfo.InvariantCulture),
+                            IdPersonale = reader["IdPersonale"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["IdPersonale"], CultureInfo.InvariantCulture),
+                            DataAssegnazione = reader["DataAssegnazione"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["DataAssegnazione"], CultureInfo.InvariantCulture),
+                            ProdottoDescrizione = string.Join(" - ", new[]
+                            {
+                                reader["Categorico"] == DBNull.Value ? string.Empty : Convert.ToString(reader["Categorico"], CultureInfo.InvariantCulture),
+                                reader.GetStringOrEmpty("descrizioneProdotto"),
+                                reader.GetStringOrEmpty("Matricola")
+                            }).Trim(' ', '-')
+                        });
+                    }
                 }
             }
 
@@ -885,11 +897,13 @@ FROM dbo.ProdPersStorico s
 LEFT JOIN dbo.Prodotti p ON s.idProdotto = p.IdProdotto
 LEFT JOIN dbo.OggettoOrdinativo oo ON p.idOggOrdinativo = oo.idOggOrdinativo
 ORDER BY s.id DESC;", connection))
-            using (var reader = command.ExecuteReader())
             {
-                while (reader.Read())
+                command.Parameters.Add("@AdminPageSize", SqlDbType.Int).Value = AdminPageSize;
+                using (var reader = command.ExecuteReader())
                 {
-                    results.Add(new ProdPersStoricoAdminItem
+                    while (reader.Read())
+                    {
+                        results.Add(new ProdPersStoricoAdminItem
                     {
                         Id = reader.GetInt32Value("id"),
                         IdProdPers = reader["idProdPers"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["idProdPers"], CultureInfo.InvariantCulture),
@@ -909,6 +923,7 @@ ORDER BY s.id DESC;", connection))
                         NomeMacchina = reader.GetStringOrEmpty("nomeMacchina"),
                         SerialNumber = reader.GetStringOrEmpty("serialNumber")
                     });
+                    }
                 }
             }
 

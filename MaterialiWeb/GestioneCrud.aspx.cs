@@ -40,7 +40,7 @@ namespace MaterialiGestioneWeb
             {
                 ProdottiAdminGrid.DataSource = _repository.GetProdottiAdmin();
                 ProdottiAdminGrid.DataBind();
-                OrdinativiGrid.DataSource = _repository.GetOrdinativiAdmin();
+                OrdinativiGrid.DataSource = _repository.GetOrdinativiAdmin(applyRowLimit: true);
                 OrdinativiGrid.DataBind();
             }
             OggettiGrid.DataSource = _repository.GetOggettiOrdinativoAdmin(selectedOggettoOrdinativoId);

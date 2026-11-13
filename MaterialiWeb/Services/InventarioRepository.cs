@@ -629,11 +629,11 @@ ORDER BY p.IdProdotto DESC;", connection))
             }
         }
 
-        public IList<OrdinativoAdminItem> GetOrdinativiAdmin()
+        public IList<OrdinativoAdminItem> GetOrdinativiAdmin(bool applyRowLimit = false)
         {
             using (var connection = Db.OpenConnection())
             using (var command = new SqlCommand(@"
-SELECT TOP (@AdminPageSize)
+SELECT " + (applyRowLimit ? "TOP (@AdminPageSize) " : string.Empty) + @"
     o.idOrdinativo,
     o.CodiceOrdinativo,
     o.denominazioneOrdinativo,
@@ -647,7 +647,10 @@ FROM dbo.Ordinativo o
 LEFT JOIN dbo.Ditte d ON o.idDittaOrdinativo = d.IdDitta
 ORDER BY o.idOrdinativo DESC;", connection))
             {
-                command.Parameters.Add("@AdminPageSize", SqlDbType.Int).Value = AdminPageSize;
+                if (applyRowLimit)
+                {
+                    command.Parameters.Add("@AdminPageSize", SqlDbType.Int).Value = AdminPageSize;
+                }
                 using (var reader = command.ExecuteReader())
                 {
                     var results = new List<OrdinativoAdminItem>();

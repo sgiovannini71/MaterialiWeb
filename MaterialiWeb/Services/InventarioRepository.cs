@@ -16,9 +16,14 @@ namespace MaterialiGestioneWeb.Services
         private const int IdEfficienzaEfficienteInUso = 1;
         private const int IdEfficienzaEfficienteAttesaDistribuzione = 4;
 
-        private static readonly int AdminPageSize = int.TryParse(
-            ConfigurationManager.AppSettings["AdminGridPageSize"], out var pageSize)
-            ? pageSize : 100;
+        private static readonly int AdminPageSize = ReadAdminPageSize();
+
+        private static int ReadAdminPageSize()
+        {
+            int pageSize;
+            return int.TryParse(ConfigurationManager.AppSettings["AdminGridPageSize"], out pageSize)
+                && pageSize > 0 ? pageSize : 100;
+        }
 
         private readonly PersonaleRepository _personaleRepository = new PersonaleRepository();
 
@@ -619,7 +624,8 @@ ORDER BY p.IdProdotto DESC;", connection))
                     });
                 }
 
-                return results;
+                    return results;
+                }
             }
         }
 
@@ -661,7 +667,8 @@ ORDER BY o.idOrdinativo DESC;", connection))
                     });
                 }
 
-                return results;
+                    return results;
+                }
             }
         }
 
@@ -801,7 +808,8 @@ ORDER BY nd.idNetworkData DESC;", connection))
                     });
                 }
 
-                return results;
+                    return results;
+                }
             }
         }
 
@@ -837,7 +845,8 @@ ORDER BY p.idPostazione DESC;", connection))
                     });
                 }
 
-                return results;
+                    return results;
+                }
             }
         }
 
